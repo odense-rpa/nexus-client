@@ -11,7 +11,7 @@ load_dotenv(dotenv_path="env.local")
 
 
 @pytest.fixture
-def base_client():
+def base_client(scope="session"):
     client_id = os.getenv("CLIENT_ID")
     client_secret = os.getenv("CLIENT_SECRET")
     instance = os.getenv("INSTANCE")
