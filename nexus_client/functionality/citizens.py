@@ -153,3 +153,18 @@ class CitizensClient:
         :return: The pathway activities.
         """
         return self.client.get(pathway["_links"]["pathwayActivities"]["href"]).json()
+
+    def resolve_reference(self, reference: dict) -> dict:
+        """
+        Resolve a reference to a full object.
+
+        :param reference: The reference to resolve.
+        :return: The full object.
+        """
+        if "referencedObject" in reference["_links"]:
+            return self.client.get(reference["_links"]["referencedObject"]["href"]).json()
+
+        if "self" in reference["_links"]:
+            return self.client.get(reference["_links"]["self"]["href"]).json()
+
+        raise ValueError("Can't resolve reference, neither referencedObject nor self link found.")

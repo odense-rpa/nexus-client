@@ -1,12 +1,6 @@
 import httpx
 from authlib.integrations.httpx_client import OAuth2Client
 from urllib.parse import urljoin
-import logging
-import sys
-
-log = logging.getLogger('authlib')
-log.addHandler(logging.StreamHandler(sys.stdout))
-log.setLevel(logging.DEBUG)
 
 class NexusClient:
     api: dict
