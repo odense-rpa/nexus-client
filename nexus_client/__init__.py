@@ -5,9 +5,12 @@ from .functionality.citizens import (
     filter_references,
 )
 
+from .functionality.organizations import OrganizationsClient
+
 __all__ = [
     "NexusClient",
     "CitizensClient",
+    "OrganizationsClient",
     "filter_pathway_references",
     "filter_references",
 ]

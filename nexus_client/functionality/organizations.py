@@ -1,13 +1,14 @@
-from nexus_client.client import NexusClient
-from nexus_client.utils import sanitize_cpr
+from typing import List
 from datetime import date
+
+from nexus_client.client import NexusClient
 
 
 class OrganizationsClient:
     def __init__(self, nexus_client: NexusClient):
         self.nexus_client = nexus_client
 
-    def get_organizations(self):
+    def get_organizations(self) -> List[dict]:
         """
         Get all organizations.
 
@@ -22,7 +23,7 @@ class OrganizationsClient:
         Get all organizations by citizen.
 
         :param citizen: The citizen to retrieve organizations for.
-        :return: All organizations by citizen.
+        :return: All organizations relations by citizen. These relations can be used to edit and delete the relationship.
         """
         response = self.nexus_client.get(
             citizen["_links"]["patientOrganizations"]["href"]
@@ -74,7 +75,7 @@ class OrganizationsClient:
         :param citizen: The citizen to add to the organization.
         :param organization: The organization to add the citizen to.
         """
-
+        # TODO: Figure out how to unit test this
         url = (
             citizen["_links"]["patientOrganizations"]["href"] + f"/{organization['id']}"
         )
@@ -89,12 +90,20 @@ class OrganizationsClient:
     def remove_citizen_from_organization(self, organization_relation: dict) -> bool:
         """
         Remove a citizen from an organization.
-        
+
         :param organization_relation: The organization relation to remove. It can be acquired by calling get_organizations_by_citizen.
         """
-        return self.update_citizen_organization_relationship(
-            organization_relation, endDate=date.today(), primary_organization=None
+        # TODO: Figure out how to unit test this
+        if "removeFromPatient" not in organization_relation["_links"]:
+            organization_relation = self.nexus_client.get(
+                organization_relation["_links"]["self"]["href"]
+            ).json()
+            
+        response = self.nexus_client.delete(
+            organization_relation["_links"]["removeFromPatient"]["href"]
         )
+        
+        return response.status_code == 200
 
     def update_citizen_organization_relationship(
         self,
@@ -110,7 +119,7 @@ class OrganizationsClient:
         :param endDate: The end date of the relationship. (can be None)
         :param primary_contact: Whether the citizen is the primary contact for the organization.
         """
-
+        # TODO: Figure out how to unit test this
         if endDate is not None:
             organization_relation["effectiveEndDate"] = endDate.strftime("%Y-%m-%d")
 
