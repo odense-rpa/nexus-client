@@ -21,7 +21,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/nexus_client",
+    "/kmd_nexus_client",
     "/README.md",
     "/tests",
 ]
