@@ -32,6 +32,16 @@ if __name__ == "__main__":
     main()
 ```
 
+## Buiding the package
+
+This package has been setup for building with uv and hatchling. You can rebuild the package with the command:
+
+```
+uv build
+```
+
+
+
 ## License
 
 ```
