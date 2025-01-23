@@ -2,8 +2,8 @@ import re
 from httpx import HTTPStatusError
 from typing import List, Callable
 
-from nexus_client.client import NexusClient
-from nexus_client.utils import sanitize_cpr
+from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.utils import sanitize_cpr
 
 def filter_references(json_input: List[dict], path: str, active_pathways_only: bool):
     matches = re.findall(r'/([^/]+)+', path)

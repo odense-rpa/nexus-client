@@ -1,7 +1,7 @@
 from typing import List
 from datetime import date
 
-from nexus_client.client import NexusClient
+from kmd_nexus_client.client import NexusClient
 
 
 class OrganizationsClient:

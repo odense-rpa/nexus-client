@@ -2,9 +2,9 @@ import pytest
 import os
 from dotenv import load_dotenv
 
-from nexus_client.client import NexusClient
-from nexus_client.functionality.citizens import CitizensClient
-from nexus_client.functionality.organizations import OrganizationsClient
+from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.functionality.citizens import CitizensClient
+from kmd_nexus_client.functionality.organizations import OrganizationsClient
 
 # Load environment variables from env.local
 load_dotenv(dotenv_path="env.local")

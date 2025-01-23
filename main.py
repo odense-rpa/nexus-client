@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-from nexus_client import NexusClient, CitizensClient, OrganizationsClient
+from kmd_nexus_client import NexusClient, CitizensClient, OrganizationsClient
 
 load_dotenv(dotenv_path="env.local")
 
