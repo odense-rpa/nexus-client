@@ -127,7 +127,8 @@ class OrganizationsClient:
             organization_relation["primaryOrganization"] = primary_organization
 
         response = self.nexus_client.put(
-            organization_relation["_links"]["update"]["href"],
+            #organization_relation["_links"]["update"]["href"],
+            organization_relation["_links"]["self"]["href"],
             json=organization_relation,
         )
 
