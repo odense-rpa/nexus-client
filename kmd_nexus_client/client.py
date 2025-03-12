@@ -16,8 +16,8 @@ class NexusClient:
         if not instance:
             raise ValueError("Instance name must be provided.")
 
-        # Construct the token and base URLs dynamically
-        self.token_url = f"https://{instance}.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token"
+        # Construct the token and base URLs dynamically - note only works on production instances
+        self.token_url = f"https://iam.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token"
         self.base_url = f"https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/"
         
 
