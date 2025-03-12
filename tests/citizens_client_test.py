@@ -1,16 +1,11 @@
 import pytest
 
-
 from .fixtures import citizens_client, base_client, test_citizen
-
 from kmd_nexus_client.functionality.citizens import (
     CitizensClient,
     filter_pathway_references,
     filter_references,
 )
-
-
-
 
 def test_get_citizen(citizens_client: CitizensClient):
     citizen = citizens_client.get_citizen("2512489996")
@@ -19,11 +14,9 @@ def test_get_citizen(citizens_client: CitizensClient):
     assert citizen["lastName"] == "Berggren"
     assert citizen["fullName"] == "Nancy Berggren"
 
-
 def test_get_citizen_not_found(citizens_client: CitizensClient):
     citizen = citizens_client.get_citizen("2110010000")
     assert citizen is None
-
 
 def test_get_citizen_preferences(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
@@ -31,18 +24,15 @@ def test_get_citizen_preferences(citizens_client: CitizensClient,test_citizen: d
     assert preferences["CITIZEN_PATHWAY"] is not None
     assert len(preferences["CITIZEN_PATHWAY"]) > 0
 
-
 def test_get_citizen_pathway(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
     pathway = citizens_client.get_citizen_pathway(citizen)
     assert pathway["name"] == "- Alt"
 
-
 def test_get_citizen_pathway_not_found(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
     pathway = citizens_client.get_citizen_pathway(citizen, "Not a real pathway")
     assert pathway is None
-
 
 def test_get_citizen_pathway_references(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
@@ -50,7 +40,6 @@ def test_get_citizen_pathway_references(citizens_client: CitizensClient,test_cit
     references = citizens_client.get_citizen_pathway_references(pathway)
     assert references is not None
     assert len(references) > 0
-
 
 def test_filter_pathway_references(citizens_client: CitizensClient,test_citizen):
     citizen = test_citizen
@@ -61,7 +50,6 @@ def test_filter_pathway_references(citizens_client: CitizensClient,test_citizen)
     )
     assert filtered is not None
     assert len(filtered) > 0
-
 
 def test_filter_references(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
@@ -75,7 +63,6 @@ def test_filter_references(citizens_client: CitizensClient,test_citizen: dict):
     assert filtered is not None
     assert len(filtered) > 0
 
-
 def test_filter_references_with_wildcard(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
     pathway = citizens_client.get_citizen_pathway(citizen)
@@ -88,7 +75,6 @@ def test_filter_references_with_wildcard(citizens_client: CitizensClient,test_ci
     assert filtered is not None
     assert len(filtered) > 0
     assert all("Medicin" in ref["name"] for ref in filtered)
-
 
 def test_resolve_reference_pathway(citizens_client: CitizensClient,test_citizen: dict):
     citizen = test_citizen
@@ -126,3 +112,9 @@ def test_resolve_reference_grant(citizens_client: CitizensClient,test_citizen: d
     assert resolved is not None
     assert resolved["name"] == references[0]["name"]
     assert "currentElements" in resolved
+
+def test_get_citizen_lendings(citizens_client: CitizensClient,test_citizen: dict):
+    citizen = test_citizen
+    lendings = citizens_client.get_citizen_lendings(citizen)
+    assert lendings is not None
+    assert len(lendings) > 0

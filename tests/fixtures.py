@@ -1,14 +1,13 @@
 import pytest
 import os
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.citizens import CitizensClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
 
 # Load environment variables from env.local
 load_dotenv(dotenv_path="env.local")
-
 
 @pytest.fixture
 def base_client(scope="session"):
@@ -25,7 +24,6 @@ def base_client(scope="session"):
         client_secret=client_secret,
     )
 
-
 @pytest.fixture
 def citizens_client(base_client): # noqa
     return CitizensClient(base_client)
@@ -33,7 +31,6 @@ def citizens_client(base_client): # noqa
 @pytest.fixture
 def test_citizen(citizens_client: CitizensClient):
     return citizens_client.get_citizen("2512489996")
-
 
 @pytest.fixture
 def organizations_client(base_client):

@@ -168,3 +168,12 @@ class CitizensClient:
             return self.client.get(reference["_links"]["self"]["href"]).json()
 
         raise ValueError("Can't resolve reference, neither referencedObject nor self link found.")
+    
+    def get_citizen_lendings(self, citizen: dict) -> dict:
+        """
+        Get a citizen's lendings.
+
+        :param citizen: The citizen to retrieve lendings for.
+        :return: The citizen's lendings.
+        """
+        return self.client.get(citizen["_links"]["lendings"]["href"] + "&active=true").json()

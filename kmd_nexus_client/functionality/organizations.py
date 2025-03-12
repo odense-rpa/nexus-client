@@ -17,6 +17,17 @@ class OrganizationsClient:
         response = self.nexus_client.get(self.nexus_client.api["organizations"])
 
         return response.json()
+    
+    def get_organization_by_name(self, name: str) -> dict:
+        """
+        Get organization by name.
+
+        :param name: The name of the organization to retrieve.
+        :return: The organization.
+        """
+        organizations = self.get_organizations()
+
+        return [org for org in organizations if org["name"] == name][0]
 
     def get_organizations_by_citizen(self, citizen: dict, active_only=True):
         """

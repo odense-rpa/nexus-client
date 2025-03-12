@@ -7,5 +7,3 @@ def test_nexus_client_initialization(base_client):
     
     assert base_client.api is not None
     assert "activeAssignments" in base_client.api
-    
-    
