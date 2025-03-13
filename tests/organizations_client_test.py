@@ -49,3 +49,30 @@ def test_get_professionals_by_organization(organizations_client: OrganizationsCl
     
     assert professionals is not None
     assert len(professionals) > 0
+
+def test_citizen_organization_relations(organizations_client: OrganizationsClient, test_citizen: dict):
+    organization_name = "Testorganisation Supporten Dag"
+    organizations = organizations_client.get_organizations_by_citizen(test_citizen)
+    filtered_organization = next(
+        (rel for rel in organizations if rel["organization"]["name"] == organization_name),
+        None
+    )
+    organizations_client.remove_citizen_from_organization(dict(filtered_organization))
+    
+    organizations = organizations_client.get_organizations_by_citizen(test_citizen)
+    filtered_organization = next(
+        (rel for rel in organizations if rel["organization"]["name"] == organization_name),
+        None
+    )    
+    assert filtered_organization is None   
+    
+    organization = organizations_client.get_organization_by_name(organization_name)
+    assert organization is not None
+    organizations_client.add_citizen_to_organization(test_citizen, organization)
+
+    organizations = organizations_client.get_organizations_by_citizen(test_citizen)
+    filtered_organization = next(
+        (rel for rel in organizations if rel["organization"]["name"] == organization_name),
+        None
+    )    
+    assert filtered_organization is not None
