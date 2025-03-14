@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.citizens import CitizensClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
+from kmd_nexus_client.functionality.grants import GrantsClient
 
 # Load environment variables from env.local
 load_dotenv(dotenv_path="env.local")
@@ -35,3 +36,7 @@ def test_citizen(citizens_client: CitizensClient):
 @pytest.fixture
 def organizations_client(base_client):
     return OrganizationsClient(base_client)
+
+@pytest.fixture
+def grants_client(base_client):
+    return GrantsClient(base_client)
