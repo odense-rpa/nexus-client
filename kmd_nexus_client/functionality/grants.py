@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
 
@@ -75,3 +77,44 @@ class GrantsClient:
             if e.response.status_code == 404:
                 return None
             raise
+
+    def get_grant_elements(self, grant: dict) -> dict:
+        """
+        Get a grant's elements.
+
+        :param grant: The grant to retrieve elements for.
+        :return: The grant's elements.
+        """
+    
+        dest = {}        
+        elements_key = "currentElements" if "currentElements" in grant else "futureElements" if "futureElements" in grant else None
+        
+        if not elements_key:
+            return dest
+        
+        for child in grant.get(elements_key, []):
+            if "text" in child:
+                dest[child["type"]] = child["text"]
+                continue
+
+            if "date" in child:
+                date_value = child["date"]
+                dest[child["type"]] = datetime.fromisoformat(date_value) if date_value else None
+                continue
+
+            if "number" in child:
+                dest[child["type"]] = child["number"]
+                continue
+            
+            if "decimal" in child:
+                dest[child["type"]] = child["decimal"]
+                continue
+            
+            if "boolean" in child:
+                dest[child["type"]] = child["boolean"]
+                continue
+
+            dest[child["type"]] = child
+        
+        return dest
+    

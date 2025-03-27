@@ -39,4 +39,27 @@ def test_edit_grant(citizens_client: CitizensClient, grants_client: GrantsClient
     
     updated_element = next((e for e in grant["savedGrant"]["currentElements"] if e["type"] == "description"), None)
     assert updated_element is not None
-    assert updated_element["text"] == field_updates["description"]    
+    assert updated_element["text"] == field_updates["description"]
+
+
+def test_get_grant_elements(citizens_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
+    citizen = test_citizen
+    pathway = citizens_client.get_citizen_pathway(citizen)
+    references = citizens_client.get_citizen_pathway_references(pathway)
+
+    references = filter_references(
+        references,
+        path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
+        active_pathways_only=True,
+    )
+
+    assert len(references) > 0
+    
+    resolved = citizens_client.resolve_reference(references[0])
+    
+    assert resolved is not None    
+    assert resolved["name"] == references[0]["name"]
+
+    elements = grants_client.get_grant_elements(resolved)
+
+    assert elements is not None
