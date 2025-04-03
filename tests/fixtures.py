@@ -7,6 +7,7 @@ from kmd_nexus_client.functionality.citizens import CitizensClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
 from kmd_nexus_client.functionality.grants import GrantsClient
 from kmd_nexus_client.functionality.assignments import AssignmentsClient
+from kmd_nexus_client.functionality.calendar import CalendarClient
 
 # Load environment variables from env.local
 load_dotenv(dotenv_path="env.local")
@@ -45,3 +46,7 @@ def grants_client(base_client):
 @pytest.fixture
 def assignments_client(base_client):
     return AssignmentsClient(base_client)
+
+@pytest.fixture
+def calendar_client(base_client, citizens_client):
+    return CalendarClient(base_client, citizens_client)
