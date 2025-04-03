@@ -11,7 +11,7 @@ def test_get_citizen_calendar(calendar_client: CalendarClient, test_citizen: dic
     assert calendar is not None
 
 def test_get_events(calendar_client: CalendarClient, test_citizen: dict):
-    # Test getting events from Nancy's calendar from today and 30 out forward. 
+    # Getting events from Nancy's calendar from today and 30 out forward. 
     # Might have to manually add calendar event in UI to pass test... 
     citizen = test_citizen
     citizen_calendar = calendar_client.get_citizen_calendar(citizen)

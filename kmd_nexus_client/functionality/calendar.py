@@ -55,10 +55,4 @@ class CalendarClient:
         
         # Get events
         return self.nexus_client.get(url).json()["eventResources"]
-
-
-        # events_raw = self.nexus_client.get(url).json()
-        # events = events_raw["eventResources"]
-        
-        # return events
         
