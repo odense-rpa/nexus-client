@@ -1,6 +1,7 @@
-import pytest
+import pytest # noqa: F401
 
-from .fixtures import citizens_client, base_client, test_citizen
+from .fixtures import citizens_client, base_client, test_citizen # noqa: F401
+
 from kmd_nexus_client.functionality.citizens import (
     CitizensClient,
     filter_pathway_references,

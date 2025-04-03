@@ -1,6 +1,16 @@
 import httpx
+import logging
+import json
 from authlib.integrations.httpx_client import OAuth2Client
 from urllib.parse import urljoin
+
+
+def _format_json(data: dict) -> str:
+    """Format JSON data for logging.
+    :param data: The JSON data to format.
+    :return: A formatted string representation of the JSON data.
+    """
+    return json.dumps(data, indent=2)
 
 class NexusClient:
     api: dict
@@ -18,8 +28,12 @@ class NexusClient:
 
         # Construct the token and base URLs dynamically - note only works on production instances
         self.token_url = f"https://iam.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token"
-        self.base_url = f"https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/"
-        
+        self.base_url = (
+            f"https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/"
+        )
+
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
 
         # Set up the OAuth2 client
         self.client = OAuth2Client(
@@ -47,23 +61,36 @@ class NexusClient:
 
     def post(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
+
+        self.logger.info(f"POST: {url} data: {_format_json(json)}")
+
         response = self.client.post(url, json=json, **kwargs)
         self._handle_errors(response)
         return response
 
     def put(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
+
+        self.logger.info(f"PUT: {url} data: {_format_json(json)}")
+
         response = self.client.put(url, json=json, **kwargs)
         self._handle_errors(response)
         return response
 
     def delete(self, endpoint: str, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
+        
+        self.logger.info(f"DELETE: {url}")
+        
         response = self.client.delete(url, **kwargs)
         self._handle_errors(response)
         return response
 
     def _handle_errors(self, response: httpx.Response):
+       
+        if response.is_error:
+            self.logger.error(f"Response: {response.status_code} - {response.text}")
+            
         response.raise_for_status()
 
     def parse_links(self, response: httpx.Response) -> dict:
@@ -73,6 +100,4 @@ class NexusClient:
             rel: self._normalize_url(link["href"]) for rel, link in links.items()
         }
         return normalized_links
-
-   
 
