@@ -35,6 +35,9 @@ class NexusClient:
         # Set up logging
         self.logger = logging.getLogger(__name__)
 
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+
         # Set up the OAuth2 client
         self.client = OAuth2Client(
             client_id=client_id,
