@@ -49,6 +49,8 @@ class NexusClient:
         self.client.fetch_token()
 
         self.api = self.parse_links(self.get(self.base_url))
+        
+        self._non_logging_endpoints = ["/patients/search"]
 
     def _normalize_url(self, endpoint: str) -> str:
         """Ensure the URL is absolute, handling relative URLs."""
@@ -65,7 +67,9 @@ class NexusClient:
     def post(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
 
-        self.logger.info(f"POST: {url} data: {_format_json(json)}")
+        # Check if the endpoint is in the non-logging list
+        if len([endpoint for endpoint in self._non_logging_endpoints if url.endswith(endpoint)]) == 0:
+            self.logger.info(f"POST: {url} data: {_format_json(json)}")
 
         response = self.client.post(url, json=json, **kwargs)
         self._handle_errors(response)
@@ -74,7 +78,8 @@ class NexusClient:
     def put(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
 
-        self.logger.info(f"PUT: {url} data: {_format_json(json)}")
+        if len([endpoint for endpoint in self._non_logging_endpoints if url.endswith(endpoint)]) == 0:
+            self.logger.info(f"PUT: {url} data: {_format_json(json)}")
 
         response = self.client.put(url, json=json, **kwargs)
         self._handle_errors(response)
@@ -83,7 +88,8 @@ class NexusClient:
     def delete(self, endpoint: str, **kwargs) -> httpx.Response:
         url = self._normalize_url(endpoint)
         
-        self.logger.info(f"DELETE: {url}")
+        if len([endpoint for endpoint in self._non_logging_endpoints if url.endswith(endpoint)]) == 0:
+            self.logger.info(f"DELETE: {url}")
         
         response = self.client.delete(url, **kwargs)
         self._handle_errors(response)

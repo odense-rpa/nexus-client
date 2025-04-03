@@ -6,7 +6,7 @@ from kmd_nexus_client import NexusClient, CitizensClient, OrganizationsClient
 
 logging.basicConfig(level=logging.INFO)
 
-load_dotenv(dotenv_path="env.local")
+load_dotenv()
 
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")

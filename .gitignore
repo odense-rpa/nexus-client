@@ -2,6 +2,7 @@ env.local
 .venv
 venv
 dist
+.env
 
 .pytest_cache/
 __pycache__/
