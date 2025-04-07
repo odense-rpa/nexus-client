@@ -42,7 +42,7 @@ class NexusClient:
         self.client = OAuth2Client(
             client_id=client_id,
             client_secret=client_secret,
-            token_endpoint=self.token_url,
+            token_endpoint=self.token_url, timeout = 30.0,
         )
 
         # Automatically fetch the token during initialization
