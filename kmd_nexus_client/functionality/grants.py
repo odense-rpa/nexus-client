@@ -85,14 +85,19 @@ class GrantsClient:
         :param grant: The grant to retrieve elements for.
         :return: The grant's elements.
         """
-    
-        dest = {}        
-        elements_key = "currentElements" if "currentElements" in grant else "futureElements" if "futureElements" in grant else None
-        
-        if not elements_key:
+        dest = {}
+
+        if "currentElements" in grant:
+            elements = grant["currentElements"]
+        elif "futureElements" in grant:
+            elements = grant["futureElements"]
+        else:
             return dest
-        
-        for child in grant.get(elements_key, []):
+
+        if elements is None:
+            return dest
+
+        for child in elements:
             if "text" in child:
                 dest[child["type"]] = child["text"]
                 continue
@@ -105,16 +110,17 @@ class GrantsClient:
             if "number" in child:
                 dest[child["type"]] = child["number"]
                 continue
-            
+
             if "decimal" in child:
                 dest[child["type"]] = child["decimal"]
                 continue
-            
+
             if "boolean" in child:
                 dest[child["type"]] = child["boolean"]
                 continue
 
             dest[child["type"]] = child
-        
+
         return dest
+
     
