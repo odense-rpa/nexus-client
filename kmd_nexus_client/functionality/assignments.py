@@ -59,10 +59,11 @@ class AssignmentsClient:
         possible_organizations = self.nexus_client.get(prototype["_links"]["availableOrganizationAssignees"]["href"]).json()
         probable_organization = next(
             (
-                (item 
+                item 
                 for item in possible_organizations
-                if item["name"] == responsible_organization), None
+                if item["name"] == responsible_organization
             )
+            , None
         )
         if not probable_organization:
             raise ValueError(f"Organization {responsible_organization} not found in available organizations.")
