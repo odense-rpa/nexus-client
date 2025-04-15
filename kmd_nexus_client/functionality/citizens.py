@@ -176,12 +176,9 @@ class CitizensClient:
         :param citizen: The citizen to retrieve lendings for.
         :return: The citizen's lendings.
         """
-        if not citizen or "_links" not in citizen:
-            raise ValueError("Missing '_links' in citizen object")
-
-        lendings_link = citizen["_links"].get("lendings", {}).get("href")
+        lendings_link = citizen.get("_links", {}).get("lendings", {}).get("href")
         if not lendings_link:
-            raise ValueError("Missing 'lendings' href in citizen links")
-
+            return None
+        
         return self.client.get(lendings_link + "&active=true").json()
         
