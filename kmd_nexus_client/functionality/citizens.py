@@ -1,4 +1,6 @@
 import re
+
+from typing import Optional
 from httpx import HTTPStatusError
 from typing import List, Callable
 
@@ -168,17 +170,20 @@ class CitizensClient:
             return self.client.get(reference["_links"]["self"]["href"]).json()
 
         raise ValueError("Can't resolve reference, neither referencedObject nor self link found.")
-    
-    def get_citizen_lendings(self, citizen: dict) -> dict:
+        
+    def get_citizen_lendings(self, citizen: dict) -> Optional[dict]:
         """
         Get a citizen's lendings.
 
         :param citizen: The citizen to retrieve lendings for.
-        :return: The citizen's lendings.
+        :return: The citizen's lendings, or None if no lending info is available.
         """
-        lendings_link = citizen.get("_links", {}).get("lendings", {}).get("href")
-        if not lendings_link:
+        if not isinstance(citizen, dict):
             return None
-        
-        return self.client.get(lendings_link + "&active=true").json()
+
+        lendings = citizen["_links"].get("lendings")
+        if not isinstance(lendings, dict):
+            return None
+
+        return self.client.get(lendings["href"] + "&active=true").json()
         
