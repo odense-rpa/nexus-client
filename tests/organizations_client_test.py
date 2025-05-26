@@ -2,12 +2,45 @@ import pytest
 
 from .fixtures import organizations_client, base_client, test_citizen, citizens_client # noqa
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
+from kmd_nexus_client.functionality.citizens import (CitizensClient)
 
 def test_get_organizations(organizations_client: OrganizationsClient):
     organizations = organizations_client.get_organizations()
 
     assert organizations is not None
     assert len(organizations) > 0
+
+def test_get_suppliers(organizations_client: OrganizationsClient):
+    suppliers = organizations_client.get_suppliers()
+
+    assert suppliers is not None
+    assert len(suppliers) > 0
+    assert all("name" in supplier for supplier in suppliers)
+    assert all("id" in supplier for supplier in suppliers)
+
+def test_update_supplier(organizations_client: OrganizationsClient, citizens_client: CitizensClient):
+    suppliers = organizations_client.get_suppliers()
+    supplier = [x for x in suppliers if x["name"] == "Testleverandør Supporten Træning"][0]
+    assert supplier is not None
+    
+    resolved_supplier = citizens_client.resolve_reference(supplier)
+    resolved_supplier["address"]["administrativeAreaCode"] = "461"
+
+    updated_supplier = organizations_client.update_supplier(resolved_supplier)    
+    assert updated_supplier is not None
+    assert updated_supplier["address"]["administrativeAreaCode"] == "461"
+
+    # Hent frisk reference i forsøg på at undgå HTTP 409 Conflict
+    suppliers = organizations_client.get_suppliers()
+    supplier = [x for x in suppliers if x["name"] == "Testleverandør Supporten Træning"][0]
+    assert supplier is not None
+    
+    resolved_supplier = citizens_client.resolve_reference(supplier)    
+    resolved_supplier["address"]["administrativeAreaCode"] = ""
+    
+    updated_supplier = organizations_client.update_supplier(resolved_supplier)
+    assert updated_supplier is not None
+    assert updated_supplier["address"]["administrativeAreaCode"] == ""
 
 def test_get_organization_by_name(organizations_client: OrganizationsClient):
     organization = organizations_client.get_organization_by_name("Sundhedsfagligt Team")

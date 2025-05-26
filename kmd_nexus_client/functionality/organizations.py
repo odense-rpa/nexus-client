@@ -1,5 +1,6 @@
 from typing import List
 from datetime import date
+from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
 
@@ -15,6 +16,16 @@ class OrganizationsClient:
         :return: All organizations.
         """
         response = self.nexus_client.get(self.nexus_client.api["organizations"])
+
+        return response.json()
+    
+    def get_suppliers(self) -> List[dict]:
+        """
+        Get all suppliers.
+
+        :return: All suppliers.
+        """
+        response = self.nexus_client.get(self.nexus_client.api["suppliers"])
 
         return response.json()
     
@@ -144,3 +155,27 @@ class OrganizationsClient:
         )
 
         return response.status_code == 200
+    
+    def update_supplier(
+            self,
+            updated_supplier: dict            
+    ) -> dict:
+        """
+        Update a supplier.
+
+        :param supplier: The supplier to update.
+        :param changes: The changes to apply to the supplier.
+        :return: The updated supplier.
+        """
+        try:
+            response = self.nexus_client.put(
+                updated_supplier["_links"]["update"]["href"],
+                json=updated_supplier
+            )
+
+            return response.json()
+
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None
+            raise

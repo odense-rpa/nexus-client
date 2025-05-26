@@ -1,6 +1,6 @@
 from datetime import datetime
-
 from httpx import HTTPStatusError
+
 from kmd_nexus_client.client import NexusClient
 
 def update_grant_elements(current_elements, field_updates):
