@@ -33,7 +33,7 @@ def citizens_client(base_client): # noqa
 
 @pytest.fixture
 def test_citizen(citizens_client: CitizensClient):
-    return citizens_client.get_citizen("2512489996")
+    return citizens_client.get_citizen("0108589995")
 
 @pytest.fixture
 def organizations_client(base_client):

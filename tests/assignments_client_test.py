@@ -23,6 +23,13 @@ def test_get_assignments_by_grant(assignments_client: AssignmentsClient, citizen
     assert resolved_grant_assignments is not None
     assert resolved_grant_assignments[0]["title"] == "Tværfagligt samarbejde - RPA TEST IGNORER"
 
+def test_get_assignment_by_citizen(assignments_client: AssignmentsClient, citizens_client: CitizensClient, test_citizen: dict):    
+    assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
+
+    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assert assignment is not None
+    assert assignment["id"] == assignment_id
+
 def test_create_assignment(assignments_client: AssignmentsClient, citizens_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = citizens_client.get_citizen_pathway(citizen)

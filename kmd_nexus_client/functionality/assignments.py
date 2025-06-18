@@ -1,6 +1,5 @@
-from typing import List
+from typing import List, Optional
 from datetime import date
-
 from kmd_nexus_client.client import NexusClient
 
 class AssignmentsClient:
@@ -20,6 +19,26 @@ class AssignmentsClient:
         response = self.nexus_client.get(object["_links"]["activeAssignments"]["href"])
 
         return response.json()
+    
+    def get_assignment_by_citizen(self, citizen: dict, assignment_id: int) -> Optional[dict]:
+        # The way the API is called in this function is an exception, by directly using a hardcoded path, instead of using the HATEOAS design.
+        # The alternative is to map assignment ids from the database to the citizen activity and reference json.
+        """
+        Get a specific assignment for a citizen by ID.
+
+        :param citizen: The citizen to retrieve the assignment for.
+        :param assignment_id: The ID of the assignment to retrieve.
+        :return: The assignment details, or None if not found.
+        """
+        if not isinstance(citizen, dict):
+            return None
+
+        response = self.nexus_client.get(f"assignments/patient/{citizen["id"]}/assignments?ids={assignment_id}")
+        
+        if response.status_code == 404:
+            return None
+        
+        return response.json()[0] if response.json() else None
     
     def create_assignment(self, object: dict, assignment_type: str, title: str, responsible_organization: str, start_date: date, due_date: date = None, description: str = None, responsible_worker: dict = None) -> dict:
         """
