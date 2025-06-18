@@ -154,7 +154,7 @@ class CitizensClient:
         :param pathway: The pathway to retrieve activities for.
         :return: The pathway activities.
         """
-        return self.client.get(pathway["_links"]["pathwayActivities"]["href"]).json()
+        return self.client.get(pathway["_links"]["patientActivities"]["href"]).json()
 
     def resolve_reference(self, reference: dict) -> dict:
         """
@@ -186,4 +186,20 @@ class CitizensClient:
             return None
 
         return self.client.get(lendings["href"] + "&active=true").json()
-        
+    
+    def get_citizen_activities(self, citizen: dict) -> Optional[dict]:
+        """
+        Get a citizen's activities.
+
+        :param citizen: The citizen to retrieve activities for.
+        :return: The citizen's activities, or None if no activities are available.
+        """
+        if not isinstance(citizen, dict):
+            return None
+
+        activities = citizen["_links"].get("activities")
+        if not isinstance(activities, dict):
+            return None
+
+        return self.client.get(activities["href"]).json()
+    
