@@ -72,6 +72,28 @@ class OrganizationsClient:
 
         return response.json()
 
+    def get_professional_by_initials(self, initials: str) -> dict:
+        """
+        Get a professional by initials.
+
+        :param initials: The initials of the professional to retrieve.
+        :return: The professional details.
+        """
+
+        url = self.nexus_client.api["professionals"]
+
+        if url is None:
+            raise ValueError("API does not contain professionals endpoint.")
+        
+        response = self.nexus_client.get(url, params={"query": initials})
+
+        if response.status_code == 404:
+            return None
+                
+        professional = next((a for a in response.json()  if a.get("primaryIdentifier") == initials), None)
+
+        return professional
+
     def get_professionals_by_organization(self, organization: dict):
         """
         Get all professionals by organization.

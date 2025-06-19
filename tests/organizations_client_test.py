@@ -74,6 +74,12 @@ def test_get_citizens_by_organization(organizations_client: OrganizationsClient)
     
     assert citizens is not None
     assert len(citizens) > 0
+
+def test_get_professional_by_initials(organizations_client: OrganizationsClient):
+    professional = organizations_client.get_professional_by_initials("roboa")
+    
+    assert professional is not None
+    
     
 def test_get_professionals_by_organization(organizations_client: OrganizationsClient):
     organizations = organizations_client.get_organizations()    
