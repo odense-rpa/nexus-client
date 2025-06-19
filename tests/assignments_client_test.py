@@ -61,7 +61,7 @@ def test_edit_assignment(assignments_client: AssignmentsClient, citizens_client:
     assert assignment["id"] == assignment_id
     
     assignment["title"] = "Test assignment fra RPA - 2 - redigeret"
-    assignments_client.update_assignment(assignment)
+    assignments_client.edit_assignment(assignment)
 
     assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
     assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)

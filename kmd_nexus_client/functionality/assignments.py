@@ -137,7 +137,7 @@ class AssignmentsClient:
             if not handling:
                 raise ValueError("No 'Gem' action found in assignment actions.")
             
-            response = self.nexus_client.post(
+            response = self.nexus_client.put(
                 handling["_links"]["updateAssignment"]["href"],
                 json = updated_assignment
             )
