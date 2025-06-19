@@ -1,6 +1,7 @@
-from typing import List, Optional
 from datetime import date
+from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
+from typing import List, Optional
 
 class AssignmentsClient:
     def __init__(self, nexus_client: NexusClient):
@@ -128,9 +129,23 @@ class AssignmentsClient:
 
         return response.json()
 
-
+    def edit_assignment(self, updated_assignment: dict) -> dict:
         
+        try:
+            handling = next((a for a in updated_assignment["actions"] if a.get("name") == "Gem"), None)
 
+            if not handling:
+                raise ValueError("No 'Gem' action found in assignment actions.")
+            
+            response = self.nexus_client.post(
+                handling["_links"]["updateAssignment"]["href"],
+                json = updated_assignment
+            )
 
-
-
+            return response.json()
+        
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None
+            raise
+        

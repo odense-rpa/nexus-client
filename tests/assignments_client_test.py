@@ -53,3 +53,17 @@ def test_create_assignment(assignments_client: AssignmentsClient, citizens_clien
         due_date=date.today() + timedelta(days=3))
         
     assert assignment is not None
+
+def test_edit_assignment(assignments_client: AssignmentsClient, citizens_client: CitizensClient, test_citizen: dict):
+    assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
+    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assert assignment is not None
+    assert assignment["id"] == assignment_id
+    
+    assignment["title"] = "Test assignment fra RPA - 2 - redigeret"
+    assignments_client.update_assignment(assignment)
+
+    assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
+    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assert assignment is not None
+    assert assignment["title"] == "Test assignment fra RPA - 2 - redigeret"
