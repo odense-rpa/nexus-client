@@ -113,7 +113,6 @@ class CasesClient:
             if existing_case:
                 return {"base_case": base_case_details, "case": existing_case}
 
-
             # Get available nested program pathways
             available_pathways_response = self.client.get(
                 base_case_details["_links"]["availableNestedProgramPathways"]["href"]
@@ -133,7 +132,6 @@ class CasesClient:
 
             if not matching_pathway:
                 return None
-
 
             # Create the case by enrolling in the pathway
             enroll_response = self.client.put(
