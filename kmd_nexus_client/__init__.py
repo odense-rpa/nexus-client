@@ -9,6 +9,7 @@ from .functionality.organizations import OrganizationsClient
 from .functionality.grants import GrantsClient
 from .functionality.assignments import AssignmentsClient
 from .functionality.calendar import CalendarClient
+from .functionality.cases import CasesClient
 
 __all__ = [
     "NexusClient",
@@ -19,4 +20,5 @@ __all__ = [
     "GrantsClient",
     "AssignmentsClient",
     "CalendarClient",
+    "CasesClient"
 ]

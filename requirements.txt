@@ -1,9 +1,0 @@
-# Core dependencies
-httpx>=0.25,<1.0       # Compatible with 0.25.x but excludes breaking changes in 1.x
-authlib>=1.2,<2.0      # Compatible with 1.2.x but excludes breaking changes in 2.x
-
-# Development and testing dependencies
-pytest>=7.0,<8.0       # Compatible with 7.5.x but excludes 8.x
-#pytest-mock>=3.10,<4.0 # Compatible with 3.10.x but excludes 4.x
-#flake8>=6.1,<7.0       # Compatible with 6.1.x but excludes 7.x
-python-dotenv>=1.0,<2.0
