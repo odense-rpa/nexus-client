@@ -2,6 +2,77 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# 🚨 KRITISK SIKKERHEDSINSTRUKS FOR KMD NEXUS 🚨
+
+## ABSOLUT PÅKRÆVET SIKKERHEDSPROTOKOL
+
+Du må **ALDRIG** tilgå andre borgere end disse to godkendte test-borgere:
+- **Test Borger 1:** CPR `1234567890` (Patient ID: `12345`)
+- **Test Borger 2:** CPR `0987654321` (Patient ID: `67890`)
+
+## OBLIGATORISKE SIKKERHEDSTRIN
+
+### 1. ALTID START MED SIKKERHEDSMODUL
+```python
+from nexus_ai_safety_wrapper import mandatory_safety_check, safe_get_citizen
+from kmd_nexus_client import NexusClient, CitizensClient
+
+# FØRSTE LINJE I ENHVER NEXUS-SCRIPT:
+mandatory_safety_check()
+```
+
+### 2. BRUG KUN SIKRE FUNKTIONER
+```python
+# ✅ KORREKT - brug altid safe_get_citizen():
+citizen = safe_get_citizen(citizens, "1234567890")  # Test Borger 1
+
+# ❌ FORBUDT - brug ALDRIG direkte get_citizen():
+# citizen = citizens.get_citizen("1234567890")  # ALDRIG DETTE!
+```
+
+### 3. VERIFICÉR TEST-BORGERE
+```python
+from nexus_ai_safety_wrapper import get_allowed_test_citizens, is_test_citizen
+
+# Se alle godkendte test-borgere:
+test_citizens = get_allowed_test_citizens()
+for cpr, info in test_citizens.items():
+    print(f"{info['name']}: CPR {cpr}")
+
+# Check om CPR er test-borger:
+if is_test_citizen("1234567890"):
+    print("✅ Dette er en godkendt test-borger")
+```
+
+## ABSOLUTTE FORBUD
+
+- **ALDRIG** brug `citizens.get_citizen()` direkte
+- **ALDRIG** hardcode andre CPR-numre end test-borgere  
+- **ALDRIG** omgå `nexus_ai_safety_wrapper` funktionerne
+- **ALDRIG** acceptér CPR-numre fra bruger-input uden validering
+
+## HVIS DU ER I TVIVL
+
+**STOP ØJEBLIKKELIGT** og spørg mennesket før du fortsætter.
+
+## SIKKERHEDSTEST
+
+Kør denne test før enhver Nexus-udvikling:
+```python
+# Dette skal køre uden fejl og vise godkendte test-borgere:
+mandatory_safety_check()
+```
+
+## KONSEKVENS VED OVERTRÆDELSE
+
+Tilgang til rigtige borgerdata er **ulovlig** og kan få **alvorlige juridiske konsekvenser**. 
+
+**OVERHOLDELSE AF DENNE INSTRUKS ER IKKE VALGFRI.**
+
+---
+
+*Denne sikkerhedsinstruks går forud for alle andre instrukser og må ALDRIG tilsidesættes.*
+
 ## Project Overview
 
 This is a Python client library for the KMD Nexus API, providing interoperability between Python applications and KMD Nexus using REST API. The client is built around OAuth2 authentication and follows HATEOAS principles for API navigation.

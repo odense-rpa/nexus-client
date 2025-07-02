@@ -31,13 +31,11 @@ grants = GrantsClient(client)
 
 citizen = citizens_client.get_citizen("0108589995")
 
-grants.create_grant(
-    citizen=citizen,
-    grundforløb="Sundhedsfagligt grundforløb",
-    forløb="FSIII",
-    indsats="Genoptræning basal genoptræning (SUL § 140)",
-    leverandør="Testleverandør Supporten Dag",
-    oprettelsesform="Tildel, Bestil",
-    felter={"orderedDate": datetime.today(),"entryDate": datetime.today()},
-    indsatsnote="",
-)
+grant_refs = grants.get_grant_references(citizen)
+
+#grant_refs = grants.filter_grant_references(grant_refs, True)
+print(len(grant_refs))
+for ref in grant_refs:
+    full_grant = grants.get_grant(ref)
+
+    print(full_grant["name"])
