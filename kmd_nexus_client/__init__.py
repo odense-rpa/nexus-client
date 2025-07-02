@@ -10,7 +10,7 @@ from . import tree_helpers
 from . import hooks
 
 from .functionality.organisationer import OrganisationerClient
-from .functionality.grants import GrantsClient
+from .functionality.indsatser import IndsatsClient, GrantsClient
 from .functionality.opgaver import OpgaverClient, AssignmentsClient
 from .functionality.kalender import KalenderClient, CalendarClient
 from .functionality.forløb import ForløbClient, CasesClient
@@ -23,7 +23,8 @@ __all__ = [
     "filter_pathway_references",
     "filter_references",
     "OrganisationerClient",
-    "GrantsClient",
+    "GrantsClient",  # Backward compatibility
+    "IndsatsClient",
     "OpgaverClient",
     "AssignmentsClient",  # Backward compatibility
     "KalenderClient",

@@ -10,7 +10,7 @@ from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
-from kmd_nexus_client.functionality.grants import GrantsClient
+from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
 
@@ -85,6 +85,7 @@ class NexusClientManager:
         self._organisationer_client: Optional[OrganisationerClient] = None
         self._opgaver_client: Optional[OpgaverClient] = None
         self._grants_client: Optional[GrantsClient] = None
+        self._indsats_client: Optional[IndsatsClient] = None
         self._kalender_client: Optional[KalenderClient] = None
         self._forløb_client: Optional[ForløbClient] = None
     
@@ -137,11 +138,19 @@ class NexusClientManager:
         return self.opgaver
     
     @property
+    def indsats(self) -> IndsatsClient:
+        """Get the IndsatsClient (lazy-loaded)."""
+        if self._indsats_client is None:
+            self._indsats_client = IndsatsClient(self.nexus_client)
+        return self._indsats_client
+    
+    # Backward compatibility property
+    @property
     def grants(self) -> GrantsClient:
-        """Get the GrantsClient (lazy-loaded)."""
-        if self._grants_client is None:
-            self._grants_client = GrantsClient(self.nexus_client)
-        return self._grants_client
+        """DEPRECATED: Use indsats property instead."""
+        # Return the same instance but typed as GrantsClient
+        # This works because GrantsClient inherits from IndsatsClient
+        return self.indsats
     
     @property
     def kalender(self) -> KalenderClient:

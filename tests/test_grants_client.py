@@ -1,7 +1,7 @@
 import pytest
 
 # Fixtures are automatically loaded from conftest.py
-from kmd_nexus_client.functionality.grants import GrantsClient
+from kmd_nexus_client.functionality.indsatser import GrantsClient
 from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_references)
 
 # def test_edit_grant(borgere_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):

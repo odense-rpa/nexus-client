@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import CitizensClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
-from kmd_nexus_client.functionality.grants import GrantsClient
+from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
@@ -43,6 +43,10 @@ def organisationer_client(base_client):
 @pytest.fixture
 def grants_client(base_client):
     return GrantsClient(base_client)
+
+@pytest.fixture
+def indsats_client(base_client):
+    return IndsatsClient(base_client)
 
 @pytest.fixture
 def opgaver_client(base_client):

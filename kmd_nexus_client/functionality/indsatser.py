@@ -44,36 +44,36 @@ def update_grant_elements(current_elements, field_updates):
     return current_elements
 
 
-class GrantsClient:
+class IndsatsClient:
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
-    def edit_grant(self, grant: dict, changes: dict, transition: str) -> dict:
+    def rediger_indsats(self, indsats: dict, ændringer: dict, overgang: str) -> dict:
         """
-        Edit a grant.
+        Rediger en indsats.
 
-        :param grant: The grant to edit.
-        :param transition: The transition to apply to the grant.
-        :return: The updated grant.
+        :param indsats: Indsatsen der skal redigeres.
+        :param overgang: Overgangen der skal anvendes på indsatsen.
+        :return: Den opdaterede indsats.
         """
 
-        if "currentWorkflowTransitions" not in grant:
-            raise ValueError("Grant does not have any transitions")
+        if "currentWorkflowTransitions" not in indsats:
+            raise ValueError("Indsats har ingen overgange")
 
-        transition = next(
-            (t for t in grant["currentWorkflowTransitions"] if t["name"] == transition),
+        overgang_obj = next(
+            (t for t in indsats["currentWorkflowTransitions"] if t["name"] == overgang),
             None,
         )
 
-        if not transition:
-            raise ValueError(f"Transition {transition} is not available for this grant")
+        if not overgang_obj:
+            raise ValueError(f"Overgang {overgang} er ikke tilgængelig for denne indsats")
 
         try:
             prototype = self.client.get(
-                transition["_links"]["prepareEdit"]["href"]
+                overgang_obj["_links"]["prepareEdit"]["href"]
             ).json()
             prototype["elements"] = update_grant_elements(
-                prototype["elements"], changes
+                prototype["elements"], ændringer
             )
 
             response = self.client.post(
@@ -87,19 +87,19 @@ class GrantsClient:
                 return None
             raise
 
-    def get_grant_elements(self, grant: dict) -> dict:
+    def hent_indsats_elementer(self, indsats: dict) -> dict:
         """
-        Get a grant's elements.
+        Hent en indsats' elementer.
 
-        :param grant: The grant to retrieve elements for.
-        :return: The grant's elements.
+        :param indsats: Indsatsen at hente elementer for.
+        :return: Indsatsens elementer.
         """
         dest = {}
 
-        if "currentElements" in grant:
-            elements = grant["currentElements"]
-        elif "futureElements" in grant:
-            elements = grant["futureElements"]
+        if "currentElements" in indsats:
+            elements = indsats["currentElements"]
+        elif "futureElements" in indsats:
+            elements = indsats["futureElements"]
         else:
             return dest
 
@@ -136,9 +136,9 @@ class GrantsClient:
 
     # These are AI generated conversions of the Blue Prism Code
 
-    def create_grant(
+    def opret_indsats(
         self,
-        citizen: dict,
+        borger: dict,
         grundforløb: str,
         forløb: str,
         indsats: str,
@@ -148,21 +148,21 @@ class GrantsClient:
         indsatsnote: str = "",
     ) -> dict:
         """
-        Create a new grant (Opret indsats).
+        Opret en ny indsats.
 
-        :param citizen: The citizen to create the grant for
-        :param grundforløb: The pathway name (e.g., "Sundhedsfagligt grundforløb")
-        :param forløb: The course name (e.g., "FSIII")
-        :param indsats: The grant name to create
-        :param leverandør: Optional supplier name
-        :param oprettelsesform: The creation form/transition name (e.g., "Tildel, Bestil")
-        :param felter: Optional dictionary of field values
-        :param indsatsnote: Optional note to attach to the grant
-        :return: Dict with 'indsats' (grant object) and 'succes' (boolean)
+        :param borger: Borgeren som indsatsen skal oprettes for
+        :param grundforløb: Grundforløbets navn (f.eks. "Sundhedsfagligt grundforløb")
+        :param forløb: Forløbets navn (f.eks. "FSIII")
+        :param indsats: Navnet på indsatsen der skal oprettes
+        :param leverandør: Valgfri leverandørs navn
+        :param oprettelsesform: Oprettelsesform/overgangs navn (f.eks. "Tildel, Bestil")
+        :param felter: Valgfri dictionary med feltværdier
+        :param indsatsnote: Valgfri note til indsatsen
+        :return: Dict med 'indsats' (indsats objekt) og 'succes' (boolean)
         """
         try:
             # Get the correct basket for this pathway combination
-            basket = self._get_correct_basket(citizen, grundforløb, forløb)
+            basket = self._get_correct_basket(borger, grundforløb, forløb)
 
             # Find the grant in the catalog and get its ID
             grant_id, is_package = self._find_grant_in_catalog(basket, indsats)
@@ -368,18 +368,18 @@ class GrantsClient:
 
     # Other grant functions
 
-    def get_grant_references(
-        self, citizen: dict, pathway_name: str = "- Alt", include_grant_packages=False
+    def hent_indsatser_referencer(
+        self, borger: dict, forløbsnavn: str = "- Alt", inkluder_indsats_pakker=False
     ) -> List[dict]:
         """
-        Get grant references for a citizen (Hent indsatsereferencer).
+        Hent indsatser referencer for en borger.
 
-        :param citizen: The citizen to retrieve grant references for
-        :param pathway_name: The pathway name to use (default: "- Alt")
-        :return: List of grant references
+        :param borger: Borgeren at hente indsatser referencer for
+        :param forløbsnavn: Forløbsnavnet at bruge (standard: "- Alt")
+        :return: Liste af indsatser referencer
         """
         # Get citizen pathway
-        pathway = self._get_citizen_pathway(citizen, pathway_name)
+        pathway = self._get_citizen_pathway(borger, forløbsnavn)
 
         # Get pathway references
         references_response = self.client.get(
@@ -396,7 +396,7 @@ class GrantsClient:
                     and node.get("workflowState", {}).get("name") != "Afsluttet"
                 )
                 or (
-                    include_grant_packages
+                    inkluder_indsats_pakker
                     and node.get("type") == "basketGrantPackageReference"
                 )
             ),
@@ -405,30 +405,30 @@ class GrantsClient:
 
         return grant_references
 
-    def get_grant(self, grant_reference: dict) -> dict:
+    def hent_indsats(self, indsats_reference: dict) -> dict:
         """
-        Get full grant details from a grant reference (Hent indsats).
+        Hent fuld indsats detaljer fra en indsats reference.
 
-        :param grant_reference: The grant reference to resolve
-        :return: Dict with 'grant' (full grant object) and 'field_values' (extracted values)
+        :param indsats_reference: Indsats referencen der skal opløses
+        :return: Fuld indsats objekt
         """
         # Check if this is a reference that needs resolving
-        if "type" not in grant_reference:
-            raise ValueError("Input is not a valid grant reference")
+        if "type" not in indsats_reference:
+            raise ValueError("Input er ikke en gyldig indsats reference")
 
         # Handle different reference types (matching Blue Prism's choice logic)
-        if grant_reference.get("type") == "basketGrantReference":
+        if indsats_reference.get("type") == "basketGrantReference":
             # Direct grant reference
-            grant_url = grant_reference["_links"]["referencedObject"]["href"]
-        elif grant_reference.get("type") == "basketGrantPackageReference":
+            grant_url = indsats_reference["_links"]["referencedObject"]["href"]
+        elif indsats_reference.get("type") == "basketGrantPackageReference":
             # Package reference - get the package first
             package_response = self.client.get(
-                grant_reference["_links"]["self"]["href"]
+                indsats_reference["_links"]["self"]["href"]
             )
             package = package_response.json()
             grant_url = package["_links"]["referencedObject"]["href"]
         else:
-            raise ValueError(f"Unknown reference type: {grant_reference.get('type')}")
+            raise ValueError(f"Ukendt reference type: {indsats_reference.get('type')}")
 
         # Get the full grant object
         grant_response = self.client.get(grant_url)
@@ -436,25 +436,25 @@ class GrantsClient:
 
         return grant
 
-    def filter_grant_references(
+    def filtrer_indsatser_referencer(
         self,
-        grant_references: List[dict],
-        active_only: bool = True,
-        supplier_name: str = "",
+        indsatser_referencer: List[dict],
+        kun_aktive: bool = True,
+        leverandør_navn: str = "",
     ) -> List[dict]:
         """
-        Filter grant references (Filtrer indsatsreferencer).
+        Filtrer indsatser referencer.
 
-        :param grant_references: List of grant references to filter
-        :param active_only: Whether to include only active grants
-        :param supplier_name: Optional supplier name to filter by
-        :return: Filtered list of grant references
+        :param indsatser_referencer: Liste af indsatser referencer at filtrere
+        :param kun_aktive: Om kun aktive indsatser skal inkluderes
+        :param leverandør_navn: Valgfri leverandør navn at filtrere efter
+        :return: Filtreret liste af indsatser referencer
         """
         filtered_refs = []
 
-        for ref in grant_references:
+        for ref in indsatser_referencer:
             # Filter by active status (matching Blue Prism's workflow state logic)
-            if active_only:
+            if kun_aktive:
                 workflow_state = ref.get("workflowState", {}).get("name", "")
                 active_states = [
                     "Bestilt",
@@ -466,7 +466,7 @@ class GrantsClient:
                     continue
 
             # Filter by supplier if specified (matching Blue Prism's supplier filtering)
-            if supplier_name:
+            if leverandør_navn:
                 # Check if reference has additional info with sufficient columns
                 additional_info = ref.get("additionalInfo", [])
                 if len(additional_info) <= 2:
@@ -482,14 +482,14 @@ class GrantsClient:
                     None,
                 )
 
-                if not supplier_info or supplier_info.get("value") != supplier_name:
+                if not supplier_info or supplier_info.get("value") != leverandør_navn:
                     continue
 
             filtered_refs.append(ref)
 
         return filtered_refs
 
-    # Helper methods for get_grant_references, get_grant, and filter_grant_references
+    # Helper methods for hent_indsatser_referencer, hent_indsats, and filtrer_indsatser_referencer
     def _get_citizen_pathway(self, citizen: dict, pathway_name: str = "- Alt") -> dict:
         """Get citizen pathway."""
         preferences_response = self.client.get(
@@ -527,3 +527,15 @@ class GrantsClient:
                 field_values[element_type] = element
 
         return field_values
+
+    # Backward compatibility aliases
+    edit_grant = rediger_indsats
+    get_grant_elements = hent_indsats_elementer
+    create_grant = opret_indsats
+    get_grant_references = hent_indsatser_referencer
+    get_grant = hent_indsats
+    filter_grant_references = filtrer_indsatser_referencer
+
+
+# Backward compatibility class alias
+GrantsClient = IndsatsClient

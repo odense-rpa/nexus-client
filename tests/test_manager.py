@@ -9,7 +9,7 @@ from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
-from kmd_nexus_client.functionality.grants import GrantsClient
+from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
 
@@ -180,7 +180,7 @@ class TestNexusClientManager:
         assert isinstance(assignments_client, (OpgaverClient, Mock))
         # Verify Danish properties are same type
         assert isinstance(opgaver_client, (OpgaverClient, Mock))
-        assert isinstance(grants_client, (GrantsClient, Mock))
+        assert isinstance(grants_client, (GrantsClient, IndsatsClient, Mock))
         assert isinstance(calendar_client, (KalenderClient, Mock))
         assert isinstance(cases_client, (ForløbClient, Mock))
         # Verify Danish properties are same type
