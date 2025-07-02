@@ -2,15 +2,15 @@ import pytest
 
 from datetime import date, timedelta
 from httpx import HTTPStatusError
-from .fixtures import assignments_client, base_client, test_citizen, citizens_client, organizations_client  # noqa
+# Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.borgere import CitizensClient, filter_references
 
 
-def test_get_assignments_by_grant(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_get_assignments_by_grant(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
-    pathway = citizens_client.get_citizen_pathway(citizen)
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    pathway = borgere_client.get_citizen_pathway(citizen)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
         references,
@@ -18,23 +18,23 @@ def test_get_assignments_by_grant(assignments_client: OpgaverClient, citizens_cl
         active_pathways_only=True,
     )
 
-    resolved_grant = citizens_client.resolve_reference(references[0])
+    resolved_grant = borgere_client.resolve_reference(references[0])
 
-    resolved_grant_assignments = assignments_client.get_assignments(resolved_grant)
+    resolved_grant_assignments = opgaver_client.get_assignments(resolved_grant)
     assert resolved_grant_assignments is not None
     assert resolved_grant_assignments[0]["title"] == "Test assignment fra RPA - 2"
 
-def test_get_assignment_by_citizen(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):    
+def test_get_assignment_by_citizen(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):    
     assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
 
-    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assignment = opgaver_client.get_assignment_by_citizen(test_citizen, assignment_id)
     assert assignment is not None
     assert assignment["id"] == assignment_id
 
-def test_create_assignment(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_create_assignment(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
-    pathway = citizens_client.get_citizen_pathway(citizen)
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    pathway = borgere_client.get_citizen_pathway(citizen)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
         references,
@@ -42,10 +42,10 @@ def test_create_assignment(assignments_client: OpgaverClient, citizens_client: C
         active_pathways_only=True,
     )
 
-    resolved_grant = citizens_client.resolve_reference(references[0])
+    resolved_grant = borgere_client.resolve_reference(references[0])
     assert resolved_grant["name"] == references[0]["name"]
 
-    assignment = assignments_client.create_assignment(
+    assignment = opgaver_client.create_assignment(
         object=resolved_grant,
         assignment_type="Tværfagligt samarbejde",
         title="Test assignment fra RPA - 2",
@@ -55,27 +55,27 @@ def test_create_assignment(assignments_client: OpgaverClient, citizens_client: C
         
     assert assignment is not None
 
-def test_edit_assignment(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_edit_assignment(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
-    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assignment = opgaver_client.get_assignment_by_citizen(test_citizen, assignment_id)
     assert assignment is not None
     assert assignment["id"] == assignment_id
     
     assignment["title"] = "Test assignment fra RPA - 2 - redigeret"
-    assignments_client.edit_assignment(assignment)
+    opgaver_client.edit_assignment(assignment)
 
     assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
-    assignment = assignments_client.get_assignment_by_citizen(test_citizen, assignment_id)
+    assignment = opgaver_client.get_assignment_by_citizen(test_citizen, assignment_id)
     assert assignment is not None
     assert assignment["title"] == "Test assignment fra RPA - 2 - redigeret"
 
 
 # Tests for Danish functions
-def test_hent_opgaver(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_hent_opgaver(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     """Test hent_opgaver Danish function."""
     citizen = test_citizen
-    pathway = citizens_client.get_citizen_pathway(citizen)
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    pathway = borgere_client.get_citizen_pathway(citizen)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
         references,
@@ -83,28 +83,28 @@ def test_hent_opgaver(assignments_client: OpgaverClient, citizens_client: Citize
         active_pathways_only=True,
     )
 
-    resolved_grant = citizens_client.resolve_reference(references[0])
+    resolved_grant = borgere_client.resolve_reference(references[0])
 
     # Test the Danish method
-    opgaver = assignments_client.hent_opgaver(resolved_grant)
+    opgaver = opgaver_client.hent_opgaver(resolved_grant)
     assert opgaver is not None
     assert opgaver[0]["title"] == "Test assignment fra RPA - 2"
 
 
-def test_hent_opgave_for_borger(assignments_client: OpgaverClient, test_citizen: dict):
+def test_hent_opgave_for_borger(opgaver_client: OpgaverClient, test_citizen: dict):
     """Test hent_opgave_for_borger Danish function."""
     opgave_id = 5057474  # Test borger opgave - bliver evt. lukket.
 
-    opgave = assignments_client.hent_opgave_for_borger(test_citizen, opgave_id)
+    opgave = opgaver_client.hent_opgave_for_borger(test_citizen, opgave_id)
     assert opgave is not None
     assert opgave["id"] == opgave_id
 
 
-def test_opret_opgave(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_opret_opgave(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     """Test opret_opgave Danish function."""
     borger = test_citizen
-    pathway = citizens_client.get_citizen_pathway(borger)
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    pathway = borgere_client.get_citizen_pathway(borger)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
         references,
@@ -112,11 +112,11 @@ def test_opret_opgave(assignments_client: OpgaverClient, citizens_client: Citize
         active_pathways_only=True,
     )
 
-    resolved_grant = citizens_client.resolve_reference(references[0])
+    resolved_grant = borgere_client.resolve_reference(references[0])
     assert resolved_grant["name"] == references[0]["name"]
 
     # Test the Danish method with Danish parameter names
-    opgave = assignments_client.opret_opgave(
+    opgave = opgaver_client.opret_opgave(
         objekt=resolved_grant,
         opgave_type="Tværfagligt samarbejde",
         titel="Test opgave fra RPA - dansk",
@@ -127,40 +127,40 @@ def test_opret_opgave(assignments_client: OpgaverClient, citizens_client: Citize
     assert opgave is not None
 
 
-def test_rediger_opgave(assignments_client: OpgaverClient, test_citizen: dict):
+def test_rediger_opgave(opgaver_client: OpgaverClient, test_citizen: dict):
     """Test rediger_opgave Danish function."""
     opgave_id = 5057474  # Test borger opgave - bliver evt. lukket.
-    opgave = assignments_client.hent_opgave_for_borger(test_citizen, opgave_id)
+    opgave = opgaver_client.hent_opgave_for_borger(test_citizen, opgave_id)
     assert opgave is not None
     assert opgave["id"] == opgave_id
     
     opgave["title"] = "Test opgave fra RPA - dansk redigeret"
-    assignments_client.rediger_opgave(opgave)
+    opgaver_client.rediger_opgave(opgave)
 
     opgave_id = 5057474  # Test borger opgave - bliver evt. lukket.
-    opgave = assignments_client.hent_opgave_for_borger(test_citizen, opgave_id)
+    opgave = opgaver_client.hent_opgave_for_borger(test_citizen, opgave_id)
     assert opgave is not None
     assert opgave["title"] == "Test opgave fra RPA - dansk redigeret"
 
 
 # Test backward compatibility
-def test_backward_compatibility_aliases(assignments_client: OpgaverClient, test_citizen: dict):
+def test_backward_compatibility_aliases(opgaver_client: OpgaverClient, test_citizen: dict):
     """Test that old method names still work for backward compatibility."""
     # Test that aliases exist
-    assert hasattr(assignments_client, 'get_assignments')
-    assert hasattr(assignments_client, 'get_assignment_by_citizen')
-    assert hasattr(assignments_client, 'create_assignment')
-    assert hasattr(assignments_client, 'edit_assignment')
+    assert hasattr(opgaver_client, 'get_assignments')
+    assert hasattr(opgaver_client, 'get_assignment_by_citizen')
+    assert hasattr(opgaver_client, 'create_assignment')
+    assert hasattr(opgaver_client, 'edit_assignment')
     
     # Test get_assignment_by_citizen alias works
     opgave_id = 5057474
-    result1 = assignments_client.get_assignment_by_citizen(test_citizen, opgave_id)
-    result2 = assignments_client.hent_opgave_for_borger(test_citizen, opgave_id)
+    result1 = opgaver_client.get_assignment_by_citizen(test_citizen, opgave_id)
+    result2 = opgaver_client.hent_opgave_for_borger(test_citizen, opgave_id)
     assert result1 == result2
 
 
 # Test error handling
-def test_hent_opgaver_missing_link(assignments_client: OpgaverClient):
+def test_hent_opgaver_missing_link(opgaver_client: OpgaverClient):
     """Test hent_opgaver with missing availableAssignmentTypes link."""
     mock_objekt = {
         "id": "test-id",
@@ -168,16 +168,16 @@ def test_hent_opgaver_missing_link(assignments_client: OpgaverClient):
     }
     
     with pytest.raises(ValueError, match="Objekt indeholder ikke availableAssignmentTypes link"):
-        assignments_client.hent_opgaver(mock_objekt)
+        opgaver_client.hent_opgaver(mock_objekt)
 
 
-def test_hent_opgave_for_borger_invalid_citizen(assignments_client: OpgaverClient):
+def test_hent_opgave_for_borger_invalid_citizen(opgaver_client: OpgaverClient):
     """Test hent_opgave_for_borger with invalid citizen."""
-    result = assignments_client.hent_opgave_for_borger("not-a-dict", 123)
+    result = opgaver_client.hent_opgave_for_borger("not-a-dict", 123)
     assert result is None
 
 
-def test_opret_opgave_missing_assignment_type(assignments_client: OpgaverClient):
+def test_opret_opgave_missing_assignment_type(opgaver_client: OpgaverClient):
     """Test opret_opgave with missing assignment type."""
     mock_objekt = {
         "_links": {
@@ -187,14 +187,14 @@ def test_opret_opgave_missing_assignment_type(assignments_client: OpgaverClient)
     
     # Mock HTTP response
     from unittest.mock import Mock
-    original_get = assignments_client.nexus_client.get
+    original_get = opgaver_client.nexus_client.get
     mock_response = Mock()
     mock_response.json.return_value = []  # Empty list = no assignment types
-    assignments_client.nexus_client.get = Mock(return_value=mock_response)
+    opgaver_client.nexus_client.get = Mock(return_value=mock_response)
     
     try:
         with pytest.raises(ValueError, match="Opgave type .* ikke fundet i tilgængelige opgave typer"):
-            assignments_client.opret_opgave(
+            opgaver_client.opret_opgave(
                 objekt=mock_objekt,
                 opgave_type="NonExistentType",
                 titel="Test",
@@ -202,10 +202,10 @@ def test_opret_opgave_missing_assignment_type(assignments_client: OpgaverClient)
                 start_dato=date.today()
             )
     finally:
-        assignments_client.nexus_client.get = original_get
+        opgaver_client.nexus_client.get = original_get
 
 
-def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_opret_og_luk_opgave_integration(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     """Integration test - opret og luk opgave på det første objekt der understøtter opgaver."""
     import time
     from kmd_nexus_client.tree_helpers import find_first_node
@@ -213,11 +213,11 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
     # Find citizen pathway and get view with activity structure
     borger = test_citizen
 
-    visning = citizens_client.hent_visning(borger, "- Alt")
+    visning = borgere_client.hent_visning(borger, "- Alt")
     if visning is None:
         pytest.skip("Ingen visning fundet for test citizen")
 
-    referencer = citizens_client.hent_referencer(visning)
+    referencer = borgere_client.hent_referencer(visning)
 
     # Use tree_helpers to find the first node that supports assignments
     def supports_assignments(node: dict) -> bool:
@@ -226,7 +226,7 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
             return False
         try:
             # Resolve the reference to check for assignment support
-            resolved_obj = citizens_client.client.hent_fra_reference(node)
+            resolved_obj = borgere_client.client.hent_fra_reference(node)
             return "availableAssignmentTypes" in resolved_obj.get("_links", {})
         except Exception:
             return False
@@ -240,10 +240,10 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
     print(f"Fandt objekt der understøtter opgaver: {target_object.get('name', 'Unknown')}")
     
     # Resolve the target object to get full details with links
-    resolved_target = citizens_client.client.hent_fra_reference(target_object)
+    resolved_target = borgere_client.client.hent_fra_reference(target_object)
     
     # Get available assignment types using the new Danish function
-    available_types = assignments_client.hent_opgavetyper(resolved_target)
+    available_types = opgaver_client.hent_opgavetyper(resolved_target)
     
     if not available_types:
         pytest.skip("Ingen opgavetyper tilgængelige for det fundne objekt")
@@ -254,7 +254,7 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
     
     # Create assignment with Danish function
     try:
-        ny_opgave = assignments_client.opret_opgave(
+        ny_opgave = opgaver_client.opret_opgave(
             objekt=resolved_target,
             opgave_type=assignment_type,
             titel="Test opgave - opret og luk integration",
@@ -269,12 +269,12 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
         
         # Get the full assignment with actions (sometimes actions are not in the creation response)
         opgave_id = ny_opgave["id"]
-        fuld_opgave = assignments_client.hent_opgave_for_borger(borger, opgave_id)
+        fuld_opgave = opgaver_client.hent_opgave_for_borger(borger, opgave_id)
         
         if fuld_opgave is None:
             # Try alternative: get assignments on the object and find our task
             time.sleep(1)  # Give system time to process
-            opgaver_på_objekt = assignments_client.hent_opgaver(resolved_target)
+            opgaver_på_objekt = opgaver_client.hent_opgaver(resolved_target)
             fuld_opgave = next(
                 (opgave for opgave in opgaver_på_objekt if opgave["id"] == opgave_id),
                 None
@@ -284,7 +284,7 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
         print(f"Hentet fuld opgave: {fuld_opgave.get('title', 'Unknown title')}")
         
         # Try to close the assignment using Danish function
-        lukket = assignments_client.luk_opgave(fuld_opgave)
+        lukket = opgaver_client.luk_opgave(fuld_opgave)
         
         if not lukket:
             print("Kunne ikke lukke opgave - måske mangler 'Afslut' action")
@@ -306,13 +306,13 @@ def test_opret_og_luk_opgave_integration(assignments_client: OpgaverClient, citi
         pytest.fail(f"Integration test fejlede: {str(e)}")
 
 
-def test_luk_opgave_unit_tests(assignments_client: OpgaverClient):
+def test_luk_opgave_unit_tests(opgaver_client: OpgaverClient):
     """Unit tests for luk_opgave function."""
     from unittest.mock import Mock
     
     # Test with assignment that has no actions
     opgave_uden_actions = {"id": 123, "title": "Test"}
-    result = assignments_client.luk_opgave(opgave_uden_actions)
+    result = opgaver_client.luk_opgave(opgave_uden_actions)
     assert result is False
     
     # Test with assignment that has actions but no "Afslut"
@@ -323,7 +323,7 @@ def test_luk_opgave_unit_tests(assignments_client: OpgaverClient):
             {"name": "Rediger", "_links": {"updateAssignment": {"href": "test-url"}}}
         ]
     }
-    result = assignments_client.luk_opgave(opgave_uden_afslut)
+    result = opgaver_client.luk_opgave(opgave_uden_afslut)
     assert result is False
     
     # Test with assignment that has "Afslut" action - success case
@@ -336,32 +336,32 @@ def test_luk_opgave_unit_tests(assignments_client: OpgaverClient):
     }
     
     # Mock successful close
-    original_put = assignments_client.nexus_client.put
+    original_put = opgaver_client.nexus_client.put
     mock_response = Mock()
     mock_response.status_code = 200
-    assignments_client.nexus_client.put = Mock(return_value=mock_response)
+    opgaver_client.nexus_client.put = Mock(return_value=mock_response)
     
     try:
-        result = assignments_client.luk_opgave(opgave_med_afslut)
+        result = opgaver_client.luk_opgave(opgave_med_afslut)
         assert result is True
-        assignments_client.nexus_client.put.assert_called_once_with(
+        opgaver_client.nexus_client.put.assert_called_once_with(
             "test-close-url",
             json=opgave_med_afslut
         )
     finally:
-        assignments_client.nexus_client.put = original_put
+        opgaver_client.nexus_client.put = original_put
     
     # Test HTTP error handling
-    assignments_client.nexus_client.put = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
+    opgaver_client.nexus_client.put = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = assignments_client.luk_opgave(opgave_med_afslut)
+        result = opgaver_client.luk_opgave(opgave_med_afslut)
         assert result is False
     finally:
-        assignments_client.nexus_client.put = original_put
+        opgaver_client.nexus_client.put = original_put
 
 
-def test_close_assignment_backward_compatibility(assignments_client: OpgaverClient):
+def test_close_assignment_backward_compatibility(opgaver_client: OpgaverClient):
     """Test backward compatibility alias for close_assignment."""
     opgave = {
         "id": 123,
@@ -373,21 +373,21 @@ def test_close_assignment_backward_compatibility(assignments_client: OpgaverClie
     
     # Mock response
     from unittest.mock import Mock
-    original_put = assignments_client.nexus_client.put
+    original_put = opgaver_client.nexus_client.put
     mock_response = Mock()
     mock_response.status_code = 200
-    assignments_client.nexus_client.put = Mock(return_value=mock_response)
+    opgaver_client.nexus_client.put = Mock(return_value=mock_response)
     
     try:
         # Test that the old method name works
-        result = assignments_client.close_assignment(opgave)
+        result = opgaver_client.close_assignment(opgave)
         assert result is True
         
         # Test that it calls the same underlying method
-        result_new = assignments_client.luk_opgave(opgave)
+        result_new = opgaver_client.luk_opgave(opgave)
         assert result == result_new
     finally:
-        assignments_client.nexus_client.put = original_put
+        opgaver_client.nexus_client.put = original_put
 
 
 def test_tree_helpers_integration_demo():
@@ -456,14 +456,14 @@ def test_tree_helpers_integration_demo():
     print(f"   Total found: {len(all_assignment_capable)}")
 
 
-def test_hent_opgavetyper(assignments_client: OpgaverClient, citizens_client: CitizensClient, test_citizen: dict):
+def test_hent_opgavetyper(opgaver_client: OpgaverClient, borgere_client: CitizensClient, test_citizen: dict):
     """Test hent_opgavetyper Danish function."""
     citizen = test_citizen
-    pathway = citizens_client.get_citizen_pathway(citizen)
+    pathway = borgere_client.get_citizen_pathway(citizen)
     if pathway is None:
         pytest.skip("Ingen pathway fundet for test citizen")
     
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     filtered_refs = filter_references(
         references,
@@ -474,13 +474,13 @@ def test_hent_opgavetyper(assignments_client: OpgaverClient, citizens_client: Ci
     if not filtered_refs:
         pytest.skip("Ingen medicin references fundet")
 
-    resolved_grant = citizens_client.resolve_reference(filtered_refs[0])
+    resolved_grant = borgere_client.resolve_reference(filtered_refs[0])
     
     if "availableAssignmentTypes" not in resolved_grant.get("_links", {}):
         pytest.skip("Det opløste objekt understøtter ikke opgaver")
 
     # Test the Danish method
-    opgavetyper = assignments_client.hent_opgavetyper(resolved_grant)
+    opgavetyper = opgaver_client.hent_opgavetyper(resolved_grant)
     assert opgavetyper is not None
     assert isinstance(opgavetyper, list)
     if opgavetyper:  # If there are assignment types
@@ -490,7 +490,7 @@ def test_hent_opgavetyper(assignments_client: OpgaverClient, citizens_client: Ci
             assert "_links" in opgavetype
 
 
-def test_hent_opgavetyper_missing_link(assignments_client: OpgaverClient):
+def test_hent_opgavetyper_missing_link(opgaver_client: OpgaverClient):
     """Test hent_opgavetyper with missing availableAssignmentTypes link."""
     mock_objekt = {
         "id": "test-id",
@@ -498,10 +498,10 @@ def test_hent_opgavetyper_missing_link(assignments_client: OpgaverClient):
     }
     
     with pytest.raises(ValueError, match="Objekt indeholder ikke availableAssignmentTypes link"):
-        assignments_client.hent_opgavetyper(mock_objekt)
+        opgaver_client.hent_opgavetyper(mock_objekt)
 
 
-def test_hent_opgavetyper_success_case(assignments_client: OpgaverClient):
+def test_hent_opgavetyper_success_case(opgaver_client: OpgaverClient):
     """Test hent_opgavetyper success case with mocked response."""
     from unittest.mock import Mock
     
@@ -512,26 +512,26 @@ def test_hent_opgavetyper_success_case(assignments_client: OpgaverClient):
     }
     
     # Mock successful response
-    original_get = assignments_client.nexus_client.get
+    original_get = opgaver_client.nexus_client.get
     mock_response = Mock()
     mock_response.json.return_value = [
         {"name": "Tværfagligt samarbejde", "_links": {"assignmentPrototype": {"href": "proto1"}}},
         {"name": "Opfølgning", "_links": {"assignmentPrototype": {"href": "proto2"}}}
     ]
-    assignments_client.nexus_client.get = Mock(return_value=mock_response)
+    opgaver_client.nexus_client.get = Mock(return_value=mock_response)
     
     try:
-        result = assignments_client.hent_opgavetyper(mock_objekt)
+        result = opgaver_client.hent_opgavetyper(mock_objekt)
         assert len(result) == 2
         assert result[0]["name"] == "Tværfagligt samarbejde"
         assert result[1]["name"] == "Opfølgning"
         
-        assignments_client.nexus_client.get.assert_called_once_with("test-url")
+        opgaver_client.nexus_client.get.assert_called_once_with("test-url")
     finally:
-        assignments_client.nexus_client.get = original_get
+        opgaver_client.nexus_client.get = original_get
 
 
-def test_get_assignment_types_backward_compatibility(assignments_client: OpgaverClient):
+def test_get_assignment_types_backward_compatibility(opgaver_client: OpgaverClient):
     """Test backward compatibility alias for get_assignment_types."""
     from unittest.mock import Mock
     
@@ -542,15 +542,15 @@ def test_get_assignment_types_backward_compatibility(assignments_client: Opgaver
     }
     
     # Mock response
-    original_get = assignments_client.nexus_client.get
+    original_get = opgaver_client.nexus_client.get
     mock_response = Mock()
     mock_response.json.return_value = [{"name": "Test Type"}]
-    assignments_client.nexus_client.get = Mock(return_value=mock_response)
+    opgaver_client.nexus_client.get = Mock(return_value=mock_response)
     
     try:
         # Test that the old method name works
-        result_old = assignments_client.get_assignment_types(mock_objekt)
-        result_new = assignments_client.hent_opgavetyper(mock_objekt)
+        result_old = opgaver_client.get_assignment_types(mock_objekt)
+        result_new = opgaver_client.hent_opgavetyper(mock_objekt)
         assert result_old == result_new
     finally:
-        assignments_client.nexus_client.get = original_get
+        opgaver_client.nexus_client.get = original_get

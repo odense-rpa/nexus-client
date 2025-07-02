@@ -1,6 +1,6 @@
 import pytest
 
-from .fixtures import organisationer_client, base_client, test_citizen, citizens_client # noqa
+# Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.borgere import CitizensClient
 
@@ -23,13 +23,13 @@ def test_hent_leverandører(organisationer_client: OrganisationerClient):
     assert all("id" in leverandør for leverandør in leverandører)
 
 
-def test_opdater_leverandør(organisationer_client: OrganisationerClient, citizens_client: CitizensClient):
+def test_opdater_leverandør(organisationer_client: OrganisationerClient, borgere_client: CitizensClient):
     """Test opdater_leverandør Danish function."""
     leverandører = organisationer_client.hent_leverandører()
     leverandør = [x for x in leverandører if x["name"] == "Testleverandør Supporten Træning"][0]
     assert leverandør is not None
     
-    opløst_leverandør = citizens_client.client.hent_fra_reference(leverandør)
+    opløst_leverandør = borgere_client.client.hent_fra_reference(leverandør)
     opløst_leverandør["address"]["administrativeAreaCode"] = "461"
 
     opdateret_leverandør = organisationer_client.opdater_leverandør(opløst_leverandør)    
@@ -41,7 +41,7 @@ def test_opdater_leverandør(organisationer_client: OrganisationerClient, citize
     leverandør = [x for x in leverandører if x["name"] == "Testleverandør Supporten Træning"][0]
     assert leverandør is not None
     
-    opløst_leverandør = citizens_client.client.hent_fra_reference(leverandør)    
+    opløst_leverandør = borgere_client.client.hent_fra_reference(leverandør)    
     opløst_leverandør["address"]["administrativeAreaCode"] = ""
     
     opdateret_leverandør = organisationer_client.opdater_leverandør(opløst_leverandør)

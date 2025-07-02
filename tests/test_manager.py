@@ -33,7 +33,7 @@ class TestNexusClientManager:
         # All clients should be None initially (lazy loading)
         assert manager._nexus_client is None
         assert manager._borgere_client is None
-        assert manager._organizations_client is None
+        assert manager._organisationer_client is None
         assert manager._opgaver_client is None
         assert manager._grants_client is None
         assert manager._kalender_client is None

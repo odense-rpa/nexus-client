@@ -1,4 +1,4 @@
-from .fixtures import base_client # noqa
+# Fixtures are automatically loaded from conftest.py
 
 def test_nexus_client_initialization(base_client):
     # Example test to verify initialization

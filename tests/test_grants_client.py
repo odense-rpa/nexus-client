@@ -1,14 +1,13 @@
 import pytest
 
-from datetime import datetime, timezone
-from .fixtures import organizations_client, base_client, test_citizen, citizens_client, grants_client # noqa
-from kmd_nexus_client.functionality.grants import GrantsClient, update_grant_elements
+# Fixtures are automatically loaded from conftest.py
+from kmd_nexus_client.functionality.grants import GrantsClient
 from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_references)
 
-# def test_edit_grant(citizens_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
+# def test_edit_grant(borgere_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
 #     citizen = test_citizen
-#     pathway = citizens_client.get_citizen_pathway(citizen)
-#     references = citizens_client.get_citizen_pathway_references(pathway)
+#     pathway = borgere_client.get_citizen_pathway(citizen)
+#     references = borgere_client.get_citizen_pathway_references(pathway)
 
 #     # TODO: Create a new basket_grant
 
@@ -20,7 +19,7 @@ from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_refer
 
 #     assert len(references) > 0
     
-#     resolved = citizens_client.resolve_reference(references[0])
+#     resolved = borgere_client.resolve_reference(references[0])
     
 #     assert resolved is not None    
 #     assert resolved["name"] == references[0]["name"]
@@ -42,10 +41,10 @@ from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_refer
 #     assert updated_element["text"] == field_updates["description"]
 
 
-def test_get_grant_elements(citizens_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
+def test_get_grant_elements(borgere_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
     citizen = test_citizen
-    pathway = citizens_client.get_citizen_pathway(citizen)
-    references = citizens_client.get_citizen_pathway_references(pathway)
+    pathway = borgere_client.get_citizen_pathway(citizen)
+    references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
         references,
@@ -55,7 +54,7 @@ def test_get_grant_elements(citizens_client: CitizensClient, grants_client: Gran
 
     assert len(references) > 0
     
-    resolved = citizens_client.resolve_reference(references[0])
+    resolved = borgere_client.resolve_reference(references[0])
     
     assert resolved is not None    
     assert resolved["name"] == references[0]["name"]

@@ -13,8 +13,8 @@ from kmd_nexus_client.functionality.forløb import ForløbClient
 # Load environment variables from .env
 load_dotenv()
 
-@pytest.fixture
-def base_client(scope="session"):
+@pytest.fixture(scope="session")
+def base_client():
     client_id = os.getenv("CLIENT_ID")
     client_secret = os.getenv("CLIENT_SECRET")
     instance = os.getenv("INSTANCE")
@@ -29,12 +29,12 @@ def base_client(scope="session"):
     )
 
 @pytest.fixture
-def citizens_client(base_client): # noqa
+def borgere_client(base_client):
     return CitizensClient(base_client)
 
 @pytest.fixture
-def test_citizen(citizens_client: CitizensClient):
-    return citizens_client.get_citizen("0108589995")
+def test_citizen(borgere_client: CitizensClient):
+    return borgere_client.get_citizen("0108589995")
 
 @pytest.fixture
 def organisationer_client(base_client):
@@ -45,13 +45,13 @@ def grants_client(base_client):
     return GrantsClient(base_client)
 
 @pytest.fixture
-def assignments_client(base_client):
+def opgaver_client(base_client):
     return OpgaverClient(base_client)
 
 @pytest.fixture
-def calendar_client(base_client):
+def kalender_client(base_client):
     return KalenderClient(base_client)
 
 @pytest.fixture
-def cases_client(base_client):
+def forløb_client(base_client):
     return ForløbClient(base_client)
