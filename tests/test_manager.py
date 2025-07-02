@@ -8,10 +8,10 @@ from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
-from kmd_nexus_client.functionality.assignments import AssignmentsClient
+from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.grants import GrantsClient
-from kmd_nexus_client.functionality.calendar import CalendarClient
-from kmd_nexus_client.functionality.cases import CasesClient
+from kmd_nexus_client.functionality.kalender import KalenderClient
+from kmd_nexus_client.functionality.forløb import ForløbClient
 
 
 class TestNexusClientManager:
@@ -34,10 +34,10 @@ class TestNexusClientManager:
         assert manager._nexus_client is None
         assert manager._borgere_client is None
         assert manager._organizations_client is None
-        assert manager._assignments_client is None
+        assert manager._opgaver_client is None
         assert manager._grants_client is None
-        assert manager._calendar_client is None
-        assert manager._cases_client is None
+        assert manager._kalender_client is None
+        assert manager._forløb_client is None
     
     def test_manager_initialization_with_ai_safety(self):
         """Test that the manager initializes correctly with AI safety enabled."""
@@ -130,26 +130,25 @@ class TestNexusClientManager:
         mock_safe_borgere_client.assert_called_once()
     
     @patch('kmd_nexus_client.manager.NexusClient')
-    @patch('kmd_nexus_client.manager.CalendarClient')
-    def test_calendar_client_dependencies(self, mock_calendar_client, mock_nexus_client):
-        """Test that CalendarClient gets the correct dependencies."""
+    @patch('kmd_nexus_client.manager.KalenderClient')
+    def test_kalender_client_dependencies(self, mock_kalender_client, mock_nexus_client):
+        """Test that KalenderClient gets the correct dependencies."""
         manager = NexusClientManager(
             instance="test-instance",
             client_id="test-client-id",
             client_secret="test-client-secret"
         )
         
-        # Access calendar property
-        calendar = manager.calendar
+        # Access kalender property
+        kalender = manager.kalender
         
-        # CalendarClient should be called with both nexus_client and citizens_client
-        mock_calendar_client.assert_called_once()
-        call_args = mock_calendar_client.call_args[0]
+        # KalenderClient should be called with only nexus_client (no borgere dependency)
+        mock_kalender_client.assert_called_once()
+        call_args = mock_kalender_client.call_args[0]
         
-        # First argument should be the nexus client
+        # Only argument should be the nexus client
+        assert len(call_args) == 1
         assert call_args[0] == manager.nexus_client
-        # Second argument should be the citizens client
-        assert call_args[1] == manager.borgere
     
     @patch('kmd_nexus_client.manager.NexusClient')
     def test_all_clients_lazy_loading(self, mock_nexus_client):
@@ -165,18 +164,28 @@ class TestNexusClientManager:
         citizens_client = manager.citizens
         organizations_client = manager.organizations
         assignments_client = manager.assignments
+        # Test Danish properties
+        opgaver_client = manager.opgaver
         grants_client = manager.grants
         calendar_client = manager.calendar
         cases_client = manager.cases
+        # Test Danish properties
+        kalender_client = manager.kalender
+        forløb_client = manager.forløb
         
         # Verify all are the expected types
         assert isinstance(nexus_client, (NexusClient, Mock))
         assert isinstance(citizens_client, (BorgerClient, Mock))
         assert isinstance(organizations_client, (OrganizationsClient, Mock))
-        assert isinstance(assignments_client, (AssignmentsClient, Mock))
+        assert isinstance(assignments_client, (OpgaverClient, Mock))
+        # Verify Danish properties are same type
+        assert isinstance(opgaver_client, (OpgaverClient, Mock))
         assert isinstance(grants_client, (GrantsClient, Mock))
-        assert isinstance(calendar_client, (CalendarClient, Mock))
-        assert isinstance(cases_client, (CasesClient, Mock))
+        assert isinstance(calendar_client, (KalenderClient, Mock))
+        assert isinstance(cases_client, (ForløbClient, Mock))
+        # Verify Danish properties are same type
+        assert isinstance(kalender_client, (KalenderClient, Mock))
+        assert isinstance(forløb_client, (ForløbClient, Mock))
         
         # Verify lazy loading - accessing again should return same instances
         assert manager.nexus_client is nexus_client
@@ -184,9 +193,18 @@ class TestNexusClientManager:
         assert manager.citizens is citizens_client  # citizens is backward compat
         assert manager.organizations is organizations_client
         assert manager.assignments is assignments_client
+        # Verify Danish properties point to same instances
+        assert manager.opgaver is opgaver_client
         assert manager.grants is grants_client
         assert manager.calendar is calendar_client
         assert manager.cases is cases_client
+        # Verify Danish properties point to same instances
+        assert manager.kalender is kalender_client
+        assert manager.forløb is forløb_client
+        # Verify backward compatibility aliases
+        assert manager.assignments is manager.opgaver  # assignments alias works
+        assert manager.calendar is manager.kalender  # calendar alias works
+        assert manager.cases is manager.forløb  # cases alias works
 
 
 class TestSafeBorgerClient:

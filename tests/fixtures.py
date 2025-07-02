@@ -6,9 +6,9 @@ from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import CitizensClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
 from kmd_nexus_client.functionality.grants import GrantsClient
-from kmd_nexus_client.functionality.assignments import AssignmentsClient
-from kmd_nexus_client.functionality.calendar import CalendarClient
-from kmd_nexus_client.functionality.cases import CasesClient
+from kmd_nexus_client.functionality.opgaver import OpgaverClient
+from kmd_nexus_client.functionality.kalender import KalenderClient
+from kmd_nexus_client.functionality.forløb import ForløbClient
 
 # Load environment variables from .env
 load_dotenv()
@@ -46,12 +46,12 @@ def grants_client(base_client):
 
 @pytest.fixture
 def assignments_client(base_client):
-    return AssignmentsClient(base_client)
+    return OpgaverClient(base_client)
 
 @pytest.fixture
-def calendar_client(base_client, citizens_client):
-    return CalendarClient(base_client, citizens_client)
+def calendar_client(base_client):
+    return KalenderClient(base_client)
 
 @pytest.fixture
 def cases_client(base_client):
-    return CasesClient(base_client)
+    return ForløbClient(base_client)

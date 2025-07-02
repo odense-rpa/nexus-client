@@ -4,38 +4,38 @@ from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
 
 
-class CasesClient:
+class ForløbClient:
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
-    def get_citizen_cases(self, citizen: dict) -> Optional[dict]:
+    def hent_forløb(self, borger: dict) -> Optional[dict]:
         """
-        Get active cases (forløb) for a citizen.
+        Hent aktive forløb for en borger.
 
-        :param citizen: The citizen to retrieve cases for.
-        :return: The citizen's active cases, or None if retrieval failed.
+        :param borger: Borgeren der skal hentes forløb for.
+        :return: Borgerens aktive forløb, eller None hvis hentning fejlede.
         """
         try:
-            response = self.client.get(citizen["_links"]["activePrograms"]["href"])
+            response = self.client.get(borger["_links"]["activePrograms"]["href"])
             return response.json()
         except HTTPStatusError:
             return None
 
-    def create_citizen_case(
-        self, citizen: dict, base_case_name: str, case_name: str = None
+    def opret_forløb(
+        self, borger: dict, grundforløb_navn: str, forløb_navn: str = None
     ) -> Optional[dict]:
         """
-        Create a new case (forløb) for a citizen.
+        Opret et nyt forløb for en borger.
 
-        :param citizen: The citizen to create a case for.
-        :param base_case_name: The name of the base case (grundforløb) e.g., "Sundhedsfagligt grundforløb".
-        :param case_name: The name of the specific case (forløb). If None, only base case is created.
-        :return: Dictionary with 'base_case' and 'case' (if created), or None if creation failed.
+        :param borger: Borgeren der skal oprettes forløb for.
+        :param grundforløb_navn: Navnet på grundforløbet f.eks. "Sundhedsfagligt grundforløb".
+        :param forløb_navn: Navnet på det specifikke forløb. Hvis None, oprettes kun grundforløb.
+        :return: Dictionary med 'base_case' og 'case' (hvis oprettet), eller None hvis oprettelse fejlede.
         """
         try:
             # Get available pathway associations (grundforløb)
             base_cases_response = self.client.get(
-                citizen["_links"]["availablePathwayAssociation"]["href"]
+                borger["_links"]["availablePathwayAssociation"]["href"]
             )
 
             if base_cases_response.status_code != 200:
@@ -46,21 +46,21 @@ class CasesClient:
             # Find the matching base case
             matching_base_case = None
             for base_case in base_cases:
-                if base_case.get("name") == base_case_name:
+                if base_case.get("name") == grundforløb_navn:
                     matching_base_case = base_case
                     break
 
             # Enroll in the base case
             if not matching_base_case:
                 available_cases = self.client.get(
-                    citizen["_links"]["availableProgramPathways"]["href"]
+                    borger["_links"]["availableProgramPathways"]["href"]
                 )
                 matching_base_case = next(
                     iter(
                         [
                             x
                             for x in list(available_cases.json())
-                            if x["name"] == base_case_name
+                            if x["name"] == grundforløb_navn
                         ]
                     ),
                     None,
@@ -79,7 +79,7 @@ class CasesClient:
                 matching_base_case = enroll_response.json()
 
             # If no specific case name provided, return just the base case
-            if not case_name:
+            if not forløb_navn:
                 return {"base_case": matching_base_case, "case": None}
 
             # Get available pathways for the base case
@@ -106,7 +106,7 @@ class CasesClient:
 
             existing_case = None
             for program in active_programs:
-                if program.get("name") == case_name:
+                if program.get("name") == forløb_navn:
                     existing_case = program
                     break
 
@@ -126,7 +126,7 @@ class CasesClient:
             # Find the matching pathway
             matching_pathway = None
             for pathway in available_pathways:
-                if pathway.get("name") == case_name:
+                if pathway.get("name") == forløb_navn:
                     matching_pathway = pathway
                     break
 
@@ -147,17 +147,17 @@ class CasesClient:
         except HTTPStatusError:
             return None
 
-    def close_case(self, case_reference: dict) -> bool:
+    def luk_forløb(self, forløb_reference: dict) -> bool:
         """
-        Close a case (forløb) if possible.
+        Luk et forløb hvis muligt.
 
-        :param case_reference: The case reference to close.
-        :return: True if successfully closed, False otherwise.
+        :param forløb_reference: Forløb referencen der skal lukkes.
+        :return: True hvis succesfuldt lukket, False ellers.
         """
         try:
             # Get full case details
             case_details_response = self.client.get(
-                case_reference["_links"]["self"]["href"]
+                forløb_reference["_links"]["self"]["href"]
             )
 
             if case_details_response.status_code != 200:
@@ -188,3 +188,20 @@ class CasesClient:
 
         except HTTPStatusError:
             return False
+    
+    # Backward compatibility aliases
+    def get_citizen_cases(self, citizen: dict) -> Optional[dict]:
+        """DEPRECATED: Use hent_forløb instead."""
+        return self.hent_forløb(citizen)
+    
+    def create_citizen_case(self, citizen: dict, base_case_name: str, case_name: str = None) -> Optional[dict]:
+        """DEPRECATED: Use opret_forløb instead."""
+        return self.opret_forløb(citizen, base_case_name, case_name)
+    
+    def close_case(self, case_reference: dict) -> bool:
+        """DEPRECATED: Use luk_forløb instead."""
+        return self.luk_forløb(case_reference)
+
+
+# Backward compatibility alias
+CasesClient = ForløbClient

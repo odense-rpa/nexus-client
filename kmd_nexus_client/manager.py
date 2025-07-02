@@ -9,10 +9,10 @@ from typing import Optional, Dict, List, Callable
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
-from kmd_nexus_client.functionality.assignments import AssignmentsClient
+from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.grants import GrantsClient
-from kmd_nexus_client.functionality.calendar import CalendarClient
-from kmd_nexus_client.functionality.cases import CasesClient
+from kmd_nexus_client.functionality.kalender import KalenderClient
+from kmd_nexus_client.functionality.forløb import ForløbClient
 
 
 class NexusClientManager:
@@ -83,10 +83,10 @@ class NexusClientManager:
         self._nexus_client: Optional[NexusClient] = None
         self._borgere_client: Optional["BorgerClient"] = None
         self._organizations_client: Optional[OrganizationsClient] = None
-        self._assignments_client: Optional[AssignmentsClient] = None
+        self._opgaver_client: Optional[OpgaverClient] = None
         self._grants_client: Optional[GrantsClient] = None
-        self._calendar_client: Optional[CalendarClient] = None
-        self._cases_client: Optional[CasesClient] = None
+        self._kalender_client: Optional[KalenderClient] = None
+        self._forløb_client: Optional[ForløbClient] = None
     
     @property
     def nexus_client(self) -> NexusClient:
@@ -119,11 +119,17 @@ class NexusClientManager:
         return self._organizations_client
     
     @property
-    def assignments(self) -> AssignmentsClient:
-        """Get the AssignmentsClient (lazy-loaded)."""
-        if self._assignments_client is None:
-            self._assignments_client = AssignmentsClient(self.nexus_client)
-        return self._assignments_client
+    def opgaver(self) -> OpgaverClient:
+        """Get the OpgaverClient (lazy-loaded)."""
+        if self._opgaver_client is None:
+            self._opgaver_client = OpgaverClient(self.nexus_client)
+        return self._opgaver_client
+    
+    # Backward compatibility property
+    @property
+    def assignments(self):
+        """DEPRECATED: Use opgaver property instead."""
+        return self.opgaver
     
     @property
     def grants(self) -> GrantsClient:
@@ -133,11 +139,17 @@ class NexusClientManager:
         return self._grants_client
     
     @property
-    def calendar(self) -> CalendarClient:
-        """Get the CalendarClient (lazy-loaded with automatic BorgerClient dependency)."""
-        if self._calendar_client is None:
-            self._calendar_client = CalendarClient(self.nexus_client, self.borgere)
-        return self._calendar_client
+    def kalender(self) -> KalenderClient:
+        """Get the KalenderClient (lazy-loaded)."""
+        if self._kalender_client is None:
+            self._kalender_client = KalenderClient(self.nexus_client)
+        return self._kalender_client
+    
+    # Backward compatibility property
+    @property
+    def calendar(self):
+        """DEPRECATED: Use kalender property instead."""
+        return self.kalender
     
     # Backward compatibility property
     @property
@@ -146,11 +158,17 @@ class NexusClientManager:
         return self.borgere
     
     @property
-    def cases(self) -> CasesClient:
-        """Get the CasesClient (lazy-loaded)."""
-        if self._cases_client is None:
-            self._cases_client = CasesClient(self.nexus_client)
-        return self._cases_client
+    def forløb(self) -> ForløbClient:
+        """Get the ForløbClient (lazy-loaded)."""
+        if self._forløb_client is None:
+            self._forløb_client = ForløbClient(self.nexus_client)
+        return self._forløb_client
+    
+    # Backward compatibility property
+    @property
+    def cases(self):
+        """DEPRECATED: Use forløb property instead."""
+        return self.forløb
 
 
 class _SafeBorgerClient(BorgerClient):

@@ -11,9 +11,9 @@ from . import hooks
 
 from .functionality.organizations import OrganizationsClient
 from .functionality.grants import GrantsClient
-from .functionality.assignments import AssignmentsClient
-from .functionality.calendar import CalendarClient
-from .functionality.cases import CasesClient
+from .functionality.opgaver import OpgaverClient, AssignmentsClient
+from .functionality.kalender import KalenderClient, CalendarClient
+from .functionality.forløb import ForløbClient, CasesClient
 
 __all__ = [
     "NexusClient",
@@ -24,9 +24,12 @@ __all__ = [
     "filter_references",
     "OrganizationsClient",
     "GrantsClient",
-    "AssignmentsClient",
-    "CalendarClient",
-    "CasesClient",
+    "OpgaverClient",
+    "AssignmentsClient",  # Backward compatibility
+    "KalenderClient",
+    "CalendarClient",  # Backward compatibility
+    "ForløbClient",
+    "CasesClient",  # Backward compatibility
     "tree_helpers",
     "hooks"
 ]
