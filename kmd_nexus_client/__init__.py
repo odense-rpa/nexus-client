@@ -9,7 +9,7 @@ from .functionality.borgere import (
 from . import tree_helpers
 from . import hooks
 
-from .functionality.organizations import OrganizationsClient
+from .functionality.organisationer import OrganisationerClient
 from .functionality.grants import GrantsClient
 from .functionality.opgaver import OpgaverClient, AssignmentsClient
 from .functionality.kalender import KalenderClient, CalendarClient
@@ -22,7 +22,7 @@ __all__ = [
     "CitizensClient",  # Backward compatibility
     "filter_pathway_references",
     "filter_references",
-    "OrganizationsClient",
+    "OrganisationerClient",
     "GrantsClient",
     "OpgaverClient",
     "AssignmentsClient",  # Backward compatibility

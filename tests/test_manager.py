@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
-from kmd_nexus_client.functionality.organizations import OrganizationsClient
+from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.grants import GrantsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
@@ -176,7 +176,7 @@ class TestNexusClientManager:
         # Verify all are the expected types
         assert isinstance(nexus_client, (NexusClient, Mock))
         assert isinstance(citizens_client, (BorgerClient, Mock))
-        assert isinstance(organizations_client, (OrganizationsClient, Mock))
+        assert isinstance(organizations_client, (OrganisationerClient, Mock))
         assert isinstance(assignments_client, (OpgaverClient, Mock))
         # Verify Danish properties are same type
         assert isinstance(opgaver_client, (OpgaverClient, Mock))

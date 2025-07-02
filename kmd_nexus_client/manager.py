@@ -8,7 +8,7 @@ a single entry point with lazy-loaded properties for each functionality.
 from typing import Optional, Dict, List, Callable
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
-from kmd_nexus_client.functionality.organizations import OrganizationsClient
+from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.grants import GrantsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
@@ -82,7 +82,7 @@ class NexusClientManager:
         # Lazy-loaded clients
         self._nexus_client: Optional[NexusClient] = None
         self._borgere_client: Optional["BorgerClient"] = None
-        self._organizations_client: Optional[OrganizationsClient] = None
+        self._organisationer_client: Optional[OrganisationerClient] = None
         self._opgaver_client: Optional[OpgaverClient] = None
         self._grants_client: Optional[GrantsClient] = None
         self._kalender_client: Optional[KalenderClient] = None
@@ -112,11 +112,16 @@ class NexusClientManager:
         return self._borgere_client
     
     @property
-    def organizations(self) -> OrganizationsClient:
-        """Get the OrganizationsClient (lazy-loaded)."""
-        if self._organizations_client is None:
-            self._organizations_client = OrganizationsClient(self.nexus_client)
-        return self._organizations_client
+    def organizations(self) -> OrganisationerClient:
+        """DEPRECATED: Use organisationer property instead."""
+        return self.organisationer
+    
+    @property
+    def organisationer(self) -> OrganisationerClient:
+        """Get the OrganisationerClient (lazy-loaded)."""
+        if self._organisationer_client is None:
+            self._organisationer_client = OrganisationerClient(self.nexus_client)
+        return self._organisationer_client
     
     @property
     def opgaver(self) -> OpgaverClient:
