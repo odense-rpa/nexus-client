@@ -5,6 +5,12 @@ from kmd_nexus_client.client import NexusClient
 
 
 class ForløbClient:
+    """
+    Klient til forløbs-operationer i KMD Nexus.
+    
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.forløb.hent_forløb(...)
+    """
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 

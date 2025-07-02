@@ -5,6 +5,12 @@ from kmd_nexus_client.client import NexusClient
 
 
 class KalenderClient:
+    """
+    Klient til kalender-operationer i KMD Nexus.
+    
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.kalender.hent_begivenheder(...)
+    """
     def __init__(self, nexus_client: NexusClient):
         self.nexus_client = nexus_client
     

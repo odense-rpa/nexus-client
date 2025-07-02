@@ -195,7 +195,7 @@ def safe_get_citizen(citizens_client, cpr: str):
     print(f"🔐 Sikker API-kald: Henter {citizen_info['name']} (CPR: {cpr})")
     
     # Kald det faktiske API
-    return citizens_client.get_citizen(cpr)
+    return citizens_client.hent_borger(cpr)
 
 
 def get_allowed_test_citizens() -> dict:

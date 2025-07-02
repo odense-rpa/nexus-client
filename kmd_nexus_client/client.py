@@ -6,6 +6,11 @@ from urllib.parse import urljoin
 from .hooks import create_response_logging_hook
 
 class NexusClient:
+    """
+    Basis klient til KMD Nexus API kommunikation.
+    
+    VIGTIGT: Brug NexusClientManager i stedet for direkte instantiering.
+    """
     api: dict
 
     def __init__(
@@ -71,7 +76,7 @@ class NexusClient:
         """
         url = self._normalize_url(endpoint)
         response = self.client.get(url, **kwargs)
-        self._handle_errors(response)
+        response.raise_for_status()
         return response
 
     def post(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
@@ -85,7 +90,7 @@ class NexusClient:
         """
         url = self._normalize_url(endpoint)
         response = self.client.post(url, json=json, **kwargs)
-        self._handle_errors(response)
+        response.raise_for_status()
         return response
 
     def put(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
@@ -99,7 +104,7 @@ class NexusClient:
         """
         url = self._normalize_url(endpoint)
         response = self.client.put(url, json=json, **kwargs)
-        self._handle_errors(response)
+        response.raise_for_status()
         return response
 
     def delete(self, endpoint: str, **kwargs) -> httpx.Response:
@@ -112,15 +117,9 @@ class NexusClient:
         """
         url = self._normalize_url(endpoint)
         response = self.client.delete(url, **kwargs)
-        self._handle_errors(response)
+        response.raise_for_status()
         return response
 
-    def _handle_errors(self, response: httpx.Response):
-       
-        if response.is_error:
-            self.logger.error(f"Response: {response.status_code} - {response.text}")
-            
-        response.raise_for_status()
 
     def parse_links(self, response: httpx.Response) -> dict:
         """Extract and normalize links from HATEOAS JSON."""

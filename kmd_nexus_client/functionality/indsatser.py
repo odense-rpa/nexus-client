@@ -45,6 +45,12 @@ def update_grant_elements(current_elements, field_updates):
 
 
 class IndsatsClient:
+    """
+    Klient til indsats-operationer i KMD Nexus.
+    
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.indsats.hent_indsats(...)
+    """
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
@@ -368,7 +374,7 @@ class IndsatsClient:
 
     # Other grant functions
 
-    def hent_indsatser_referencer(
+    def hent_indsats_referencer(
         self, borger: dict, forløbsnavn: str = "- Alt", inkluder_indsats_pakker=False
     ) -> List[dict]:
         """
@@ -436,7 +442,7 @@ class IndsatsClient:
 
         return grant
 
-    def filtrer_indsatser_referencer(
+    def filtrer_indsats_referencer(
         self,
         indsatser_referencer: List[dict],
         kun_aktive: bool = True,
@@ -532,9 +538,9 @@ class IndsatsClient:
     edit_grant = rediger_indsats
     get_grant_elements = hent_indsats_elementer
     create_grant = opret_indsats
-    get_grant_references = hent_indsatser_referencer
+    get_grant_references = hent_indsats_referencer
     get_grant = hent_indsats
-    filter_grant_references = filtrer_indsatser_referencer
+    filter_grant_references = filtrer_indsats_referencer
 
 
 # Backward compatibility class alias

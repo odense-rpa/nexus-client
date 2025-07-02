@@ -17,20 +17,15 @@ from kmd_nexus_client.functionality.forløb import ForløbClient
 
 class NexusClientManager:
     """
-    A manager class that provides simplified access to all Nexus functionality clients.
+    Manager til nem adgang til alle Nexus funktionalitets-klienter.
     
-    This class acts as a facade that automatically handles the instantiation and
-    dependencies of all functionality clients, reducing the boilerplate code
-    needed when working with the Nexus API.
+    VIGTIGT: Brug altid denne manager i stedet for at oprette individuelle klienter.
+    Dette sikrer korrekt konfiguration og lazy loading.
     
-    Example:
-        >>> nexus = NexusClientManager(
-        ...     instance="your-instance",
-        ...     client_id="your-client-id",
-        ...     client_secret="your-client-secret"
-        ... )
-        >>> citizen = nexus.citizens.get_citizen("1234567890")
-        >>> events = nexus.calendar.events(calendar, start_date, end_date)
+    Eksempel:
+        nexus = NexusClientManager(instance="...", client_id="...", client_secret="...")
+        borger = nexus.borgere.hent_borger("1234567890")
+        indsatser = nexus.indsats.hent_indsatser_referencer(borger)
     """
     
     def __init__(

@@ -9,6 +9,9 @@ class OrganisationerClient:
     """
     Klient til håndtering af organisationer i KMD Nexus.
     
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.organisationer.hent_organisation(...)
+    
     Danske funktioner:
     - hent_organisationer() -> List[dict]
     - hent_leverandører() -> List[dict]

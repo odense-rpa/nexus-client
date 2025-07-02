@@ -7,6 +7,9 @@ class OpgaverClient:
     """
     Klient til håndtering af opgaver i KMD Nexus.
     
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.opgaver.hent_opgave(...)
+    
     Danske funktioner:
     - hent_opgaver(objekt) -> List[dict]
     - hent_opgave_for_borger(borger, opgave_id) -> Optional[dict]

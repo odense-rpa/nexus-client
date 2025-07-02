@@ -36,6 +36,12 @@ def filter_pathway_references(references: List[dict], filter: Callable[[dict], b
     
 
 class BorgerClient:
+    """
+    Klient til borger-operationer i KMD Nexus.
+    
+    VIGTIGT: Opret ikke denne klasse direkte!
+    Brug NexusClientManager: nexus.borgere.hent_borger(...)
+    """
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 

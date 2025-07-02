@@ -61,36 +61,36 @@ def test_indsats_client_methods_exist(indsats_client: IndsatsClient):
     assert hasattr(indsats_client, 'rediger_indsats')
     assert hasattr(indsats_client, 'hent_indsats_elementer')
     assert hasattr(indsats_client, 'opret_indsats')
-    assert hasattr(indsats_client, 'hent_indsatser_referencer')
+    assert hasattr(indsats_client, 'hent_indsats_referencer')
     assert hasattr(indsats_client, 'hent_indsats')
-    assert hasattr(indsats_client, 'filtrer_indsatser_referencer')
+    assert hasattr(indsats_client, 'filtrer_indsats_referencer')
     
     # Check that they are callable
     assert callable(indsats_client.rediger_indsats)
     assert callable(indsats_client.hent_indsats_elementer)
     assert callable(indsats_client.opret_indsats)
-    assert callable(indsats_client.hent_indsatser_referencer)
+    assert callable(indsats_client.hent_indsats_referencer)
     assert callable(indsats_client.hent_indsats)
-    assert callable(indsats_client.filtrer_indsatser_referencer)
+    assert callable(indsats_client.filtrer_indsats_referencer)
 
 
 def test_hent_indsatser_referencer(borgere_client: CitizensClient, indsats_client: IndsatsClient, test_citizen: dict):
     """Test hent_indsatser_referencer Danish function."""
     # Get grant references using Danish method
-    indsatser_referencer = indsats_client.hent_indsatser_referencer(
+    indsats_referenser = indsats_client.hent_indsats_referencer(
         test_citizen,
         forløbsnavn="- Alt",
         inkluder_indsats_pakker=False
     )
     
     # Should return a list (could be empty)
-    assert isinstance(indsatser_referencer, list)
+    assert isinstance(indsats_referenser, list)
 
 
-def test_filtrer_indsatser_referencer_empty_list(indsats_client: IndsatsClient):
-    """Test filtrer_indsatser_referencer with empty input."""
+def test_filtrer_indsats_referenser_empty_list(indsats_client: IndsatsClient):
+    """Test filtrer_indsats_referenser with empty input."""
     # Test filtering empty list
-    filtered = indsats_client.filtrer_indsatser_referencer(
+    filtered = indsats_client.filtrer_indsats_referencer(
         [],
         kun_aktive=True,
         leverandør_navn=""
@@ -99,10 +99,10 @@ def test_filtrer_indsatser_referencer_empty_list(indsats_client: IndsatsClient):
     assert filtered == []
 
 
-def test_filtrer_indsatser_referencer_with_mock_data(indsats_client: IndsatsClient):
-    """Test filtrer_indsatser_referencer with mock data."""
+def test_filtrer_indsats_referencer_with_mock_data(indsats_client: IndsatsClient):
+    """Test filtrer_indsats_referencer with mock data."""
     # Create mock grant references
-    mock_referencer = [
+    mock_referenser = [
         {
             "workflowState": {"name": "Bestilt"},
             "additionalInfo": []
@@ -122,8 +122,8 @@ def test_filtrer_indsatser_referencer_with_mock_data(indsats_client: IndsatsClie
     ]
     
     # Test filtering for active only
-    aktive = indsats_client.filtrer_indsatser_referencer(
-        mock_referencer,
+    aktive = indsats_client.filtrer_indsats_referencer(
+        mock_referenser,
         kun_aktive=True,
         leverandør_navn=""
     )
@@ -133,8 +133,8 @@ def test_filtrer_indsatser_referencer_with_mock_data(indsats_client: IndsatsClie
     assert all(ref["workflowState"]["name"] != "Afsluttet" for ref in aktive)
     
     # Test filtering by supplier
-    med_leverandør = indsats_client.filtrer_indsatser_referencer(
-        mock_referencer,
+    med_leverandør = indsats_client.filtrer_indsats_referencer(
+        mock_referenser,
         kun_aktive=False,
         leverandør_navn="Test Leverandør"
     )
