@@ -16,21 +16,29 @@ from collections import defaultdict
 import httpx
 
 
-def _format_json(data: Any) -> str:
-    """Format JSON data for logging."""
+def _parse_json(data: Any) -> Any:
+    """Parse JSON data for structured logging."""
     if isinstance(data, (str, bytes)):
         try:
-            # Try to parse and reformat if it's JSON string/bytes
+            # Try to parse JSON string/bytes to native Python objects
             if isinstance(data, bytes):
                 data = data.decode('utf-8')
-            parsed = json.loads(data)
-            return json.dumps(parsed, indent=2)
+            return json.loads(data)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return str(data)
-    elif isinstance(data, dict):
-        return json.dumps(data, indent=2)
+    elif isinstance(data, (dict, list)):
+        return data
     else:
         return str(data)
+
+
+def _format_json(data: Any) -> str:
+    """Format JSON data for logging (legacy support)."""
+    parsed = _parse_json(data)
+    if isinstance(parsed, (dict, list)):
+        return json.dumps(parsed, indent=2)
+    else:
+        return str(parsed)
 
 
 def create_logging_hooks(
@@ -69,13 +77,45 @@ def create_logging_hooks(
             try:
                 content = request.content
                 if content:
-                    logger.info(f"{method}: {url} data: {_format_json(content)}")
+                    # Parse JSON for structured logging
+                    parsed_data = _parse_json(content)
+                    logger.info(
+                        f"{method}: {url}",
+                        extra={
+                            'http_method': method,
+                            'http_url': url,
+                            'request_data': parsed_data,
+                            'event_type': 'http_request'
+                        }
+                    )
                 else:
-                    logger.info(f"{method}: {url}")
+                    logger.info(
+                        f"{method}: {url}",
+                        extra={
+                            'http_method': method,
+                            'http_url': url,
+                            'event_type': 'http_request'
+                        }
+                    )
             except Exception:
-                logger.info(f"{method}: {url} (could not log body)")
+                logger.info(
+                    f"{method}: {url} (could not log body)",
+                    extra={
+                        'http_method': method,
+                        'http_url': url,
+                        'event_type': 'http_request',
+                        'error': 'could_not_parse_body'
+                    }
+                )
         else:
-            logger.info(f"{method}: {url}")
+            logger.info(
+                f"{method}: {url}",
+                extra={
+                    'http_method': method,
+                    'http_url': url,
+                    'event_type': 'http_request'
+                }
+            )
     
     def log_response(response: httpx.Response) -> None:
         """Log incoming responses."""
@@ -89,26 +129,77 @@ def create_logging_hooks(
         url = str(request.url)
         status = response.status_code
         
+        # Base extra data for all responses
+        base_extra = {
+            'http_method': method,
+            'http_url': url,
+            'http_status': status,
+            'event_type': 'http_response'
+        }
+        
         if response.is_error:
             try:
                 # Ensure response content is read before accessing text
                 if not hasattr(response, '_content'):
                     response.read()
-                response_text = response.text[:200] if response.text else "(no body)"
-                logger.error(f"Response: {method} {url} - {status} - {response_text}")
+                
+                if response.text:
+                    parsed_response = _parse_json(response.text)
+                    logger.error(
+                        f"Response: {method} {url} - {status}",
+                        extra={
+                            **base_extra,
+                            'response_data': parsed_response,
+                            'is_error': True
+                        }
+                    )
+                else:
+                    logger.error(
+                        f"Response: {method} {url} - {status} (no body)",
+                        extra={**base_extra, 'is_error': True}
+                    )
             except Exception:
-                logger.error(f"Response: {method} {url} - {status} (could not read body)")
+                logger.error(
+                    f"Response: {method} {url} - {status} (could not read body)",
+                    extra={
+                        **base_extra,
+                        'is_error': True,
+                        'error': 'could_not_read_body'
+                    }
+                )
         elif log_response_body:
             try:
                 # Ensure response content is read before accessing text
                 if not hasattr(response, '_content'):
                     response.read()
-                response_text = response.text[:500] if response.text else "(no body)"
-                logger.debug(f"Response: {method} {url} - {status} - {response_text}")
+                
+                if response.text:
+                    parsed_response = _parse_json(response.text)
+                    logger.debug(
+                        f"Response: {method} {url} - {status}",
+                        extra={
+                            **base_extra,
+                            'response_data': parsed_response
+                        }
+                    )
+                else:
+                    logger.debug(
+                        f"Response: {method} {url} - {status} (no body)",
+                        extra=base_extra
+                    )
             except Exception:
-                logger.debug(f"Response: {method} {url} - {status} (could not log body)")
+                logger.debug(
+                    f"Response: {method} {url} - {status} (could not log body)",
+                    extra={
+                        **base_extra,
+                        'error': 'could_not_read_body'
+                    }
+                )
         else:
-            logger.debug(f"Response: {method} {url} - {status}")
+            logger.debug(
+                f"Response: {method} {url} - {status}",
+                extra=base_extra
+            )
     
     return {
         'request': [log_request],
