@@ -29,7 +29,7 @@ def create_response_logging_hook(
         logger = logging.getLogger(__name__)
 
     # KMD Nexus specific endpoints to skip logging (reduce noise)
-    non_logging_endpoints = ["/patients/search"]
+    non_logging_endpoints = ["/patients/search","/protocol/openid-connect/token"]
 
     def log_response(response: httpx.Response) -> None:
         """Log complete HTTP transaction from response."""
@@ -47,12 +47,19 @@ def create_response_logging_hook(
 
         # Extract request JSON if available
         request_json = None
-        if hasattr(request, "content") and request.content:
-            request_json = _parse_json_content(request.content)
+        try:
+            if hasattr(request, "content") and request.content:
+                request_json = _parse_json_content(request.content)
+        except Exception:
+            # Request content not available or not readable
+            request_json = None
 
         # Always extract response JSON (for debugging API responses)
         response_json = None
         try:
+            # Force read the response if it hasn't been read yet
+            if not hasattr(response, '_content'):
+                response.read()
             response_json = _parse_json_content(response.text)
         except Exception:
             # Response content not available or not readable
