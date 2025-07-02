@@ -2,7 +2,7 @@ import pytest
 
 from .fixtures import organizations_client, base_client, test_citizen, citizens_client # noqa
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
-from kmd_nexus_client.functionality.citizens import (CitizensClient)
+from kmd_nexus_client.functionality.borgere import (CitizensClient)
 
 def test_get_organizations(organizations_client: OrganizationsClient):
     organizations = organizations_client.get_organizations()

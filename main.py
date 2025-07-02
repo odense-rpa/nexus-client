@@ -5,7 +5,7 @@ from datetime import datetime
 
 from kmd_nexus_client import (
     NexusClient,
-    CitizensClient,
+    BorgerClient,
     OrganizationsClient,
     GrantsClient,
 )
@@ -25,13 +25,13 @@ client = NexusClient(
     client_secret=client_secret,
 )
 
-citizens_client = CitizensClient(client)
+borgere_client = BorgerClient(client)
 org_client = OrganizationsClient(client)
 grants = GrantsClient(client)
 
-citizen = citizens_client.get_citizen("0108589995")
+borger = borgere_client.hent_borger("0108589995")
 
-grant_refs = grants.get_grant_references(citizen)
+grant_refs = grants.get_grant_references(borger)
 
 #grant_refs = grants.filter_grant_references(grant_refs, True)
 print(len(grant_refs))

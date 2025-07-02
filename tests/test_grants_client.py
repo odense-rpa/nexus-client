@@ -3,7 +3,7 @@ import pytest
 from datetime import datetime, timezone
 from .fixtures import organizations_client, base_client, test_citizen, citizens_client, grants_client # noqa
 from kmd_nexus_client.functionality.grants import GrantsClient, update_grant_elements
-from kmd_nexus_client.functionality.citizens import (CitizensClient, filter_references)
+from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_references)
 
 # def test_edit_grant(citizens_client: CitizensClient, grants_client: GrantsClient, test_citizen: dict):
 #     citizen = test_citizen

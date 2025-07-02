@@ -2,7 +2,7 @@ import pytest # noqa: F401
 
 from .fixtures import citizens_client, base_client, test_citizen # noqa: F401
 
-from kmd_nexus_client.functionality.citizens import (
+from kmd_nexus_client.functionality.borgere import (
     CitizensClient,
     filter_pathway_references,
     filter_references,

@@ -1,7 +1,8 @@
 from .client import NexusClient
 from .manager import NexusClientManager
-from .functionality.citizens import (
-    CitizensClient,
+from .functionality.borgere import (
+    BorgerClient,
+    CitizensClient,  # Backward compatibility
     filter_pathway_references,
     filter_references,
 )
@@ -17,7 +18,8 @@ from .functionality.cases import CasesClient
 __all__ = [
     "NexusClient",
     "NexusClientManager",
-    "CitizensClient",
+    "BorgerClient",
+    "CitizensClient",  # Backward compatibility
     "filter_pathway_references",
     "filter_references",
     "OrganizationsClient",

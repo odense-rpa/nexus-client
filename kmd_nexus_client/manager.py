@@ -7,7 +7,7 @@ a single entry point with lazy-loaded properties for each functionality.
 
 from typing import Optional, Dict, List, Callable
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.functionality.citizens import CitizensClient
+from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
 from kmd_nexus_client.functionality.assignments import AssignmentsClient
 from kmd_nexus_client.functionality.grants import GrantsClient
@@ -81,7 +81,7 @@ class NexusClientManager:
         
         # Lazy-loaded clients
         self._nexus_client: Optional[NexusClient] = None
-        self._citizens_client: Optional[CitizensClient] = None
+        self._borgere_client: Optional["BorgerClient"] = None
         self._organizations_client: Optional[OrganizationsClient] = None
         self._assignments_client: Optional[AssignmentsClient] = None
         self._grants_client: Optional[GrantsClient] = None
@@ -101,15 +101,15 @@ class NexusClientManager:
         return self._nexus_client
     
     @property
-    def citizens(self) -> CitizensClient:
-        """Get the CitizensClient (lazy-loaded)."""
-        if self._citizens_client is None:
+    def borgere(self) -> "BorgerClient":
+        """Get the BorgerClient (lazy-loaded)."""
+        if self._borgere_client is None:
             if self._enable_ai_safety:
                 # Create a safety-wrapped version
-                self._citizens_client = _SafeCitizensClient(self.nexus_client)
+                self._borgere_client = _SafeBorgerClient(self.nexus_client)
             else:
-                self._citizens_client = CitizensClient(self.nexus_client)
-        return self._citizens_client
+                self._borgere_client = BorgerClient(self.nexus_client)
+        return self._borgere_client
     
     @property
     def organizations(self) -> OrganizationsClient:
@@ -134,10 +134,16 @@ class NexusClientManager:
     
     @property
     def calendar(self) -> CalendarClient:
-        """Get the CalendarClient (lazy-loaded with automatic CitizensClient dependency)."""
+        """Get the CalendarClient (lazy-loaded with automatic BorgerClient dependency)."""
         if self._calendar_client is None:
-            self._calendar_client = CalendarClient(self.nexus_client, self.citizens)
+            self._calendar_client = CalendarClient(self.nexus_client, self.borgere)
         return self._calendar_client
+    
+    # Backward compatibility property
+    @property
+    def citizens(self):
+        """DEPRECATED: Use borgere property instead."""
+        return self.borgere
     
     @property
     def cases(self) -> CasesClient:
@@ -147,7 +153,7 @@ class NexusClientManager:
         return self._cases_client
 
 
-class _SafeCitizensClient(CitizensClient):
+class _SafeBorgerClient(BorgerClient):
     """
     A safety-wrapped version of CitizensClient that integrates with the AI safety wrapper.
     
@@ -155,25 +161,30 @@ class _SafeCitizensClient(CitizensClient):
     from the nexus_ai_safety_wrapper module.
     """
     
-    def get_citizen(self, citizen_cpr: str) -> dict:
+    def hent_borger(self, borger_cpr: str) -> dict:
         """
-        Get a citizen by CPR number using the AI safety wrapper.
+        Hent en borger via CPR nummer med AI safety wrapper.
         
-        This method uses the safe_get_citizen function which automatically
-        validates that the CPR is one of the approved test citizens.
+        Denne metode bruger safe_get_citizen funktionen som automatisk
+        validerer at CPR'et er en af de godkendte test-borgere.
         
         Args:
-            citizen_cpr: The CPR number of the citizen to retrieve
+            borger_cpr: CPR nummeret på borgeren der skal hentes
             
         Returns:
-            The citizen details, or None if the citizen was not found
+            Borgerens detaljer, eller None hvis borgeren ikke blev fundet
             
         Raises:
-            NexusSecurityError: If the CPR is not an approved test citizen
+            NexusSecurityError: Hvis CPR'et ikke er en godkendt test-borger
         """
         try:
             from kmd_nexus_client.nexus_ai_safety_wrapper import safe_get_citizen
-            return safe_get_citizen(self, citizen_cpr)
+            return safe_get_citizen(self, borger_cpr)
         except ImportError:
             # Fall back to regular implementation if safety wrapper is not available
-            return super().get_citizen(citizen_cpr)
+            return super().hent_borger(borger_cpr)
+    
+    # Backward compatibility for safety wrapper
+    def get_citizen(self, citizen_cpr: str) -> dict:
+        """DEPRECATED: Use hent_borger() instead."""
+        return self.hent_borger(citizen_cpr)

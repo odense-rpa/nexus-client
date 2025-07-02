@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.functionality.citizens import CitizensClient
+from kmd_nexus_client.functionality.borgere import CitizensClient
 from kmd_nexus_client.functionality.organizations import OrganizationsClient
 from kmd_nexus_client.functionality.grants import GrantsClient
 from kmd_nexus_client.functionality.assignments import AssignmentsClient

@@ -2,13 +2,13 @@ from typing import List
 from datetime import date, datetime, timedelta
 
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.functionality.citizens import CitizensClient
+from kmd_nexus_client.functionality.borgere import BorgerClient
 
 
 class CalendarClient:
-    def __init__(self, nexus_client: NexusClient, citizens_client: CitizensClient):
+    def __init__(self, nexus_client: NexusClient, borgere_client: BorgerClient):
         self.nexus_client = nexus_client
-        self.citizens_client = citizens_client
+        self.borgere_client = borgere_client
     
     def get_citizen_calendar(self, citizen: dict, calendar_name = "Borgerkalender") -> dict:
         """
@@ -20,7 +20,7 @@ class CalendarClient:
         """
 
         # Find citizen preferences
-        citizen_preferences = self.citizens_client.get_citizen_preferences(citizen=citizen)
+        citizen_preferences = self.borgere_client.hent_præferencer(borger=citizen)
 
         # Find borgerkalender in citizen preferences
         calendar = next(

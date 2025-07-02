@@ -3,7 +3,7 @@ import pytest
 from datetime import date, timedelta
 from .fixtures import assignments_client, base_client, test_citizen, citizens_client, organizations_client  # noqa
 from kmd_nexus_client.functionality.assignments import AssignmentsClient
-from kmd_nexus_client.functionality.citizens import CitizensClient, filter_references
+from kmd_nexus_client.functionality.borgere import CitizensClient, filter_references
 
 
 def test_get_assignments_by_grant(assignments_client: AssignmentsClient, citizens_client: CitizensClient, test_citizen: dict):

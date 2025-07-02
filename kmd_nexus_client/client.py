@@ -153,3 +153,18 @@ class NexusClient:
         }
         return normalized_links
 
+    def hent_fra_reference(self, reference: dict) -> dict:
+        """
+        Hent fuldt objekt fra en reference.
+
+        :param reference: Referencen der skal følges til objektet.
+        :return: Det fulde objekt.
+        """
+        if "referencedObject" in reference["_links"]:
+            return self.get(reference["_links"]["referencedObject"]["href"]).json()
+
+        if "self" in reference["_links"]:
+            return self.get(reference["_links"]["self"]["href"]).json()
+
+        raise ValueError("Kan ikke hente fra reference - hverken referencedObject eller self link fundet.")
+
