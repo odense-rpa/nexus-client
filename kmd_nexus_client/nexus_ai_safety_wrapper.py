@@ -10,6 +10,7 @@ Modulet tillader kun adgang til foruddefinerede test-borgere.
 ALDRIG omgå disse sikkerhedsfunktioner!
 """
 
+import re
 import logging
 from typing import Optional, Union
 
@@ -78,7 +79,7 @@ def validate_citizen_access(cpr: Optional[str] = None, patient_id: Optional[int]
             "SIKKERHEDSKRÆNKELSE: validate_citizen_access() kaldt uden parametre. "
             "Dette kan være et forsøg på at omgå sikkerhed."
         )
-    
+    cpr = re.sub(r'\D', '', cpr)
     if cpr:
         if cpr not in ALLOWED_TEST_CPRS:
             raise NexusSecurityError(
