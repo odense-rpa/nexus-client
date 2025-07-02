@@ -41,12 +41,13 @@ def organisationer_client(base_client):
     return OrganisationerClient(base_client)
 
 @pytest.fixture
-def grants_client(base_client):
-    return GrantsClient(base_client)
-
-@pytest.fixture
 def indsats_client(base_client):
     return IndsatsClient(base_client)
+
+# Backward compatibility fixture
+@pytest.fixture  
+def grants_client(base_client):
+    return GrantsClient(base_client)
 
 @pytest.fixture
 def opgaver_client(base_client):

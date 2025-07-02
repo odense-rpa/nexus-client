@@ -170,3 +170,27 @@ def test_manager_provides_both_properties():
     # Check that manager has both properties
     assert hasattr(NexusClientManager, 'grants')
     assert hasattr(NexusClientManager, 'indsats')
+
+
+def test_old_english_method_names_work(borgere_client: CitizensClient, indsats_client: IndsatsClient, test_citizen: dict):
+    """Test that old English method names still work via aliases."""
+    citizen = test_citizen
+    pathway = borgere_client.get_citizen_pathway(citizen)
+    references = borgere_client.get_citizen_pathway_references(pathway)
+
+    references = filter_references(
+        references,
+        path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
+        active_pathways_only=True,
+    )
+
+    if len(references) > 0:
+        resolved = borgere_client.resolve_reference(references[0])
+        
+        # Test the old English method name works
+        elements = indsats_client.get_grant_elements(resolved)
+        assert elements is not None
+        
+        # Test that it returns the same result as the Danish method
+        elementer = indsats_client.hent_indsats_elementer(resolved)
+        assert elements == elementer
