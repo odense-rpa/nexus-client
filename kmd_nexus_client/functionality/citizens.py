@@ -1,85 +1,38 @@
-import re
-
-from typing import Optional
+from typing import Optional, List, Callable
 from httpx import HTTPStatusError
-from typing import List, Callable
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.utils import sanitize_cpr
+from kmd_nexus_client.tree_helpers import filter_by_path, filter_by_predicate
+
 
 def filter_references(json_input: List[dict], path: str, active_pathways_only: bool):
-    matches = re.findall(r'/([^/]+)+', path)
-
-    if not matches:
-        raise ValueError("Can't match empty path")
-
-    filter_path = matches
-
-    elements = []
-    for item in json_input:
-        elements.extend(_filter_tree(item, [], filter_path, active_pathways_only))
-
-    return elements
-
-def _filter_tree(root: dict, path: List[dict], filter_path: List[str], active_pathways_only: bool):
-    result = []
-
-    # Check here
-    if (
-        active_pathways_only 
-        and root.get("type") == "patientPathwayReference" 
-        and root.get("pathwayStatus") != "ACTIVE"
-    ):
-        return result
-
-    path.append(root)
-
-    if _compare_filter_and_path(path, filter_path):
-        result.append(root)
-    else:
-        children = root.get("children")
-        if children and len(filter_path) > len(path):
-            for child in children:
-                result.extend(_filter_tree(child, path, filter_path, active_pathways_only))
-
-    path.pop()
-
-    return result
-
-def _compare_filter_and_path(path: List[dict], filter_path: List[str]):
-    if len(path) != len(filter_path):
-        return False
-
-    for i in range(len(path)):
-        name_match = (
-            filter_path[i] == "*"
-            or re.fullmatch(filter_path[i].replace('%', '.*'), path[i].get("name", "")) is not None
-            or re.fullmatch(filter_path[i].replace('%', '.*'), path[i].get("type", "")) is not None
-        )
-
-        if not name_match:
-            return False
-
-    return True
-
-
-def filter_pathway_references(references: List[dict], filter: Callable[[dict],bool]) -> List[dict]:
     """
-    Filter a list of pathway references recursivly.
-    :param references: The list of references to filter.
-    :param filter: The filter function to apply.
-    :return: The filtered list of references.
+    Filter pathway references by path pattern with wildcard support.
+    
+    DEPRECATED: Use tree_helpers.filter_by_path directly for new code.
+    This function is maintained for backward compatibility.
+    
+    :param json_input: List of root nodes to search
+    :param path: Path pattern like "/parent/child/*" or "/parent/child/name%"
+    :param active_pathways_only: If True, skip inactive pathways
+    :return: List of nodes matching the path pattern
     """
-    result = []
+    return filter_by_path(json_input, path, active_pathways_only)
+
+
+def filter_pathway_references(references: List[dict], filter: Callable[[dict], bool]) -> List[dict]:
+    """
+    Filter pathway references recursively using a predicate function.
     
-    for reference in references:
-        if filter(reference):
-            result.append(reference)
-            
-        if "children" in reference:
-            result += filter_pathway_references(reference["children"], filter)
+    DEPRECATED: Use tree_helpers.filter_by_predicate directly for new code.
+    This function is maintained for backward compatibility.
     
-    return result  
+    :param references: The list of references to filter
+    :param filter: The filter function to apply
+    :return: The filtered list of references
+    """
+    return filter_by_predicate(references, filter)  
     
 
 class CitizensClient:

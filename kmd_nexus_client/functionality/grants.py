@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from httpx import HTTPStatusError
 from typing import Optional, List
 from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.tree_helpers import find_node_by_id, find_nodes
 
 
 def update_grant_elements(current_elements, field_updates):
@@ -220,20 +221,22 @@ class GrantsClient:
         raise ValueError(f"Grant '{grant_name}' not found in catalog")
 
     def _search_catalog_tree(self, node: dict, grant_name: str) -> tuple[int, bool]:
-        """Recursively search catalog tree for grant."""
-        # Check current node
-        if node.get("name") == grant_name and node.get("type") in [
-            "catalogGrant",
-            "catalogPackage",
-        ]:
-            return int(node["id"]), node.get("type") == "catalogPackage"
-
-        # Search subcatalogs
-        for subcatalog in node.get("subcatalogs", []):
-            grant_id, is_package = self._search_catalog_tree(subcatalog, grant_name)
-            if grant_id != 0:
-                return grant_id, is_package
-
+        """Search catalog tree for grant using unified tree helpers."""
+        # Use tree_helpers to find the grant
+        matching_node = find_nodes(
+            node,
+            lambda n: (
+                n.get("name") == grant_name and 
+                n.get("type") in ["catalogGrant", "catalogPackage"]
+            ),
+            children_key="subcatalogs",
+            find_all=False
+        )
+        
+        if matching_node:
+            found_node = matching_node[0]
+            return int(found_node["id"]), found_node.get("type") == "catalogPackage"
+        
         return 0, False
 
     def _create_grant_from_prototype(
@@ -384,24 +387,21 @@ class GrantsClient:
         )
         references_json = references_response.json()
 
-        # Use complex tree traversal to find grant references (matching Blue Prism logic)
-        grant_references = []
-        for pathway_root in references_json:
-            matching_references = self._find_all_matching_nodes(
-                pathway_root,
-                lambda node: (
-                    (
-                        node.get("type") == "basketGrantReference"
-                        and node.get("workflowState", {}).get("name") != "Afsluttet"
-                    )
-                    or (
-                        include_grant_packages
-                        and node.get("type") == "basketGrantPackageReference"
-                    )
-                ),
-                "children",
-            )
-            grant_references.extend(matching_references)
+        # Use tree_helpers to find grant references
+        grant_references = find_nodes(
+            references_json,
+            lambda node: (
+                (
+                    node.get("type") == "basketGrantReference"
+                    and node.get("workflowState", {}).get("name") != "Afsluttet"
+                )
+                or (
+                    include_grant_packages
+                    and node.get("type") == "basketGrantPackageReference"
+                )
+            ),
+            children_key="children"
+        )
 
         return grant_references
 
@@ -503,40 +503,6 @@ class GrantsClient:
 
         raise ValueError(f"Pathway '{pathway_name}' not found")
 
-    def _find_all_matching_nodes(
-        self, root: dict, condition, node_name: str = "children"
-    ) -> List[dict]:
-        """
-        Find all nodes in a tree that match a condition (Blue Prism's 'All' method).
-
-        :param root: The root node to start search from
-        :param condition: Function that returns True for matching nodes
-        :param node_name: The property name containing child nodes
-        :return: List of all matching nodes
-        """
-        result = []
-
-        def collect_matching(node: dict) -> None:
-            if condition(node):
-                result.append(node)
-
-        self._traverse_tree(root, collect_matching, node_name)
-        return result
-
-    def _traverse_tree(self, root: dict, callback, node_name: str = "children") -> None:
-        """
-        Traverse a tree structure recursively (Blue Prism's 'Traverse' method).
-
-        :param root: The root node to start traversal from
-        :param callback: Function to call on each node
-        :param node_name: The property name containing child nodes
-        """
-        callback(root)
-
-        children = root.get(node_name)
-        if children and isinstance(children, list):
-            for child in children:
-                self._traverse_tree(child, callback, node_name)
 
     def _extract_field_values(self, elements: List[dict]) -> dict:
         """

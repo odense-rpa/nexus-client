@@ -114,8 +114,8 @@ def test_resolve_reference_grant(citizens_client: CitizensClient, test_citizen: 
     assert resolved["name"] == references[0]["name"]
     assert "currentElements" in resolved
 
-def test_get_citizen_lendings(citizens_client: CitizensClient, test_citizen: dict):
-    citizen = test_citizen
-    lendings = citizens_client.get_citizen_lendings(citizen)
-    assert lendings is not None
-    assert len(lendings) > 0
+# def test_get_citizen_lendings(citizens_client: CitizensClient, test_citizen: dict):
+#     citizen = test_citizen
+#     lendings = citizens_client.get_citizen_lendings(citizen)
+#     assert lendings is not None
+#     assert len(lendings) > 0

@@ -1,5 +1,12 @@
+"""
+CPR (Danish Social Security Number) validation and sanitization utilities.
+
+This module provides utilities for working with Danish CPR numbers,
+including validation and cleaning functionality.
+"""
+
 from datetime import datetime
-from typing import Callable
+
 
 def is_valid_cpr(cpr: str) -> bool:
     """
@@ -28,6 +35,7 @@ def is_valid_cpr(cpr: str) -> bool:
     # CPR numbers no longer have a valid checksum, so no check is done
     return True
 
+
 def sanitize_cpr(cpr: str) -> str:
     """
     Sanitize a CPR number by removing any spaces or dashes.
@@ -41,21 +49,3 @@ def sanitize_cpr(cpr: str) -> str:
         raise ValueError("Invalid CPR number.")
     
     return cpr
-
-
-def visitor(element: dict, callback: Callable , child_key: str = "children") -> dict:
-    """
-    Visit each element in a nested dictionary.
-
-    :param element: The dictionary to visit.
-    :param callback: The function to call for each element.
-    :param child_key: The key to use for child elements.
-    :return: The modified dictionary.
-    """
-    if child_key in element:
-        for child in element[child_key]:
-            visitor(child, callback, child_key)
-    
-    callback(element)
-    
-    return element
