@@ -5,7 +5,7 @@ This manager simplifies the instantiation of multiple clients by providing
 a single entry point with lazy-loaded properties for each functionality.
 """
 
-from typing import Optional, Dict, List, Callable
+from typing import Optional
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
@@ -39,12 +39,6 @@ class NexusClientManager:
         client_id: str,
         client_secret: str,
         enable_ai_safety: bool = False,
-        enable_logging: bool = True,
-        non_logging_endpoints: Optional[List[str]] = None,
-        enable_error_context: bool = True,
-        enable_timing: bool = False,
-        enable_metrics: bool = False,
-        custom_hooks: Optional[Dict[str, List[Callable]]] = None,
         timeout: float = 30.0
     ):
         """
@@ -55,12 +49,6 @@ class NexusClientManager:
             client_id: The OAuth2 client ID
             client_secret: The OAuth2 client secret
             enable_ai_safety: Whether to enable AI safety wrapper integration
-            enable_logging: Enable request/response logging (default: True)
-            non_logging_endpoints: List of endpoint suffixes to skip logging
-            enable_error_context: Enable enhanced error context (default: True)
-            enable_timing: Enable request timing tracking (default: False)
-            enable_metrics: Enable basic metrics collection (default: False)
-            custom_hooks: Custom HTTPX event hooks to add
             timeout: Request timeout in seconds (default: 30.0)
         """
         self._instance = instance
@@ -68,14 +56,8 @@ class NexusClientManager:
         self._client_secret = client_secret
         self._enable_ai_safety = enable_ai_safety
         
-        # Store hook configuration for lazy loading
-        self._hook_config = {
-            'enable_logging': enable_logging,
-            'non_logging_endpoints': non_logging_endpoints,
-            'enable_error_context': enable_error_context,
-            'enable_timing': enable_timing,
-            'enable_metrics': enable_metrics,
-            'custom_hooks': custom_hooks,
+        # Store configuration for lazy loading
+        self._config = {
             'timeout': timeout
         }
         
@@ -91,13 +73,13 @@ class NexusClientManager:
     
     @property
     def nexus_client(self) -> NexusClient:
-        """Get the base NexusClient (lazy-loaded with hook configuration)."""
+        """Get the base NexusClient (lazy-loaded with configuration)."""
         if self._nexus_client is None:
             self._nexus_client = NexusClient(
                 instance=self._instance,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
-                **self._hook_config
+                **self._config
             )
         return self._nexus_client
     
@@ -193,7 +175,7 @@ class _SafeBorgerClient(BorgerClient):
     from the nexus_ai_safety_wrapper module.
     """
     
-    def hent_borger(self, borger_cpr: str) -> dict:
+    def hent_borger(self, borger_cpr: str) -> Optional[dict]:
         """
         Hent en borger via CPR nummer med AI safety wrapper.
         
@@ -217,6 +199,6 @@ class _SafeBorgerClient(BorgerClient):
             return super().hent_borger(borger_cpr)
     
     # Backward compatibility for safety wrapper
-    def get_citizen(self, citizen_cpr: str) -> dict:
+    def get_citizen(self, citizen_cpr: str) -> Optional[dict]:
         """DEPRECATED: Use hent_borger() instead."""
         return self.hent_borger(citizen_cpr)

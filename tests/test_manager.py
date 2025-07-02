@@ -75,9 +75,8 @@ class TestNexusClientManager:
         assert kwargs["client_id"] == "test-client-id"
         assert kwargs["client_secret"] == "test-client-secret"
         
-        # Check that hook parameters are present (defaults)
-        assert "enable_logging" in kwargs
-        assert "enable_error_context" in kwargs
+        # Check that configuration parameters are present (defaults)
+        assert "timeout" in kwargs
         
         # Second access should return the same instance
         client2 = manager.nexus_client

@@ -2,9 +2,8 @@ import httpx
 import logging
 from authlib.integrations.httpx_client import OAuth2Client
 from urllib.parse import urljoin
-from typing import Dict, List, Callable, Optional
 
-from .hooks import create_default_hooks, combine_hooks
+from .hooks import create_response_logging_hook
 
 class NexusClient:
     api: dict
@@ -14,26 +13,14 @@ class NexusClient:
         instance: str, 
         client_id: str, 
         client_secret: str,
-        enable_logging: bool = True,
-        non_logging_endpoints: Optional[List[str]] = None,
-        enable_error_context: bool = True,
-        enable_timing: bool = False,
-        enable_metrics: bool = False,
-        custom_hooks: Optional[Dict[str, List[Callable]]] = None,
         timeout: float = 30.0
     ):
         """
-        Initialize the NexusClient with an instance name, client credentials, and optional hooks.
+        Initialize the NexusClient with an instance name and client credentials.
 
         :param instance: The name of the Nexus instance.
         :param client_id: The OAuth2 client ID.
         :param client_secret: The OAuth2 client secret.
-        :param enable_logging: Enable request/response logging (default: True).
-        :param non_logging_endpoints: List of endpoint suffixes to skip logging.
-        :param enable_error_context: Enable enhanced error context (default: True).
-        :param enable_timing: Enable request timing tracking (default: False).
-        :param enable_metrics: Enable basic metrics collection (default: False).
-        :param custom_hooks: Custom HTTPX event hooks to add.
         :param timeout: Request timeout in seconds (default: 30.0).
         """
         if not instance:
@@ -50,19 +37,9 @@ class NexusClient:
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("httpcore").setLevel(logging.WARNING)
 
-        # Create event hooks
-        hooks = create_default_hooks(
-            enable_logging=enable_logging,
-            enable_error_context=enable_error_context,
-            enable_timing=enable_timing,
-            enable_metrics=enable_metrics,
-            non_logging_endpoints=non_logging_endpoints or ["/patients/search"],
-            logger=self.logger
-        )
-
-        # Add custom hooks if provided
-        if custom_hooks:
-            hooks = combine_hooks(hooks, custom_hooks)
+        # Create response logging hook
+        response_hook = create_response_logging_hook(logger=self.logger)
+        hooks = {'response': [response_hook]}
 
         # Set up the OAuth2 client with event hooks
         self.client = OAuth2Client(
