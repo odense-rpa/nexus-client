@@ -9,10 +9,11 @@ def test_hent_indsats_elementer(borgere_client: CitizensClient, indsats_client: 
     """Test hent_indsats_elementer Danish function."""
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None, "Pathway should not be None"
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        references,
+        [references],
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )
@@ -39,10 +40,11 @@ def test_backward_compatibility_grants_client(borgere_client: CitizensClient, gr
     # Test that old method names still work
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None, "Pathway should not be None"
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        references,
+        [references],
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )
@@ -74,7 +76,7 @@ def test_indsats_client_methods_exist(indsats_client: IndsatsClient):
     assert callable(indsats_client.filtrer_indsats_referencer)
 
 
-def test_hent_indsatser_referencer(borgere_client: CitizensClient, indsats_client: IndsatsClient, test_citizen: dict):
+def test_hent_indsatser_referenser(indsats_client: IndsatsClient, test_citizen: dict):
     """Test hent_indsatser_referencer Danish function."""
     # Get grant references using Danish method
     indsats_referenser = indsats_client.hent_indsats_referencer(
@@ -176,10 +178,11 @@ def test_old_english_method_names_work(borgere_client: CitizensClient, indsats_c
     """Test that old English method names still work via aliases."""
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None, "Pathway should not be None"
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        references,
+        [references],
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )
