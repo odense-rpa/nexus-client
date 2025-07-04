@@ -98,7 +98,7 @@ class BorgerClient:
 
         return None
 
-    def hent_referencer(self, visning: dict) -> dict:
+    def hent_referencer(self, visning: dict) -> List[dict]:
         """
         Hent forløbsreferencer fra en borgervisning.
 
@@ -107,7 +107,7 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["pathwayReferences"]["href"]).json()
 
-    def hent_aktiviteter(self, visning: dict) -> dict:
+    def hent_aktiviteter(self, visning: dict) -> List[dict]:
         """
         Hent aktiviteter fra en borgervisning (flad liste med tilstande, organisationer, medicinkort osv.).
 
@@ -120,6 +120,8 @@ class BorgerClient:
     def hent_udlån(self, borger: dict) -> Optional[dict]:
         """
         Hent borgerens udlån.
+
+        TODO: Kontroller returtype - virker forkert
 
         :param borger: Borgeren der skal hentes udlån for.
         :return: Borgerens udlån, eller None hvis ingen udlån er tilgængelige.
@@ -177,11 +179,11 @@ class BorgerClient:
         """DEPRECATED: Use hent_visning() instead."""
         return self.hent_visning(citizen, pathway_name)
     
-    def get_citizen_pathway_references(self, pathway: dict) -> dict:
-        """DEPRECATED: Use hent_referenser() instead."""
+    def get_citizen_pathway_references(self, pathway: dict) -> List[dict]:
+        """DEPRECATED: Use hent_referencer() instead."""
         return self.hent_referencer(pathway)
     
-    def get_citizen_pathway_activities(self, pathway: dict) -> dict:
+    def get_citizen_pathway_activities(self, pathway: dict) -> List[dict]:
         """DEPRECATED: Use hent_aktiviteter() instead."""
         return self.hent_aktiviteter(pathway)
     

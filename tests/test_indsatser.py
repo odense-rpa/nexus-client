@@ -13,7 +13,7 @@ def test_hent_indsats_elementer(borgere_client: CitizensClient, indsats_client: 
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        [references],
+        references,
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )
@@ -44,7 +44,7 @@ def test_backward_compatibility_grants_client(borgere_client: CitizensClient, gr
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        [references],
+        references,
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )
@@ -182,7 +182,7 @@ def test_old_english_method_names_work(borgere_client: CitizensClient, indsats_c
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
-        [references],
+        references,
         path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
         active_pathways_only=True,
     )

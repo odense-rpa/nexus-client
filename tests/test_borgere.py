@@ -8,6 +8,8 @@ from kmd_nexus_client.functionality.borgere import (
 
 def test_get_citizen(borgere_client: CitizensClient):
     citizen = borgere_client.get_citizen("2512489996")
+
+    assert citizen is not None
     assert citizen["patientIdentifier"]["identifier"] == "251248-9996"
     assert citizen["firstName"] == "Nancy"
     assert citizen["lastName"] == "Berggren"
@@ -26,6 +28,7 @@ def test_get_citizen_preferences(borgere_client: CitizensClient, test_citizen: d
 def test_get_citizen_pathway(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None
     assert pathway["name"] == "- Alt"
 
 def test_get_citizen_pathway_not_found(borgere_client: CitizensClient, test_citizen: dict):
@@ -36,6 +39,8 @@ def test_get_citizen_pathway_not_found(borgere_client: CitizensClient, test_citi
 def test_get_citizen_pathway_references(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
     assert references is not None
     assert len(references) > 0
@@ -43,6 +48,8 @@ def test_get_citizen_pathway_references(borgere_client: CitizensClient, test_cit
 def test_filter_pathway_references(borgere_client: CitizensClient, test_citizen):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
     filtered = filter_pathway_references(
         references, lambda x: x["activityIdentifier"]["type"] == "PATIENT_PATHWAY"
@@ -53,6 +60,8 @@ def test_filter_pathway_references(borgere_client: CitizensClient, test_citizen)
 def test_filter_references(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
     filtered = filter_references(
         references,
@@ -65,6 +74,8 @@ def test_filter_references(borgere_client: CitizensClient, test_citizen: dict):
 def test_filter_references_with_wildcard(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
     filtered = filter_references(
         references,
@@ -78,6 +89,9 @@ def test_filter_references_with_wildcard(borgere_client: CitizensClient, test_ci
 def test_resolve_reference_pathway(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
@@ -96,6 +110,9 @@ def test_resolve_reference_pathway(borgere_client: CitizensClient, test_citizen:
 def test_resolve_reference_grant(borgere_client: CitizensClient, test_citizen: dict):
     citizen = test_citizen
     pathway = borgere_client.get_citizen_pathway(citizen)
+
+    assert pathway is not None
+
     references = borgere_client.get_citizen_pathway_references(pathway)
 
     references = filter_references(
