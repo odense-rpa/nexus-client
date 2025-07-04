@@ -6,15 +6,15 @@ from httpx import HTTPStatusError
 from kmd_nexus_client.functionality.forløb import ForløbClient
 
 
-def test_get_citizen_cases(forløb_client: ForløbClient, test_citizen: dict):
+def test_get_citizen_cases(forløb_client: ForløbClient, test_borger: dict):
     """Test that citizen has required activePrograms link."""
     # Verify the test citizen has the required link structure
-    assert "_links" in test_citizen
-    assert "activePrograms" in test_citizen["_links"]
-    assert "href" in test_citizen["_links"]["activePrograms"]
+    assert "_links" in test_borger
+    assert "activePrograms" in test_borger["_links"]
+    assert "href" in test_borger["_links"]["activePrograms"]
     
     # Test the actual method
-    cases = forløb_client.get_citizen_cases(test_citizen)
+    cases = forløb_client.get_citizen_cases(test_borger)
     
     # Should not raise an exception and should return valid response
     assert cases is None or isinstance(cases, (dict, list))
@@ -33,14 +33,14 @@ def test_get_citizen_cases_missing_link(forløb_client: ForløbClient):
         forløb_client.get_citizen_cases(mock_citizen)
 
 
-def test_get_citizen_cases_http_error(forløb_client: ForløbClient, test_citizen: dict):
+def test_get_citizen_cases_http_error(forløb_client: ForløbClient, test_borger: dict):
     """Test handling of HTTP errors."""
     # Mock the client to raise HTTPStatusError
     original_get = forløb_client.client.get
     forløb_client.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = forløb_client.get_citizen_cases(test_citizen)
+        result = forløb_client.get_citizen_cases(test_borger)
         assert result is None
     finally:
         # Restore original method
@@ -54,15 +54,15 @@ def test_forløb_client_initialization(base_client):
 
 
 # Tests for Danish functions
-def test_hent_forløb(forløb_client: ForløbClient, test_citizen: dict):
+def test_hent_forløb(forløb_client: ForløbClient, test_borger: dict):
     """Test hent_forløb function."""
     # Verify the test citizen has the required link structure
-    assert "_links" in test_citizen
-    assert "activePrograms" in test_citizen["_links"]
-    assert "href" in test_citizen["_links"]["activePrograms"]
+    assert "_links" in test_borger
+    assert "activePrograms" in test_borger["_links"]
+    assert "href" in test_borger["_links"]["activePrograms"]
     
     # Test the Danish method
-    forløb = forløb_client.hent_forløb(test_citizen)
+    forløb = forløb_client.hent_forløb(test_borger)
     
     # Should not raise an exception and should return valid response
     assert forløb is None or isinstance(forløb, (dict, list))
@@ -81,14 +81,14 @@ def test_hent_forløb_missing_link(forløb_client: ForløbClient):
         forløb_client.hent_forløb(mock_borger)
 
 
-def test_hent_forløb_http_error(forløb_client: ForløbClient, test_citizen: dict):
+def test_hent_forløb_http_error(forløb_client: ForløbClient, test_borger: dict):
     """Test hent_forløb handling of HTTP errors."""
     # Mock the client to raise HTTPStatusError
     original_get = forløb_client.client.get
     forløb_client.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = forløb_client.hent_forløb(test_citizen)
+        result = forløb_client.hent_forløb(test_borger)
         assert result is None
     finally:
         # Restore original method
@@ -156,7 +156,7 @@ def test_luk_forløb_parameters(forløb_client: ForløbClient):
 
 
 # Test backward compatibility
-def test_backward_compatibility_aliases(forløb_client: ForløbClient, test_citizen: dict):
+def test_backward_compatibility_aliases(forløb_client: ForløbClient, test_borger: dict):
     """Test that old method names still work for backward compatibility."""
     # Test get_citizen_cases alias
     assert hasattr(forløb_client, 'get_citizen_cases')
@@ -171,8 +171,8 @@ def test_backward_compatibility_aliases(forløb_client: ForløbClient, test_citi
     
     try:
         # Test get_citizen_cases alias
-        result1 = forløb_client.get_citizen_cases(test_citizen)
-        result2 = forløb_client.hent_forløb(test_citizen)
+        result1 = forløb_client.get_citizen_cases(test_borger)
+        result2 = forløb_client.hent_forløb(test_borger)
         assert result1 == result2
     finally:
         forløb_client.client.get = original_get

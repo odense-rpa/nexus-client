@@ -2,15 +2,15 @@ import pytest
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.functionality.indsatser import IndsatsClient
-from kmd_nexus_client.functionality.borgere import (CitizensClient, filter_references)
+from kmd_nexus_client.functionality.borgere import (BorgerClient, filter_references)
 
 
-def test_hent_indsats_elementer(borgere_client: CitizensClient, indsats_client: IndsatsClient, test_citizen: dict):
+def test_hent_indsats_elementer(borgere_client: BorgerClient, indsats_client: IndsatsClient, test_borger: dict):
     """Test hent_indsats_elementer Danish function."""
-    citizen = test_citizen
-    pathway = borgere_client.get_citizen_pathway(citizen)
+    citizen = test_borger
+    pathway = borgere_client.hent_visning(citizen)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.get_citizen_pathway_references(pathway)
+    references = borgere_client.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -20,7 +20,7 @@ def test_hent_indsats_elementer(borgere_client: CitizensClient, indsats_client: 
 
     assert len(references) > 0
     
-    resolved = borgere_client.resolve_reference(references[0])
+    resolved = borgere_client.client.hent_fra_reference(references[0])
     
     assert resolved is not None    
     assert resolved["name"] == references[0]["name"]
@@ -30,7 +30,7 @@ def test_hent_indsats_elementer(borgere_client: CitizensClient, indsats_client: 
     assert elementer is not None
 
 
-def test_backward_compatibility_grants_client(borgere_client: CitizensClient, grants_client, test_citizen: dict):
+def test_backward_compatibility_grants_client(borgere_client: BorgerClient, grants_client, test_borger: dict):
     """Test that GrantsClient backward compatibility works."""
     from kmd_nexus_client.functionality.indsatser import GrantsClient
     
@@ -38,10 +38,10 @@ def test_backward_compatibility_grants_client(borgere_client: CitizensClient, gr
     assert isinstance(grants_client, GrantsClient)
     
     # Test that old method names still work
-    citizen = test_citizen
-    pathway = borgere_client.get_citizen_pathway(citizen)
+    citizen = test_borger
+    pathway = borgere_client.hent_visning(citizen)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.get_citizen_pathway_references(pathway)
+    references = borgere_client.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -50,7 +50,7 @@ def test_backward_compatibility_grants_client(borgere_client: CitizensClient, gr
     )
 
     if len(references) > 0:
-        resolved = borgere_client.resolve_reference(references[0])
+        resolved = borgere_client.client.hent_fra_reference(references[0])
         
         # Test the old method name
         elements = grants_client.get_grant_elements(resolved)
@@ -76,11 +76,11 @@ def test_indsats_client_methods_exist(indsats_client: IndsatsClient):
     assert callable(indsats_client.filtrer_indsats_referencer)
 
 
-def test_hent_indsatser_referenser(indsats_client: IndsatsClient, test_citizen: dict):
+def test_hent_indsatser_referenser(indsats_client: IndsatsClient, test_borger: dict):
     """Test hent_indsatser_referencer Danish function."""
     # Get grant references using Danish method
     indsats_referenser = indsats_client.hent_indsats_referencer(
-        test_citizen,
+        test_borger,
         forløbsnavn="- Alt",
         inkluder_indsats_pakker=False
     )
@@ -174,12 +174,12 @@ def test_manager_provides_both_properties():
     assert hasattr(NexusClientManager, 'indsats')
 
 
-def test_old_english_method_names_work(borgere_client: CitizensClient, indsats_client: IndsatsClient, test_citizen: dict):
+def test_old_english_method_names_work(borgere_client: BorgerClient, indsats_client: IndsatsClient, test_borger: dict):
     """Test that old English method names still work via aliases."""
-    citizen = test_citizen
-    pathway = borgere_client.get_citizen_pathway(citizen)
+    citizen = test_borger
+    pathway = borgere_client.hent_visning(citizen)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.get_citizen_pathway_references(pathway)
+    references = borgere_client.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -188,7 +188,7 @@ def test_old_english_method_names_work(borgere_client: CitizensClient, indsats_c
     )
 
     if len(references) > 0:
-        resolved = borgere_client.resolve_reference(references[0])
+        resolved = borgere_client.client.hent_fra_reference(references[0])
         
         # Test the old English method name works
         elements = indsats_client.get_grant_elements(resolved)

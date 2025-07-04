@@ -2,7 +2,7 @@ import pytest
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
-from kmd_nexus_client.functionality.borgere import CitizensClient
+from kmd_nexus_client.functionality.borgere import BorgerClient
 
 
 def test_hent_organisationer(organisationer_client: OrganisationerClient):
@@ -23,7 +23,7 @@ def test_hent_leverandører(organisationer_client: OrganisationerClient):
     assert all("id" in leverandør for leverandør in leverandører)
 
 
-def test_opdater_leverandør(organisationer_client: OrganisationerClient, borgere_client: CitizensClient):
+def test_opdater_leverandør(organisationer_client: OrganisationerClient, borgere_client: BorgerClient):
     """Test opdater_leverandør Danish function."""
     leverandører = organisationer_client.hent_leverandører()
     leverandør = [x for x in leverandører if x["name"] == "Testleverandør Supporten Træning"][0]
@@ -58,18 +58,18 @@ def test_hent_organisation_ved_navn(organisationer_client: OrganisationerClient)
 
 
 def test_hent_organisationer_for_borger(
-    organisationer_client: OrganisationerClient, test_citizen: dict
+    organisationer_client: OrganisationerClient, test_borger: dict
 ):
     """Test hent_organisationer_for_borger Danish function."""
     organisationer = organisationer_client.hent_organisationer_for_borger(
-        test_citizen, kun_aktive=False
+        test_borger, kun_aktive=False
     )
 
     assert organisationer is not None
     assert len(organisationer) > 0
 
     aktive_organisationer = organisationer_client.hent_organisationer_for_borger(
-        test_citizen, kun_aktive=True
+        test_borger, kun_aktive=True
     )
 
     assert aktive_organisationer is not None
@@ -104,10 +104,10 @@ def test_hent_medarbejdere_for_organisation(organisationer_client: Organisatione
     assert len(medarbejdere) > 0
 
 
-def test_borger_organisations_relationer(organisationer_client: OrganisationerClient, test_citizen: dict):
+def test_borger_organisations_relationer(organisationer_client: OrganisationerClient, test_borger: dict):
     """Test Danish functions for citizen-organization relationships."""
     organisation_navn = "Testorganisation Supporten Dag"
-    organisationer = organisationer_client.hent_organisationer_for_borger(test_citizen)
+    organisationer = organisationer_client.hent_organisationer_for_borger(test_borger)
     filtreret_organisation = next(
         (rel for rel in organisationer if rel["organization"]["name"] == organisation_navn),
         None
@@ -116,7 +116,7 @@ def test_borger_organisations_relationer(organisationer_client: OrganisationerCl
     if filtreret_organisation is not None:
         organisationer_client.fjern_borger_fra_organisation(dict(filtreret_organisation))
     
-    organisationer = organisationer_client.hent_organisationer_for_borger(test_citizen)
+    organisationer = organisationer_client.hent_organisationer_for_borger(test_borger)
     filtreret_organisation = next(
         (rel for rel in organisationer if rel["organization"]["name"] == organisation_navn),
         None
@@ -127,9 +127,9 @@ def test_borger_organisations_relationer(organisationer_client: OrganisationerCl
     organisation = organisationer_client.hent_organisation_ved_navn(organisation_navn)
 
     assert organisation is not None
-    organisationer_client.tilføj_borger_til_organisation(test_citizen, organisation)
+    organisationer_client.tilføj_borger_til_organisation(test_borger, organisation)
 
-    organisationer = organisationer_client.hent_organisationer_for_borger(test_citizen)
+    organisationer = organisationer_client.hent_organisationer_for_borger(test_borger)
     filtreret_organisation = next(
         (rel for rel in organisationer if rel["organization"]["name"] == organisation_navn),
         None
@@ -281,7 +281,7 @@ def test_opdater_leverandør_error_handling(organisationer_client: Organisatione
         organisationer_client.nexus_client.put = original_put
 
 
-def test_integration_all_danish_methods(organisationer_client: OrganisationerClient, test_citizen: dict):
+def test_integration_all_danish_methods(organisationer_client: OrganisationerClient, test_borger: dict):
     """Integration test to verify all Danish methods work together."""
     # Test core organization methods
     organisationer = organisationer_client.hent_organisationer()
@@ -295,7 +295,7 @@ def test_integration_all_danish_methods(organisationer_client: OrganisationerCli
     assert organisation is not None
     
     # Test citizen-organization relationships
-    borger_organisationer = organisationer_client.hent_organisationer_for_borger(test_citizen)
+    borger_organisationer = organisationer_client.hent_organisationer_for_borger(test_borger)
     assert len(borger_organisationer) > 0
     
     # Test organization citizens

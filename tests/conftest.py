@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.functionality.borgere import CitizensClient
+from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
@@ -30,11 +30,11 @@ def base_client():
 
 @pytest.fixture
 def borgere_client(base_client):
-    return CitizensClient(base_client)
+    return BorgerClient(base_client)
 
 @pytest.fixture
-def test_citizen(borgere_client: CitizensClient):
-    return borgere_client.get_citizen("0108589995")
+def test_borger(borgere_client: BorgerClient):
+    return borgere_client.hent_borger("0108589995")
 
 @pytest.fixture
 def organisationer_client(base_client):

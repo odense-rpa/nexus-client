@@ -217,12 +217,12 @@ class TestSafeBorgerClient:
         mock_nexus_client = Mock()
         safe_client = _SafeBorgerClient(mock_nexus_client)
         
-        mock_safe_get_citizen.return_value = {"id": "test-citizen"}
+        mock_safe_get_citizen.return_value = {"id": "test-borger"}
         
         result = safe_client.hent_borger("1234567890")
         
         mock_safe_get_citizen.assert_called_once_with(safe_client, "1234567890")
-        assert result == {"id": "test-citizen"}
+        assert result == {"id": "test-borger"}
     
     def test_safe_get_citizen_fallback(self):
         """Test that SafeBorgerClient can be instantiated and has fallback behavior."""
