@@ -160,6 +160,25 @@ class NexusClientManager:
     def cases(self):
         """DEPRECATED: Use forløb property instead."""
         return self.forløb
+    
+    def hent_fra_reference(self, reference: dict) -> dict:
+        """
+        Hent fuldt objekt fra en reference.
+        
+        Convenience method for resolving references without having to drill down
+        to the nexus_client. This provides a cleaner API for the common operation
+        of resolving references.
+        
+        Args:
+            reference: Referencen der skal følges til objektet.
+            
+        Returns:
+            Det fulde objekt.
+            
+        Raises:
+            ValueError: Hvis referencen ikke kan opløses.
+        """
+        return self.nexus_client.hent_fra_reference(reference)
 
 
 class _SafeBorgerClient(BorgerClient):

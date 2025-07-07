@@ -242,3 +242,42 @@ class TestSafeBorgerClient:
         # Test backward compatibility
         assert hasattr(safe_client, 'get_citizen')
         assert callable(safe_client.get_citizen)
+
+
+class TestNexusClientManagerMethods:
+    """Test methods added directly to NexusClientManager."""
+    
+    @patch('kmd_nexus_client.manager.NexusClient')
+    def test_hent_fra_reference_method(self, mock_nexus_client):
+        """Test that hent_fra_reference method works correctly."""
+        manager = NexusClientManager(
+            instance="test-instance",
+            client_id="test-client-id",
+            client_secret="test-client-secret"
+        )
+        
+        # Mock the underlying nexus client method
+        mock_reference = {"_links": {"self": {"href": "test-url"}}}
+        mock_resolved = {"id": "resolved-object", "name": "test"}
+        
+        mock_nexus_client_instance = Mock()
+        mock_nexus_client_instance.hent_fra_reference.return_value = mock_resolved
+        mock_nexus_client.return_value = mock_nexus_client_instance
+        
+        # Test the manager's hent_fra_reference method
+        result = manager.hent_fra_reference(mock_reference)
+        
+        # Verify it called the underlying method correctly
+        mock_nexus_client_instance.hent_fra_reference.assert_called_once_with(mock_reference)
+        assert result == mock_resolved
+        
+    def test_hent_fra_reference_method_exists(self):
+        """Test that hent_fra_reference method exists on manager."""
+        manager = NexusClientManager(
+            instance="test-instance",
+            client_id="test-client-id", 
+            client_secret="test-client-secret"
+        )
+        
+        assert hasattr(manager, 'hent_fra_reference')
+        assert callable(manager.hent_fra_reference)

@@ -1,16 +1,17 @@
 import pytest
 
 # Fixtures are automatically loaded from conftest.py
+from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.functionality.indsatser import IndsatsClient
-from kmd_nexus_client.functionality.borgere import (BorgerClient, filter_references)
+from kmd_nexus_client.functionality.borgere import filter_references
 
 
-def test_hent_indsats_elementer(borgere_client: BorgerClient, indsats_client: IndsatsClient, test_borger: dict):
+def test_hent_indsats_elementer(nexus_manager: NexusClientManager, test_borger: dict):
     """Test hent_indsats_elementer Danish function."""
     citizen = test_borger
-    pathway = borgere_client.hent_visning(citizen)
+    pathway = nexus_manager.borgere.hent_visning(citizen)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.hent_referencer(pathway)
+    references = nexus_manager.borgere.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -20,17 +21,17 @@ def test_hent_indsats_elementer(borgere_client: BorgerClient, indsats_client: In
 
     assert len(references) > 0
     
-    resolved = borgere_client.client.hent_fra_reference(references[0])
+    resolved = nexus_manager.hent_fra_reference(references[0])
     
     assert resolved is not None    
     assert resolved["name"] == references[0]["name"]
 
-    elementer = indsats_client.hent_indsats_elementer(resolved)
+    elementer = nexus_manager.indsats.hent_indsats_elementer(resolved)
 
     assert elementer is not None
 
 
-def test_backward_compatibility_grants_client(borgere_client: BorgerClient, grants_client, test_borger: dict):
+def test_backward_compatibility_grants_client(nexus_manager: NexusClientManager, grants_client, test_borger: dict):
     """Test that GrantsClient backward compatibility works."""
     from kmd_nexus_client.functionality.indsatser import GrantsClient
     
@@ -39,9 +40,9 @@ def test_backward_compatibility_grants_client(borgere_client: BorgerClient, gran
     
     # Test that old method names still work
     citizen = test_borger
-    pathway = borgere_client.hent_visning(citizen)
+    pathway = nexus_manager.borgere.hent_visning(citizen)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.hent_referencer(pathway)
+    references = nexus_manager.borgere.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -50,36 +51,36 @@ def test_backward_compatibility_grants_client(borgere_client: BorgerClient, gran
     )
 
     if len(references) > 0:
-        resolved = borgere_client.client.hent_fra_reference(references[0])
+        resolved = nexus_manager.hent_fra_reference(references[0])
         
         # Test the old method name
         elements = grants_client.get_grant_elements(resolved)
         assert elements is not None
 
 
-def test_indsats_client_methods_exist(indsats_client: IndsatsClient):
+def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
     """Test that all Danish methods exist on IndsatsClient."""
     # Check that all methods exist
-    assert hasattr(indsats_client, 'rediger_indsats')
-    assert hasattr(indsats_client, 'hent_indsats_elementer')
-    assert hasattr(indsats_client, 'opret_indsats')
-    assert hasattr(indsats_client, 'hent_indsats_referencer')
-    assert hasattr(indsats_client, 'hent_indsats')
-    assert hasattr(indsats_client, 'filtrer_indsats_referencer')
+    assert hasattr(nexus_manager.indsats, 'rediger_indsats')
+    assert hasattr(nexus_manager.indsats, 'hent_indsats_elementer')
+    assert hasattr(nexus_manager.indsats, 'opret_indsats')
+    assert hasattr(nexus_manager.indsats, 'hent_indsats_referencer')
+    assert hasattr(nexus_manager.indsats, 'hent_indsats')
+    assert hasattr(nexus_manager.indsats, 'filtrer_indsats_referencer')
     
     # Check that they are callable
-    assert callable(indsats_client.rediger_indsats)
-    assert callable(indsats_client.hent_indsats_elementer)
-    assert callable(indsats_client.opret_indsats)
-    assert callable(indsats_client.hent_indsats_referencer)
-    assert callable(indsats_client.hent_indsats)
-    assert callable(indsats_client.filtrer_indsats_referencer)
+    assert callable(nexus_manager.indsats.rediger_indsats)
+    assert callable(nexus_manager.indsats.hent_indsats_elementer)
+    assert callable(nexus_manager.indsats.opret_indsats)
+    assert callable(nexus_manager.indsats.hent_indsats_referencer)
+    assert callable(nexus_manager.indsats.hent_indsats)
+    assert callable(nexus_manager.indsats.filtrer_indsats_referencer)
 
 
-def test_hent_indsatser_referenser(indsats_client: IndsatsClient, test_borger: dict):
+def test_hent_indsatser_referenser(nexus_manager: NexusClientManager, test_borger: dict):
     """Test hent_indsatser_referencer Danish function."""
     # Get grant references using Danish method
-    indsats_referenser = indsats_client.hent_indsats_referencer(
+    indsats_referenser = nexus_manager.indsats.hent_indsats_referencer(
         test_borger,
         forløbsnavn="- Alt",
         inkluder_indsats_pakker=False
@@ -89,10 +90,10 @@ def test_hent_indsatser_referenser(indsats_client: IndsatsClient, test_borger: d
     assert isinstance(indsats_referenser, list)
 
 
-def test_filtrer_indsats_referenser_empty_list(indsats_client: IndsatsClient):
+def test_filtrer_indsats_referenser_empty_list(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referenser with empty input."""
     # Test filtering empty list
-    filtered = indsats_client.filtrer_indsats_referencer(
+    filtered = nexus_manager.indsats.filtrer_indsats_referencer(
         [],
         kun_aktive=True,
         leverandør_navn=""
@@ -101,7 +102,7 @@ def test_filtrer_indsats_referenser_empty_list(indsats_client: IndsatsClient):
     assert filtered == []
 
 
-def test_filtrer_indsats_referencer_with_mock_data(indsats_client: IndsatsClient):
+def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referencer with mock data."""
     # Create mock grant references
     mock_referenser = [
@@ -124,7 +125,7 @@ def test_filtrer_indsats_referencer_with_mock_data(indsats_client: IndsatsClient
     ]
     
     # Test filtering for active only
-    aktive = indsats_client.filtrer_indsats_referencer(
+    aktive = nexus_manager.indsats.filtrer_indsats_referencer(
         mock_referenser,
         kun_aktive=True,
         leverandør_navn=""
@@ -135,7 +136,7 @@ def test_filtrer_indsats_referencer_with_mock_data(indsats_client: IndsatsClient
     assert all(ref["workflowState"]["name"] != "Afsluttet" for ref in aktive)
     
     # Test filtering by supplier
-    med_leverandør = indsats_client.filtrer_indsats_referencer(
+    med_leverandør = nexus_manager.indsats.filtrer_indsats_referencer(
         mock_referenser,
         kun_aktive=False,
         leverandør_navn="Test Leverandør"
@@ -146,15 +147,15 @@ def test_filtrer_indsats_referencer_with_mock_data(indsats_client: IndsatsClient
     assert med_leverandør[0]["workflowState"]["name"] == "Bevilliget"
 
 
-def test_hent_indsats_error_handling(indsats_client: IndsatsClient):
+def test_hent_indsats_error_handling(nexus_manager: NexusClientManager):
     """Test hent_indsats error handling."""
     # Test with invalid reference
     with pytest.raises(ValueError, match="Input er ikke en gyldig indsats reference"):
-        indsats_client.hent_indsats({})
+        nexus_manager.indsats.hent_indsats({})
     
     # Test with unknown reference type
     with pytest.raises(ValueError, match="Ukendt reference type"):
-        indsats_client.hent_indsats({"type": "unknownType"})
+        nexus_manager.indsats.hent_indsats({"type": "unknownType"})
 
 
 def test_grants_to_indsats_inheritance():
@@ -174,12 +175,11 @@ def test_manager_provides_both_properties():
     assert hasattr(NexusClientManager, 'indsats')
 
 
-def test_old_english_method_names_work(borgere_client: BorgerClient, indsats_client: IndsatsClient, test_borger: dict):
+def test_old_english_method_names_work(nexus_manager: NexusClientManager, test_borger: dict):
     """Test that old English method names still work via aliases."""
-    citizen = test_borger
-    pathway = borgere_client.hent_visning(citizen)
+    pathway = nexus_manager.borgere.hent_visning(test_borger)
     assert pathway is not None, "Pathway should not be None"
-    references = borgere_client.hent_referencer(pathway)
+    references = nexus_manager.borgere.hent_referencer(pathway)
 
     references = filter_references(
         references,
@@ -188,12 +188,12 @@ def test_old_english_method_names_work(borgere_client: BorgerClient, indsats_cli
     )
 
     if len(references) > 0:
-        resolved = borgere_client.client.hent_fra_reference(references[0])
+        resolved = nexus_manager.hent_fra_reference(references[0])
         
         # Test the old English method name works
-        elements = indsats_client.get_grant_elements(resolved)
+        elements = nexus_manager.indsats.get_grant_elements(resolved)
         assert elements is not None
         
         # Test that it returns the same result as the Danish method
-        elementer = indsats_client.hent_indsats_elementer(resolved)
+        elementer = nexus_manager.indsats.hent_indsats_elementer(resolved)
         assert elements == elementer

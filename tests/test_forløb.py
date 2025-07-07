@@ -3,10 +3,11 @@ from unittest.mock import Mock
 from httpx import HTTPStatusError
 
 # Fixtures are automatically loaded from conftest.py
+from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.functionality.forløb import ForløbClient
 
 
-def test_get_citizen_cases(forløb_client: ForløbClient, test_borger: dict):
+def test_get_citizen_cases(nexus_manager: NexusClientManager, test_borger: dict):
     """Test that citizen has required activePrograms link."""
     # Verify the test citizen has the required link structure
     assert "_links" in test_borger
@@ -14,13 +15,13 @@ def test_get_citizen_cases(forløb_client: ForløbClient, test_borger: dict):
     assert "href" in test_borger["_links"]["activePrograms"]
     
     # Test the actual method
-    cases = forløb_client.get_citizen_cases(test_borger)
+    cases = nexus_manager.forløb.get_citizen_cases(test_borger)
     
     # Should not raise an exception and should return valid response
     assert cases is None or isinstance(cases, (dict, list))
 
 
-def test_get_citizen_cases_missing_link(forløb_client: ForløbClient):
+def test_get_citizen_cases_missing_link(nexus_manager: NexusClientManager):
     """Test handling of citizen without activePrograms link."""
     # Create a mock citizen without the required link
     mock_citizen = {
@@ -30,21 +31,21 @@ def test_get_citizen_cases_missing_link(forløb_client: ForløbClient):
     
     # This should raise a KeyError due to missing link
     with pytest.raises(KeyError):
-        forløb_client.get_citizen_cases(mock_citizen)
+        nexus_manager.forløb.get_citizen_cases(mock_citizen)
 
 
-def test_get_citizen_cases_http_error(forløb_client: ForløbClient, test_borger: dict):
+def test_get_citizen_cases_http_error(nexus_manager: NexusClientManager, test_borger: dict):
     """Test handling of HTTP errors."""
     # Mock the client to raise HTTPStatusError
-    original_get = forløb_client.client.get
-    forløb_client.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
+    original_get = nexus_manager.forløb.client.get
+    nexus_manager.forløb.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = forløb_client.get_citizen_cases(test_borger)
+        result = nexus_manager.forløb.get_citizen_cases(test_borger)
         assert result is None
     finally:
         # Restore original method
-        forløb_client.client.get = original_get
+        nexus_manager.forløb.client.get = original_get
 
 
 def test_forløb_client_initialization(base_client):
@@ -54,7 +55,7 @@ def test_forløb_client_initialization(base_client):
 
 
 # Tests for Danish functions
-def test_hent_forløb(forløb_client: ForløbClient, test_borger: dict):
+def test_hent_forløb(nexus_manager: NexusClientManager, test_borger: dict):
     """Test hent_forløb function."""
     # Verify the test citizen has the required link structure
     assert "_links" in test_borger
@@ -62,13 +63,13 @@ def test_hent_forløb(forløb_client: ForløbClient, test_borger: dict):
     assert "href" in test_borger["_links"]["activePrograms"]
     
     # Test the Danish method
-    forløb = forløb_client.hent_forløb(test_borger)
+    forløb = nexus_manager.forløb.hent_forløb(test_borger)
     
     # Should not raise an exception and should return valid response
     assert forløb is None or isinstance(forløb, (dict, list))
 
 
-def test_hent_forløb_missing_link(forløb_client: ForløbClient):
+def test_hent_forløb_missing_link(nexus_manager: NexusClientManager):
     """Test hent_forløb with missing activePrograms link."""
     # Create a mock citizen without the required link
     mock_borger = {
@@ -78,28 +79,28 @@ def test_hent_forløb_missing_link(forløb_client: ForløbClient):
     
     # This should raise a KeyError due to missing link
     with pytest.raises(KeyError):
-        forløb_client.hent_forløb(mock_borger)
+        nexus_manager.forløb.hent_forløb(mock_borger)
 
 
-def test_hent_forløb_http_error(forløb_client: ForløbClient, test_borger: dict):
+def test_hent_forløb_http_error(nexus_manager: NexusClientManager, test_borger: dict):
     """Test hent_forløb handling of HTTP errors."""
     # Mock the client to raise HTTPStatusError
-    original_get = forløb_client.client.get
-    forløb_client.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
+    original_get = nexus_manager.forløb.client.get
+    nexus_manager.forløb.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = forløb_client.hent_forløb(test_borger)
+        result = nexus_manager.forløb.hent_forløb(test_borger)
         assert result is None
     finally:
         # Restore original method
-        forløb_client.client.get = original_get
+        nexus_manager.forløb.client.get = original_get
 
 
-def test_opret_forløb_parameters(forløb_client: ForløbClient):
+def test_opret_forløb_parameters(nexus_manager: NexusClientManager):
     """Test opret_forløb method exists and has correct parameters."""
     # Test that the method exists
-    assert hasattr(forløb_client, 'opret_forløb')
-    assert callable(forløb_client.opret_forløb)
+    assert hasattr(nexus_manager.forløb, 'opret_forløb')
+    assert callable(nexus_manager.forløb.opret_forløb)
     
     # Test with mock data - this will fail in real test but validates signature
     mock_borger = {
@@ -110,28 +111,28 @@ def test_opret_forløb_parameters(forløb_client: ForløbClient):
     }
     
     # Mock the HTTP calls to avoid real API calls
-    original_get = forløb_client.client.get
+    original_get = nexus_manager.forløb.client.get
     mock_response = Mock()
     mock_response.status_code = 404  # Force None return
     mock_response.json.return_value = []
-    forløb_client.client.get = Mock(return_value=mock_response)
+    nexus_manager.forløb.client.get = Mock(return_value=mock_response)
     
     try:
         # Test that it accepts the correct parameters
-        result = forløb_client.opret_forløb(mock_borger, "Test grundforløb")
+        result = nexus_manager.forløb.opret_forløb(mock_borger, "Test grundforløb")
         assert result is None  # Expected due to mocked 404
         
-        result = forløb_client.opret_forløb(mock_borger, "Test grundforløb", "Test forløb")
+        result = nexus_manager.forløb.opret_forløb(mock_borger, "Test grundforløb", "Test forløb")
         assert result is None  # Expected due to mocked 404
     finally:
-        forløb_client.client.get = original_get
+        nexus_manager.forløb.client.get = original_get
 
 
-def test_luk_forløb_parameters(forløb_client: ForløbClient):
+def test_luk_forløb_parameters(nexus_manager: NexusClientManager):
     """Test luk_forløb method exists and has correct parameters."""
     # Test that the method exists
-    assert hasattr(forløb_client, 'luk_forløb')
-    assert callable(forløb_client.luk_forløb)
+    assert hasattr(nexus_manager.forløb, 'luk_forløb')
+    assert callable(nexus_manager.forløb.luk_forløb)
     
     # Test with mock data
     mock_forløb_ref = {
@@ -141,38 +142,38 @@ def test_luk_forløb_parameters(forløb_client: ForløbClient):
     }
     
     # Mock the HTTP calls to avoid real API calls
-    original_get = forløb_client.client.get
+    original_get = nexus_manager.forløb.client.get
     mock_response = Mock()
     mock_response.status_code = 404  # Force False return
-    forløb_client.client.get = Mock(return_value=mock_response)
+    nexus_manager.forløb.client.get = Mock(return_value=mock_response)
     
     try:
         # Test that it accepts the correct parameters and returns boolean
-        result = forløb_client.luk_forløb(mock_forløb_ref)
+        result = nexus_manager.forløb.luk_forløb(mock_forløb_ref)
         assert isinstance(result, bool)
         assert result is False  # Expected due to mocked 404
     finally:
-        forløb_client.client.get = original_get
+        nexus_manager.forløb.client.get = original_get
 
 
 # Test backward compatibility
-def test_backward_compatibility_aliases(forløb_client: ForløbClient, test_borger: dict):
+def test_backward_compatibility_aliases(nexus_manager: NexusClientManager, test_borger: dict):
     """Test that old method names still work for backward compatibility."""
     # Test get_citizen_cases alias
-    assert hasattr(forløb_client, 'get_citizen_cases')
-    assert hasattr(forløb_client, 'create_citizen_case')
-    assert hasattr(forløb_client, 'close_case')
+    assert hasattr(nexus_manager.forløb, 'get_citizen_cases')
+    assert hasattr(nexus_manager.forløb, 'create_citizen_case')
+    assert hasattr(nexus_manager.forløb, 'close_case')
     
     # Test that aliases work (using mocked client to avoid real API calls)
-    original_get = forløb_client.client.get
+    original_get = nexus_manager.forløb.client.get
     mock_response = Mock()
     mock_response.json.return_value = {"test": "data"}
-    forløb_client.client.get = Mock(return_value=mock_response)
+    nexus_manager.forløb.client.get = Mock(return_value=mock_response)
     
     try:
         # Test get_citizen_cases alias
-        result1 = forløb_client.get_citizen_cases(test_borger)
-        result2 = forløb_client.hent_forløb(test_borger)
+        result1 = nexus_manager.forløb.get_citizen_cases(test_borger)
+        result2 = nexus_manager.forløb.hent_forløb(test_borger)
         assert result1 == result2
     finally:
-        forløb_client.client.get = original_get
+        nexus_manager.forløb.client.get = original_get

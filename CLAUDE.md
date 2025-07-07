@@ -102,17 +102,22 @@ Dokumentationen er på dansk og giver den kontekst der skal til for at forstå N
 
 ### Hurtig start
 ```python
-from kmd_nexus_client import NexusClient
-from kmd_nexus_client.functionality.borgere import CitizensClient
+from kmd_nexus_client.manager import NexusClientManager
 
-# Opret forbindelse
-client = NexusClient(instance="din-instans", client_id="...", client_secret="...")
-borgere = CitizensClient(client)
+# Opret forbindelse (anbefalet måde)
+nexus = NexusClientManager(instance="din-instans", client_id="...", client_secret="...")
 
 # Hent test-borger (KUN test-borgere!)
 from nexus_ai_safety_wrapper import mandatory_safety_check, safe_get_citizen
 mandatory_safety_check()
-citizen = safe_get_citizen(borgere, "0108589995")
+citizen = safe_get_citizen(nexus.borgere, "0108589995")
+
+# Arbejd med referencer - nem adgang via manager
+resolved = nexus.hent_fra_reference(reference)
+
+# Adgang til alle klienter via manager
+indsatser = nexus.indsats.hent_indsats_referencer(citizen)
+opgaver = nexus.opgaver.hent_opgaver(resolved_object)
 ```
 
 ## Project Overview
@@ -120,16 +125,22 @@ citizen = safe_get_citizen(borgere, "0108589995")
 Python client library for KMD Nexus API, providing interoperability through REST API. Built around OAuth2 authentication and HATEOAS principles.
 
 **Core Components:**
+- **NexusClientManager**: Facade providing unified access to all functionality (anbefalet)
 - **NexusClient**: OAuth2 authentication, HTTP operations, HATEOAS navigation
-- **Functionality Clients**: Domain-specific operations for citizens, assignments, etc.
+- **Functionality Clients**: Domain-specific operations accessed via manager
 
-**Key Functionality Modules:**
-- **CitizensClient**: Citizen data and pathway navigation
-- **OrganisationerClient**: Organization and supplier management  
-- **OpgaverClient**: Assignment/task creation and management
-- **IndsatsClient**: Grant-related operations
-- **KalenderClient**: Calendar and scheduling
-- **ForløbClient**: Case/pathway management
+**Key Functionality Modules (adgang via NexusClientManager):**
+- **BorgerClient** (`nexus.borgere`): Citizen data and pathway navigation
+- **OrganisationerClient** (`nexus.organisationer`): Organization and supplier management  
+- **OpgaverClient** (`nexus.opgaver`): Assignment/task creation and management
+- **IndsatsClient** (`nexus.indsats`): Grant-related operations
+- **KalenderClient** (`nexus.kalender`): Calendar and scheduling
+- **ForløbClient** (`nexus.forløb`): Case/pathway management
+
+**Manager Benefits:**
+- **Enkel referenceopløsning**: `nexus.hent_fra_reference(reference)` i stedet for `client.nexus_client.hent_fra_reference(reference)`
+- **Konsistent adgang**: Alle klienter tilgås via samme manager
+- **Lazy loading**: Klienter instantieres kun når de bruges
 
 ## Arkitektur
 
