@@ -13,6 +13,8 @@ class KalenderClient:
     """
     def __init__(self, nexus_client: NexusClient):
         self.nexus_client = nexus_client
+
+    # TODO: Port alle funktioner og refactor dem
     
     def hent_kalender(self, borger: dict, kalender_navn: str = "Borgerkalender") -> dict:
         """

@@ -21,6 +21,7 @@ class ForløbClient:
         :param borger: Borgeren der skal hentes forløb for.
         :return: Borgerens aktive forløb, eller None hvis hentning fejlede.
         """
+        # TODO: Output er ikke tilsvarende pathway_references og fungerer derfor ikke med luk_forløb. Bør streamlines.
         try:
             response = self.client.get(borger["_links"]["activePrograms"]["href"])
             return response.json()
