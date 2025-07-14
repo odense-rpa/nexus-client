@@ -72,17 +72,17 @@ def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
     assert callable(nexus_manager.indsats.rediger_indsats)
     assert callable(nexus_manager.indsats.hent_indsats_elementer)
     assert callable(nexus_manager.indsats.opret_indsats)
-    assert callable(nexus_manager.indsats.hent_indsats_referencer)
+    assert callable(nexus_manager.indsats.hent_aktive_indsats_referencer)
     assert callable(nexus_manager.indsats.hent_indsats)
-    assert callable(nexus_manager.indsats.filtrer_indsats_referencer)
+    assert callable(nexus_manager.indsats.filtrer_aktive_indsats_referencer)
 
 
-def test_hent_indsatser_referenser(nexus_manager: NexusClientManager, test_borger: dict):
+def test_hent_indsatser_referencer(nexus_manager: NexusClientManager, test_borger: dict):
     """Test hent_indsatser_referencer Danish function."""
     # Get grant references using Danish method
-    indsats_referenser = nexus_manager.indsats.hent_indsats_referencer(
+    indsats_referenser = nexus_manager.indsats.hent_aktive_indsats_referencer(
         test_borger,
-        forløbsnavn="- Alt",
+        visning="- Alt",
         inkluder_indsats_pakker=False
     )
     
@@ -90,10 +90,10 @@ def test_hent_indsatser_referenser(nexus_manager: NexusClientManager, test_borge
     assert isinstance(indsats_referenser, list)
 
 
-def test_filtrer_indsats_referenser_empty_list(nexus_manager: NexusClientManager):
+def test_filtrer_indsats_referencer_empty_list(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referenser with empty input."""
     # Test filtering empty list
-    filtered = nexus_manager.indsats.filtrer_indsats_referencer(
+    filtered = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
         [],
         kun_aktive=True,
         leverandør_navn=""
@@ -125,7 +125,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     ]
     
     # Test filtering for active only
-    aktive = nexus_manager.indsats.filtrer_indsats_referencer(
+    aktive = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
         mock_referenser,
         kun_aktive=True,
         leverandør_navn=""
@@ -136,7 +136,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     assert all(ref["workflowState"]["name"] != "Afsluttet" for ref in aktive)
     
     # Test filtering by supplier
-    med_leverandør = nexus_manager.indsats.filtrer_indsats_referencer(
+    med_leverandør = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
         mock_referenser,
         kun_aktive=False,
         leverandør_navn="Test Leverandør"

@@ -374,8 +374,8 @@ class IndsatsClient:
 
     # Other grant functions
 
-    def hent_indsats_referencer(
-        self, borger: dict, forløbsnavn: str = "- Alt", inkluder_indsats_pakker=False
+    def hent_aktive_indsats_referencer(
+        self, borger: dict, visning: str = "- Alt", inkluder_indsats_pakker=False
     ) -> List[dict]:
         """
         Hent indsatser referencer for en borger.
@@ -385,7 +385,7 @@ class IndsatsClient:
         :return: Liste af indsatser referencer
         """
         # Get citizen pathway
-        pathway = self._get_citizen_pathway(borger, forløbsnavn)
+        pathway = self._get_citizen_pathway(borger, visning)
 
         # Get pathway references
         references_response = self.client.get(
@@ -442,7 +442,7 @@ class IndsatsClient:
 
         return grant
 
-    def filtrer_indsats_referencer(
+    def filtrer_aktive_indsats_referencer(
         self,
         indsatser_referencer: List[dict],
         kun_aktive: bool = True,
@@ -462,13 +462,8 @@ class IndsatsClient:
             # Filter by active status (matching Blue Prism's workflow state logic)
             if kun_aktive:
                 workflow_state = ref.get("workflowState", {}).get("name", "")
-                active_states = [
-                    "Bestilt",
-                    "Bevilliget",
-                    "Planlagt, ikke bestilt",
-                    "Ændret",
-                ]
-                if workflow_state not in active_states:
+                
+                if workflow_state == "Afsluttet":
                     continue
 
             # Filter by supplier if specified (matching Blue Prism's supplier filtering)
@@ -538,9 +533,9 @@ class IndsatsClient:
     edit_grant = rediger_indsats
     get_grant_elements = hent_indsats_elementer
     create_grant = opret_indsats
-    get_grant_references = hent_indsats_referencer
+    get_grant_references = hent_aktive_indsats_referencer
     get_grant = hent_indsats
-    filter_grant_references = filtrer_indsats_referencer
+    filter_grant_references = filtrer_aktive_indsats_referencer
 
 
 # Backward compatibility class alias
