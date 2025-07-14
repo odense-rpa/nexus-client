@@ -9,6 +9,7 @@ import re
 from typing import List, Dict, Any, Callable, Optional, Union
 
 
+
 def traverse_tree(
     node: Dict[str, Any], 
     visit_fn: Callable[[Dict[str, Any], List[Dict[str, Any]]], None],
@@ -213,6 +214,7 @@ def _path_matches(current_path: List[Dict[str, Any]], target_path: List[str]) ->
     - "*" matches any single segment
     - "%" as suffix matches any string starting with prefix
     """
+    # TODO: Matcher ikke ÆHF - Forløbsindplacering (Grundforløb), som forventet
     if len(current_path) != len(target_path):
         return False
     

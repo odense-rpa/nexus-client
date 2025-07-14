@@ -3,6 +3,8 @@ Tests for tree_helpers module.
 """
 
 import pytest
+
+from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.tree_helpers import (
     traverse_tree,
     find_nodes,
@@ -227,6 +229,27 @@ class TestFindNodes:
 
 class TestFilterByPath:
     """Test path-based filtering."""
+
+    def test_filter_by_path_nexus_data(self, test_borger: dict, nexus_manager: NexusClientManager):
+        visning = nexus_manager.borgere.hent_visning(test_borger)
+        referencer = nexus_manager.borgere.hent_referencer(visning)
+
+        assert referencer is not None
+
+        grundforløb = filter_by_path(
+            referencer,
+            "/ÆHF - Forløbsindplacering (Grundforløb)",
+            active_pathways_only=True
+        )
+
+        indsatser = filter_by_path(
+            referencer,
+            "/Sundhedsfagligt grundforløb/FSIII/Indsatser/*",
+            active_pathways_only=True
+        )
+
+        assert len(grundforløb) == 1
+        assert len(indsatser) > 0
     
     def test_filter_by_path_basic(self, pathway_tree):
         """Test basic path filtering."""
