@@ -64,9 +64,9 @@ def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
     assert hasattr(nexus_manager.indsats, 'rediger_indsats')
     assert hasattr(nexus_manager.indsats, 'hent_indsats_elementer')
     assert hasattr(nexus_manager.indsats, 'opret_indsats')
-    assert hasattr(nexus_manager.indsats, 'hent_indsats_referencer')
+    assert hasattr(nexus_manager.indsats, 'hent_aktive_indsats_referencer')
     assert hasattr(nexus_manager.indsats, 'hent_indsats')
-    assert hasattr(nexus_manager.indsats, 'filtrer_indsats_referencer')
+    assert hasattr(nexus_manager.indsats, 'filtrer_aktive_indsats_referencer')
     
     # Check that they are callable
     assert callable(nexus_manager.indsats.rediger_indsats)
