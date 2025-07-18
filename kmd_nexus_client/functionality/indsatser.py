@@ -399,7 +399,8 @@ class IndsatsClient:
             lambda node: (
                 (
                     node.get("type") == "basketGrantReference"
-                    and node.get("workflowState", {}).get("name") != "Afsluttet"
+                    and node.get("workflowState", {}).get("name") not in ["Afsluttet", "Annulleret", "Fjernet", "Frafaldet", "Afjort"]
+
                 )
                 or (
                     inkluder_indsats_pakker
