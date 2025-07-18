@@ -399,7 +399,7 @@ class IndsatsClient:
             lambda node: (
                 (
                     node.get("type") == "basketGrantReference"
-                    and node.get("workflowState", {}).get("name") not in ["Afsluttet", "Annulleret", "Fjernet", "Frafaldet", "Afjort"]
+                    and node.get("workflowState", {}).get("name") not in ["Afsluttet", "Annulleret", "Fjernet", "Frafaldet", "Afgjort"]
 
                 )
                 or (
