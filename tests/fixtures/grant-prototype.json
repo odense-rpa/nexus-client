@@ -1,0 +1,2592 @@
+{
+    "workflowState": null,
+    "name": "Hjemmetræning digitalt § 83.a",
+    "identifier": {
+        "patientGrantId": null,
+        "catalogGrantId": 2207,
+        "parentPatientGrantId": null,
+        "previousId": null,
+        "basketId": 427261,
+        "index": null,
+        "isPackage": false,
+        "packageIdentifier": null,
+        "package": false,
+        "_links": {}
+    },
+    "version": 0,
+    "basketId": 427261,
+    "uid": null,
+    "currentElements": [
+        {
+            "type": "paragraph",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "paragraph": {
+                "id": 48,
+                "version": 1,
+                "name": "Serviceloven",
+                "section": "§ 83 a",
+                "description": "Kommunalbestyrelsen skal tilbyde et korterevarende og tidsafgrænset rehabiliteringsforløb til personer med nedsat funktionsevne, hvis rehabiliteringsforløbet vurderes at kunne forbedre personens funktionsevne og dermed nedsætte behovet for hjælp efter § 83, stk. 1. Vurderingen skal være individuel og konkret og tage udgangspunkt i modtagerens ressourcer og behov.",
+                "group": {
+                    "id": "REHABILITATION2_SERVICELOV",
+                    "name": "Rehabilitering",
+                    "nspName": "Rehabilitering",
+                    "visitationType": {
+                        "id": "TRAINING_VISITATION",
+                        "_links": {}
+                    },
+                    "_links": {}
+                },
+                "medcomGroup": "PERSONAL_CARE",
+                "hclDstParagraphMapping": "HCL_DST_83_A_SOCIAL_SERVICE_LAW",
+                "paragraphGrantOfferPortalSupplierOfferType": null,
+                "active": true,
+                "_links": {
+                    "self": {
+                        "href": "/api/core/mobile/odensekommune/v2/paragraphs/48"
+                    }
+                }
+            },
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "availableParagraphs": {
+                    "href": "/api/core/mobile/odensekommune/v2/paragraphs/active"
+                }
+            }
+        },
+        {
+            "type": "denmarkStatisticMappingTargetGroup",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "selectedValues": [
+                "NA"
+            ],
+            "possibleValues": [
+                "1.1.1",
+                "1.1.2",
+                "1.1.3",
+                "1.1.4",
+                "1.1.5",
+                "1.1.6",
+                "1.2.1",
+                "1.2.2",
+                "2",
+                "10",
+                "NA",
+                "NS"
+            ],
+            "identifier": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticRareDisability",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": false,
+            "hideable": false,
+            "disableable": false,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMultipleDisabilityBooleanUnit",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": false,
+            "hideable": false,
+            "disableable": false,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingPrimaryTargetGroup",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": "NA",
+            "possibleValues": [
+                "04a2ecdd-cdc6-4000-91d3-4e21958126ec",
+                "ab7b7d7b-b7bb-4b8c-99d9-5c98a302b771",
+                "0d66b364-958e-48cf-a18b-744fab284194",
+                "7ef8be83-90d1-4375-b1cb-24710bea21c7",
+                "5cb8997c-eb10-477f-b653-b2a5ff11ce7d",
+                "6e155207-db12-419a-8d9c-d67756533056",
+                "615310e8-f702-4455-910b-9d6d8aa684fb",
+                "da298aec-cd7d-436c-9927-d88d00066881",
+                "01da9924-f4b4-4265-8594-0e892fa60676",
+                "7b48f1a0-579b-4976-ae7c-4074b5981449",
+                "59254ffb-8efb-4023-84f8-73e5bcba0bc7",
+                "d26f97e8-99ed-46a9-94db-93340f77a950",
+                "1097d07f-1dba-4cc2-ae3a-399a501c2eb6",
+                "34449052-1150-4900-9d69-c56eb9b26793",
+                "9b3fd322-a75a-4ed8-9b74-425fa1e01c95",
+                "cc6a58cf-d3d2-4e5f-b7fe-98b009647eac",
+                "e6a269f5-944a-4ff8-b4d8-6dc2134d9167",
+                "93d52b11-faa7-4ff7-b552-11a84cce8bf1",
+                "71dfe6d1-ebc1-4414-8527-edf8e605c356",
+                "5cfc9530-a193-4f66-9981-3b980ee9ea7b",
+                "97c355cc-84e3-46d0-ac1b-00bc627d089f",
+                "17ce646b-4469-4a73-82a9-9628436f6c70",
+                "a78fb31e-b30a-4815-af85-932859fd06b9",
+                "303deb9b-84f0-49d2-ab7a-f8b98eed40a2",
+                "ee5b52bd-b839-4e69-ad04-c8b33eabfbde",
+                "f2ccc0c0-2a0a-49c9-9d6a-741a7cd220a3",
+                "6aac5ae6-ef06-4866-9c66-16d51ebbc83b",
+                "192b7d79-415c-4f4f-9223-607938ecbe97",
+                "afaa7e31-2b5d-4a49-9008-56aa8df8dc13",
+                "d42d8f41-2d07-4391-a687-bad51172d0c9",
+                "851b2a9d-cde2-4d5d-8f33-d03789022cbb",
+                "0919515d-9975-4743-a16f-edb45374b0da",
+                "293bf940-c075-4e3d-b5ef-6e331202e556",
+                "3e3f5ebf-82c1-401b-ab5e-e6138a31da3a",
+                "16075f99-3694-4878-a48d-b2f4b515cb76",
+                "e1b59a4a-9cc2-4113-a5f1-84af588b02a2",
+                "66fac925-3488-43b3-8e50-4510d3821b37",
+                "3b166cb0-df17-4002-a4c4-69e9a943645c",
+                "83cf43f1-6d71-477c-8583-2e28755b41d3",
+                "df42d472-06f6-4c5f-9dcf-64aa6cc20925",
+                "6a038911-d866-4910-90ae-72ca55c641ea",
+                "e2ecc751-21b9-4aab-a20f-2f3dd9701c97",
+                "ab4413f0-fa81-41c0-ad8c-21782c12a0fa",
+                "0e25a2ec-4f04-4d14-a5ad-a6519a7d1d5f",
+                "f1f4d709-19d2-48cc-8942-231bf912323d",
+                "5c6bc9a0-a955-4168-9692-cdcd691ff866",
+                "c47fd846-f1e0-4786-89a4-88d00e7a86c0",
+                "3412d671-22bf-456c-b963-c4e05c2725a0",
+                "905caa77-2b98-48ce-b0e1-35dc4c1cc4bd",
+                "e993d8c3-b7d7-4d72-9be2-937e5ba38b5a",
+                "6fd0f315-2297-4d66-b638-3f867a0900e0",
+                "5e95db73-4d16-4084-93a3-595c0650b160",
+                "152a3d6b-8be9-4dae-8ba5-e796a51369e9",
+                "NA"
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingOtherTargetGroups",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "selectedValues": [
+                "NA"
+            ],
+            "possibleValues": [
+                "04a2ecdd-cdc6-4000-91d3-4e21958126ec",
+                "ab7b7d7b-b7bb-4b8c-99d9-5c98a302b771",
+                "0d66b364-958e-48cf-a18b-744fab284194",
+                "7ef8be83-90d1-4375-b1cb-24710bea21c7",
+                "5cb8997c-eb10-477f-b653-b2a5ff11ce7d",
+                "6e155207-db12-419a-8d9c-d67756533056",
+                "615310e8-f702-4455-910b-9d6d8aa684fb",
+                "da298aec-cd7d-436c-9927-d88d00066881",
+                "01da9924-f4b4-4265-8594-0e892fa60676",
+                "7b48f1a0-579b-4976-ae7c-4074b5981449",
+                "59254ffb-8efb-4023-84f8-73e5bcba0bc7",
+                "d26f97e8-99ed-46a9-94db-93340f77a950",
+                "1097d07f-1dba-4cc2-ae3a-399a501c2eb6",
+                "34449052-1150-4900-9d69-c56eb9b26793",
+                "9b3fd322-a75a-4ed8-9b74-425fa1e01c95",
+                "cc6a58cf-d3d2-4e5f-b7fe-98b009647eac",
+                "e6a269f5-944a-4ff8-b4d8-6dc2134d9167",
+                "93d52b11-faa7-4ff7-b552-11a84cce8bf1",
+                "71dfe6d1-ebc1-4414-8527-edf8e605c356",
+                "5cfc9530-a193-4f66-9981-3b980ee9ea7b",
+                "97c355cc-84e3-46d0-ac1b-00bc627d089f",
+                "17ce646b-4469-4a73-82a9-9628436f6c70",
+                "a78fb31e-b30a-4815-af85-932859fd06b9",
+                "303deb9b-84f0-49d2-ab7a-f8b98eed40a2",
+                "ee5b52bd-b839-4e69-ad04-c8b33eabfbde",
+                "f2ccc0c0-2a0a-49c9-9d6a-741a7cd220a3",
+                "6aac5ae6-ef06-4866-9c66-16d51ebbc83b",
+                "192b7d79-415c-4f4f-9223-607938ecbe97",
+                "afaa7e31-2b5d-4a49-9008-56aa8df8dc13",
+                "d42d8f41-2d07-4391-a687-bad51172d0c9",
+                "851b2a9d-cde2-4d5d-8f33-d03789022cbb",
+                "f1c7ee41-21b4-4dba-9424-c874bf72b5e7",
+                "1f23325e-c9c9-455b-bfe7-b4dcd1bb63e5",
+                "0919515d-9975-4743-a16f-edb45374b0da",
+                "293bf940-c075-4e3d-b5ef-6e331202e556",
+                "3e3f5ebf-82c1-401b-ab5e-e6138a31da3a",
+                "16075f99-3694-4878-a48d-b2f4b515cb76",
+                "e1b59a4a-9cc2-4113-a5f1-84af588b02a2",
+                "66fac925-3488-43b3-8e50-4510d3821b37",
+                "3b166cb0-df17-4002-a4c4-69e9a943645c",
+                "83cf43f1-6d71-477c-8583-2e28755b41d3",
+                "df42d472-06f6-4c5f-9dcf-64aa6cc20925",
+                "6a038911-d866-4910-90ae-72ca55c641ea",
+                "e2ecc751-21b9-4aab-a20f-2f3dd9701c97",
+                "ab4413f0-fa81-41c0-ad8c-21782c12a0fa",
+                "0e25a2ec-4f04-4d14-a5ad-a6519a7d1d5f",
+                "f1f4d709-19d2-48cc-8942-231bf912323d",
+                "5c6bc9a0-a955-4168-9692-cdcd691ff866",
+                "c47fd846-f1e0-4786-89a4-88d00e7a86c0",
+                "3412d671-22bf-456c-b963-c4e05c2725a0",
+                "905caa77-2b98-48ce-b0e1-35dc4c1cc4bd",
+                "e993d8c3-b7d7-4d72-9be2-937e5ba38b5a",
+                "6fd0f315-2297-4d66-b638-3f867a0900e0",
+                "5e95db73-4d16-4084-93a3-595c0650b160",
+                "NA"
+            ],
+            "identifier": null,
+            "displayNameNew": null,
+            "displayNameOld": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "payor",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": "ORIGINAL_COMMUNE",
+            "possibleValues": [
+                "CITIZEN",
+                "ORIGINAL_COMMUNE"
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "refreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/grantElement/net.avaleo.business.domain.socialservice.PayorStringUnit/refresh"
+                },
+                "catalogRefreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/grants/grantElement/net.avaleo.business.domain.socialservice.PayorStringUnit/refresh"
+                }
+            }
+        },
+        {
+            "type": "invoiceLines",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": true,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "selectedValues": [
+                [
+                    "BILLING_PERIOD_SHORT",
+                    "GRANT_NAME",
+                    "SUPPLEMENTARY_INFORMATION"
+                ]
+            ],
+            "possibleValues": [
+                "GRANT_NAME",
+                "SERVICE_PERIOD",
+                "BILLING_PERIOD_SHORT",
+                "BILLING_PERIOD_LONG",
+                "SUPPLIER_NAME",
+                "SUPPLEMENTARY_INFORMATION",
+                "QUANTITY_UNIT_PRICE"
+            ],
+            "lineCount": 3,
+            "hideable": false,
+            "disableable": false,
+            "disabledOnCatalog": false,
+            "_links": {
+                "opusAccountAvailable": {
+                    "href": "#"
+                }
+            }
+        },
+        {
+            "type": "debtorContact",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "contact": {
+                "id": 1,
+                "version": 1,
+                "name": "Odense Kommune",
+                "origin": "CASEFLOW",
+                "source": "CASEFLOW",
+                "active": true,
+                "contactType": "Debitor",
+                "cvr": null,
+                "ean": "5798006615285",
+                "municipalityCode": 461,
+                "_links": {
+                    "self": {
+                        "href": "/api/core/mobile/odensekommune/v2/contacts/organisation/1"
+                    }
+                }
+            },
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "availableDebtorOrganisationContacts": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/debtorContacts"
+                },
+                "refreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/grantElement/net.avaleo.business.domain.socialservice.DebtorOrganisationContact/refresh"
+                }
+            }
+        },
+        {
+            "type": "actingMunicipality",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "municipality": null,
+            "municipalityList": [
+                {
+                    "name": "Albertslund",
+                    "municipalityCode": "165",
+                    "_links": {}
+                },
+                {
+                    "name": "Allerød",
+                    "municipalityCode": "201",
+                    "_links": {}
+                },
+                {
+                    "name": "Assens",
+                    "municipalityCode": "420",
+                    "_links": {}
+                },
+                {
+                    "name": "Ballerup",
+                    "municipalityCode": "151",
+                    "_links": {}
+                },
+                {
+                    "name": "Billund",
+                    "municipalityCode": "530",
+                    "_links": {}
+                },
+                {
+                    "name": "Bornholm",
+                    "municipalityCode": "400",
+                    "_links": {}
+                },
+                {
+                    "name": "Brøndby",
+                    "municipalityCode": "153",
+                    "_links": {}
+                },
+                {
+                    "name": "Brønderslev",
+                    "municipalityCode": "810",
+                    "_links": {}
+                },
+                {
+                    "name": "Dragør",
+                    "municipalityCode": "155",
+                    "_links": {}
+                },
+                {
+                    "name": "Egedal",
+                    "municipalityCode": "240",
+                    "_links": {}
+                },
+                {
+                    "name": "Esbjerg",
+                    "municipalityCode": "561",
+                    "_links": {}
+                },
+                {
+                    "name": "Fanø",
+                    "municipalityCode": "563",
+                    "_links": {}
+                },
+                {
+                    "name": "Favrskov",
+                    "municipalityCode": "710",
+                    "_links": {}
+                },
+                {
+                    "name": "Faxe",
+                    "municipalityCode": "320",
+                    "_links": {}
+                },
+                {
+                    "name": "Fredensborg",
+                    "municipalityCode": "210",
+                    "_links": {}
+                },
+                {
+                    "name": "Fredericia",
+                    "municipalityCode": "607",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederiksberg",
+                    "municipalityCode": "147",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederikshavn",
+                    "municipalityCode": "813",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederikssund",
+                    "municipalityCode": "250",
+                    "_links": {}
+                },
+                {
+                    "name": "Furesø",
+                    "municipalityCode": "190",
+                    "_links": {}
+                },
+                {
+                    "name": "Faaborg-Midtfyn",
+                    "municipalityCode": "430",
+                    "_links": {}
+                },
+                {
+                    "name": "Gentofte",
+                    "municipalityCode": "157",
+                    "_links": {}
+                },
+                {
+                    "name": "Gladsaxe",
+                    "municipalityCode": "159",
+                    "_links": {}
+                },
+                {
+                    "name": "Glostrup",
+                    "municipalityCode": "161",
+                    "_links": {}
+                },
+                {
+                    "name": "Greve",
+                    "municipalityCode": "253",
+                    "_links": {}
+                },
+                {
+                    "name": "Gribskov",
+                    "municipalityCode": "270",
+                    "_links": {}
+                },
+                {
+                    "name": "Guldborgsund",
+                    "municipalityCode": "376",
+                    "_links": {}
+                },
+                {
+                    "name": "Haderslev",
+                    "municipalityCode": "510",
+                    "_links": {}
+                },
+                {
+                    "name": "Halsnæs",
+                    "municipalityCode": "260",
+                    "_links": {}
+                },
+                {
+                    "name": "Hedensted",
+                    "municipalityCode": "766",
+                    "_links": {}
+                },
+                {
+                    "name": "Helsingør",
+                    "municipalityCode": "217",
+                    "_links": {}
+                },
+                {
+                    "name": "Herlev",
+                    "municipalityCode": "163",
+                    "_links": {}
+                },
+                {
+                    "name": "Herning",
+                    "municipalityCode": "657",
+                    "_links": {}
+                },
+                {
+                    "name": "Hillerød",
+                    "municipalityCode": "219",
+                    "_links": {}
+                },
+                {
+                    "name": "Hjørring",
+                    "municipalityCode": "860",
+                    "_links": {}
+                },
+                {
+                    "name": "Holbæk",
+                    "municipalityCode": "316",
+                    "_links": {}
+                },
+                {
+                    "name": "Holstebro",
+                    "municipalityCode": "661",
+                    "_links": {}
+                },
+                {
+                    "name": "Horsens",
+                    "municipalityCode": "615",
+                    "_links": {}
+                },
+                {
+                    "name": "Hvidovre",
+                    "municipalityCode": "167",
+                    "_links": {}
+                },
+                {
+                    "name": "Høje-Taastrup",
+                    "municipalityCode": "169",
+                    "_links": {}
+                },
+                {
+                    "name": "Hørsholm",
+                    "municipalityCode": "223",
+                    "_links": {}
+                },
+                {
+                    "name": "Ikast-Brande",
+                    "municipalityCode": "756",
+                    "_links": {}
+                },
+                {
+                    "name": "Ishøj",
+                    "municipalityCode": "183",
+                    "_links": {}
+                },
+                {
+                    "name": "Jammerbugt",
+                    "municipalityCode": "849",
+                    "_links": {}
+                },
+                {
+                    "name": "Kalundborg",
+                    "municipalityCode": "326",
+                    "_links": {}
+                },
+                {
+                    "name": "Kerteminde",
+                    "municipalityCode": "440",
+                    "_links": {}
+                },
+                {
+                    "name": "Kolding",
+                    "municipalityCode": "621",
+                    "_links": {}
+                },
+                {
+                    "name": "København",
+                    "municipalityCode": "101",
+                    "_links": {}
+                },
+                {
+                    "name": "Køge",
+                    "municipalityCode": "259",
+                    "_links": {}
+                },
+                {
+                    "name": "Langeland",
+                    "municipalityCode": "482",
+                    "_links": {}
+                },
+                {
+                    "name": "Lejre",
+                    "municipalityCode": "350",
+                    "_links": {}
+                },
+                {
+                    "name": "Lemvig",
+                    "municipalityCode": "665",
+                    "_links": {}
+                },
+                {
+                    "name": "Lolland",
+                    "municipalityCode": "360",
+                    "_links": {}
+                },
+                {
+                    "name": "Lyngby-Taarbæk",
+                    "municipalityCode": "173",
+                    "_links": {}
+                },
+                {
+                    "name": "Læsø",
+                    "municipalityCode": "825",
+                    "_links": {}
+                },
+                {
+                    "name": "Mariagerfjord",
+                    "municipalityCode": "846",
+                    "_links": {}
+                },
+                {
+                    "name": "Middelfart",
+                    "municipalityCode": "410",
+                    "_links": {}
+                },
+                {
+                    "name": "Morsø",
+                    "municipalityCode": "773",
+                    "_links": {}
+                },
+                {
+                    "name": "Norddjurs",
+                    "municipalityCode": "707",
+                    "_links": {}
+                },
+                {
+                    "name": "Nordfyn",
+                    "municipalityCode": "480",
+                    "_links": {}
+                },
+                {
+                    "name": "Nyborg",
+                    "municipalityCode": "450",
+                    "_links": {}
+                },
+                {
+                    "name": "Næstved",
+                    "municipalityCode": "370",
+                    "_links": {}
+                },
+                {
+                    "name": "Odder",
+                    "municipalityCode": "727",
+                    "_links": {}
+                },
+                {
+                    "name": "Odense",
+                    "municipalityCode": "461",
+                    "_links": {}
+                },
+                {
+                    "name": "Odsherred",
+                    "municipalityCode": "306",
+                    "_links": {}
+                },
+                {
+                    "name": "Randers",
+                    "municipalityCode": "730",
+                    "_links": {}
+                },
+                {
+                    "name": "Rebild",
+                    "municipalityCode": "840",
+                    "_links": {}
+                },
+                {
+                    "name": "Ringkøbing-Skjern",
+                    "municipalityCode": "760",
+                    "_links": {}
+                },
+                {
+                    "name": "Ringsted",
+                    "municipalityCode": "329",
+                    "_links": {}
+                },
+                {
+                    "name": "Roskilde",
+                    "municipalityCode": "265",
+                    "_links": {}
+                },
+                {
+                    "name": "Rudersdal",
+                    "municipalityCode": "230",
+                    "_links": {}
+                },
+                {
+                    "name": "Rødovre",
+                    "municipalityCode": "175",
+                    "_links": {}
+                },
+                {
+                    "name": "Samsø",
+                    "municipalityCode": "741",
+                    "_links": {}
+                },
+                {
+                    "name": "Silkeborg",
+                    "municipalityCode": "740",
+                    "_links": {}
+                },
+                {
+                    "name": "Skanderborg",
+                    "municipalityCode": "746",
+                    "_links": {}
+                },
+                {
+                    "name": "Skive",
+                    "municipalityCode": "779",
+                    "_links": {}
+                },
+                {
+                    "name": "Slagelse",
+                    "municipalityCode": "330",
+                    "_links": {}
+                },
+                {
+                    "name": "Solrød",
+                    "municipalityCode": "269",
+                    "_links": {}
+                },
+                {
+                    "name": "Sorø",
+                    "municipalityCode": "340",
+                    "_links": {}
+                },
+                {
+                    "name": "Stevns",
+                    "municipalityCode": "336",
+                    "_links": {}
+                },
+                {
+                    "name": "Struer",
+                    "municipalityCode": "671",
+                    "_links": {}
+                },
+                {
+                    "name": "Svendborg",
+                    "municipalityCode": "479",
+                    "_links": {}
+                },
+                {
+                    "name": "Syddjurs",
+                    "municipalityCode": "706",
+                    "_links": {}
+                },
+                {
+                    "name": "Sønderborg",
+                    "municipalityCode": "540",
+                    "_links": {}
+                },
+                {
+                    "name": "Thisted",
+                    "municipalityCode": "787",
+                    "_links": {}
+                },
+                {
+                    "name": "Tønder",
+                    "municipalityCode": "550",
+                    "_links": {}
+                },
+                {
+                    "name": "Tårnby",
+                    "municipalityCode": "185",
+                    "_links": {}
+                },
+                {
+                    "name": "Vallensbæk",
+                    "municipalityCode": "187",
+                    "_links": {}
+                },
+                {
+                    "name": "Varde",
+                    "municipalityCode": "573",
+                    "_links": {}
+                },
+                {
+                    "name": "Vejen",
+                    "municipalityCode": "575",
+                    "_links": {}
+                },
+                {
+                    "name": "Vejle",
+                    "municipalityCode": "630",
+                    "_links": {}
+                },
+                {
+                    "name": "Vesthimmerland",
+                    "municipalityCode": "820",
+                    "_links": {}
+                },
+                {
+                    "name": "Viborg",
+                    "municipalityCode": "791",
+                    "_links": {}
+                },
+                {
+                    "name": "Vordingborg",
+                    "municipalityCode": "390",
+                    "_links": {}
+                },
+                {
+                    "name": "Ærø",
+                    "municipalityCode": "492",
+                    "_links": {}
+                },
+                {
+                    "name": "Aabenraa",
+                    "municipalityCode": "580",
+                    "_links": {}
+                },
+                {
+                    "name": "Aalborg",
+                    "municipalityCode": "851",
+                    "_links": {}
+                },
+                {
+                    "name": "Aarhus",
+                    "municipalityCode": "751",
+                    "_links": {}
+                },
+                {
+                    "name": "Grønland",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Færøerne",
+                    "municipalityCode": null,
+                    "_links": {}
+                }
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "payingMunicipality",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "municipality": null,
+            "municipalityList": [
+                {
+                    "name": "Albertslund",
+                    "municipalityCode": "165",
+                    "_links": {}
+                },
+                {
+                    "name": "Allerød",
+                    "municipalityCode": "201",
+                    "_links": {}
+                },
+                {
+                    "name": "Assens",
+                    "municipalityCode": "420",
+                    "_links": {}
+                },
+                {
+                    "name": "Ballerup",
+                    "municipalityCode": "151",
+                    "_links": {}
+                },
+                {
+                    "name": "Billund",
+                    "municipalityCode": "530",
+                    "_links": {}
+                },
+                {
+                    "name": "Bornholm",
+                    "municipalityCode": "400",
+                    "_links": {}
+                },
+                {
+                    "name": "Brøndby",
+                    "municipalityCode": "153",
+                    "_links": {}
+                },
+                {
+                    "name": "Brønderslev",
+                    "municipalityCode": "810",
+                    "_links": {}
+                },
+                {
+                    "name": "Dragør",
+                    "municipalityCode": "155",
+                    "_links": {}
+                },
+                {
+                    "name": "Egedal",
+                    "municipalityCode": "240",
+                    "_links": {}
+                },
+                {
+                    "name": "Esbjerg",
+                    "municipalityCode": "561",
+                    "_links": {}
+                },
+                {
+                    "name": "Fanø",
+                    "municipalityCode": "563",
+                    "_links": {}
+                },
+                {
+                    "name": "Favrskov",
+                    "municipalityCode": "710",
+                    "_links": {}
+                },
+                {
+                    "name": "Faxe",
+                    "municipalityCode": "320",
+                    "_links": {}
+                },
+                {
+                    "name": "Fredensborg",
+                    "municipalityCode": "210",
+                    "_links": {}
+                },
+                {
+                    "name": "Fredericia",
+                    "municipalityCode": "607",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederiksberg",
+                    "municipalityCode": "147",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederikshavn",
+                    "municipalityCode": "813",
+                    "_links": {}
+                },
+                {
+                    "name": "Frederikssund",
+                    "municipalityCode": "250",
+                    "_links": {}
+                },
+                {
+                    "name": "Furesø",
+                    "municipalityCode": "190",
+                    "_links": {}
+                },
+                {
+                    "name": "Faaborg-Midtfyn",
+                    "municipalityCode": "430",
+                    "_links": {}
+                },
+                {
+                    "name": "Gentofte",
+                    "municipalityCode": "157",
+                    "_links": {}
+                },
+                {
+                    "name": "Gladsaxe",
+                    "municipalityCode": "159",
+                    "_links": {}
+                },
+                {
+                    "name": "Glostrup",
+                    "municipalityCode": "161",
+                    "_links": {}
+                },
+                {
+                    "name": "Greve",
+                    "municipalityCode": "253",
+                    "_links": {}
+                },
+                {
+                    "name": "Gribskov",
+                    "municipalityCode": "270",
+                    "_links": {}
+                },
+                {
+                    "name": "Guldborgsund",
+                    "municipalityCode": "376",
+                    "_links": {}
+                },
+                {
+                    "name": "Haderslev",
+                    "municipalityCode": "510",
+                    "_links": {}
+                },
+                {
+                    "name": "Halsnæs",
+                    "municipalityCode": "260",
+                    "_links": {}
+                },
+                {
+                    "name": "Hedensted",
+                    "municipalityCode": "766",
+                    "_links": {}
+                },
+                {
+                    "name": "Helsingør",
+                    "municipalityCode": "217",
+                    "_links": {}
+                },
+                {
+                    "name": "Herlev",
+                    "municipalityCode": "163",
+                    "_links": {}
+                },
+                {
+                    "name": "Herning",
+                    "municipalityCode": "657",
+                    "_links": {}
+                },
+                {
+                    "name": "Hillerød",
+                    "municipalityCode": "219",
+                    "_links": {}
+                },
+                {
+                    "name": "Hjørring",
+                    "municipalityCode": "860",
+                    "_links": {}
+                },
+                {
+                    "name": "Holbæk",
+                    "municipalityCode": "316",
+                    "_links": {}
+                },
+                {
+                    "name": "Holstebro",
+                    "municipalityCode": "661",
+                    "_links": {}
+                },
+                {
+                    "name": "Horsens",
+                    "municipalityCode": "615",
+                    "_links": {}
+                },
+                {
+                    "name": "Hvidovre",
+                    "municipalityCode": "167",
+                    "_links": {}
+                },
+                {
+                    "name": "Høje-Taastrup",
+                    "municipalityCode": "169",
+                    "_links": {}
+                },
+                {
+                    "name": "Hørsholm",
+                    "municipalityCode": "223",
+                    "_links": {}
+                },
+                {
+                    "name": "Ikast-Brande",
+                    "municipalityCode": "756",
+                    "_links": {}
+                },
+                {
+                    "name": "Ishøj",
+                    "municipalityCode": "183",
+                    "_links": {}
+                },
+                {
+                    "name": "Jammerbugt",
+                    "municipalityCode": "849",
+                    "_links": {}
+                },
+                {
+                    "name": "Kalundborg",
+                    "municipalityCode": "326",
+                    "_links": {}
+                },
+                {
+                    "name": "Kerteminde",
+                    "municipalityCode": "440",
+                    "_links": {}
+                },
+                {
+                    "name": "Kolding",
+                    "municipalityCode": "621",
+                    "_links": {}
+                },
+                {
+                    "name": "København",
+                    "municipalityCode": "101",
+                    "_links": {}
+                },
+                {
+                    "name": "Køge",
+                    "municipalityCode": "259",
+                    "_links": {}
+                },
+                {
+                    "name": "Langeland",
+                    "municipalityCode": "482",
+                    "_links": {}
+                },
+                {
+                    "name": "Lejre",
+                    "municipalityCode": "350",
+                    "_links": {}
+                },
+                {
+                    "name": "Lemvig",
+                    "municipalityCode": "665",
+                    "_links": {}
+                },
+                {
+                    "name": "Lolland",
+                    "municipalityCode": "360",
+                    "_links": {}
+                },
+                {
+                    "name": "Lyngby-Taarbæk",
+                    "municipalityCode": "173",
+                    "_links": {}
+                },
+                {
+                    "name": "Læsø",
+                    "municipalityCode": "825",
+                    "_links": {}
+                },
+                {
+                    "name": "Mariagerfjord",
+                    "municipalityCode": "846",
+                    "_links": {}
+                },
+                {
+                    "name": "Middelfart",
+                    "municipalityCode": "410",
+                    "_links": {}
+                },
+                {
+                    "name": "Morsø",
+                    "municipalityCode": "773",
+                    "_links": {}
+                },
+                {
+                    "name": "Norddjurs",
+                    "municipalityCode": "707",
+                    "_links": {}
+                },
+                {
+                    "name": "Nordfyn",
+                    "municipalityCode": "480",
+                    "_links": {}
+                },
+                {
+                    "name": "Nyborg",
+                    "municipalityCode": "450",
+                    "_links": {}
+                },
+                {
+                    "name": "Næstved",
+                    "municipalityCode": "370",
+                    "_links": {}
+                },
+                {
+                    "name": "Odder",
+                    "municipalityCode": "727",
+                    "_links": {}
+                },
+                {
+                    "name": "Odense",
+                    "municipalityCode": "461",
+                    "_links": {}
+                },
+                {
+                    "name": "Odsherred",
+                    "municipalityCode": "306",
+                    "_links": {}
+                },
+                {
+                    "name": "Randers",
+                    "municipalityCode": "730",
+                    "_links": {}
+                },
+                {
+                    "name": "Rebild",
+                    "municipalityCode": "840",
+                    "_links": {}
+                },
+                {
+                    "name": "Ringkøbing-Skjern",
+                    "municipalityCode": "760",
+                    "_links": {}
+                },
+                {
+                    "name": "Ringsted",
+                    "municipalityCode": "329",
+                    "_links": {}
+                },
+                {
+                    "name": "Roskilde",
+                    "municipalityCode": "265",
+                    "_links": {}
+                },
+                {
+                    "name": "Rudersdal",
+                    "municipalityCode": "230",
+                    "_links": {}
+                },
+                {
+                    "name": "Rødovre",
+                    "municipalityCode": "175",
+                    "_links": {}
+                },
+                {
+                    "name": "Samsø",
+                    "municipalityCode": "741",
+                    "_links": {}
+                },
+                {
+                    "name": "Silkeborg",
+                    "municipalityCode": "740",
+                    "_links": {}
+                },
+                {
+                    "name": "Skanderborg",
+                    "municipalityCode": "746",
+                    "_links": {}
+                },
+                {
+                    "name": "Skive",
+                    "municipalityCode": "779",
+                    "_links": {}
+                },
+                {
+                    "name": "Slagelse",
+                    "municipalityCode": "330",
+                    "_links": {}
+                },
+                {
+                    "name": "Solrød",
+                    "municipalityCode": "269",
+                    "_links": {}
+                },
+                {
+                    "name": "Sorø",
+                    "municipalityCode": "340",
+                    "_links": {}
+                },
+                {
+                    "name": "Stevns",
+                    "municipalityCode": "336",
+                    "_links": {}
+                },
+                {
+                    "name": "Struer",
+                    "municipalityCode": "671",
+                    "_links": {}
+                },
+                {
+                    "name": "Svendborg",
+                    "municipalityCode": "479",
+                    "_links": {}
+                },
+                {
+                    "name": "Syddjurs",
+                    "municipalityCode": "706",
+                    "_links": {}
+                },
+                {
+                    "name": "Sønderborg",
+                    "municipalityCode": "540",
+                    "_links": {}
+                },
+                {
+                    "name": "Thisted",
+                    "municipalityCode": "787",
+                    "_links": {}
+                },
+                {
+                    "name": "Tønder",
+                    "municipalityCode": "550",
+                    "_links": {}
+                },
+                {
+                    "name": "Tårnby",
+                    "municipalityCode": "185",
+                    "_links": {}
+                },
+                {
+                    "name": "Vallensbæk",
+                    "municipalityCode": "187",
+                    "_links": {}
+                },
+                {
+                    "name": "Varde",
+                    "municipalityCode": "573",
+                    "_links": {}
+                },
+                {
+                    "name": "Vejen",
+                    "municipalityCode": "575",
+                    "_links": {}
+                },
+                {
+                    "name": "Vejle",
+                    "municipalityCode": "630",
+                    "_links": {}
+                },
+                {
+                    "name": "Vesthimmerland",
+                    "municipalityCode": "820",
+                    "_links": {}
+                },
+                {
+                    "name": "Viborg",
+                    "municipalityCode": "791",
+                    "_links": {}
+                },
+                {
+                    "name": "Vordingborg",
+                    "municipalityCode": "390",
+                    "_links": {}
+                },
+                {
+                    "name": "Ærø",
+                    "municipalityCode": "492",
+                    "_links": {}
+                },
+                {
+                    "name": "Aabenraa",
+                    "municipalityCode": "580",
+                    "_links": {}
+                },
+                {
+                    "name": "Aalborg",
+                    "municipalityCode": "851",
+                    "_links": {}
+                },
+                {
+                    "name": "Aarhus",
+                    "municipalityCode": "751",
+                    "_links": {}
+                },
+                {
+                    "name": "Grønland",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Færøerne",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Den danske stat",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Udlændingestyrelsen",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Mellemstatslig refusion iht EU-retten",
+                    "municipalityCode": null,
+                    "_links": {}
+                },
+                {
+                    "name": "Anden ikke-kommunal betaler",
+                    "municipalityCode": null,
+                    "_links": {}
+                }
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "plannedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "workflowRequestedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "workflowApprovedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "orderedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "entryDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "serviceDelivery",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "billingStartDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": false,
+            "disableable": false,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "billingEndDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": false,
+            "disableable": false,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "followUpDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "repetition",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "next": {
+                "type": "weekdayRepetition",
+                "next": {
+                    "type": "shiftRepetition",
+                    "shifts": [],
+                    "visits": 1,
+                    "next": null,
+                    "_links": {
+                        "availableShifts": {
+                            "href": "/api/core/mobile/odensekommune/v2/shifts/active"
+                        }
+                    }
+                },
+                "weekdays": 2,
+                "weekenddays": 0,
+                "availableWeekDays": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "availableWeekendDays": [
+                    0,
+                    1,
+                    2
+                ]
+            },
+            "count": 1,
+            "pattern": "WEEK",
+            "availablePatterns": [
+                "DAY",
+                "WEEK"
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "financialAccount",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "financialAccountExternalId": null,
+            "oldFinancialAccountDisplayName": null,
+            "newFinancialAccountDisplayName": null,
+            "accountsInPeriod": [],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "getInvoicingAccountPrototype": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts/prototype"
+                },
+                "availableExternalFinancialAccounts": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                }
+            }
+        },
+        {
+            "type": "supplier",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "paragraphs": [
+                {
+                    "id": 48,
+                    "version": 1,
+                    "name": "Serviceloven",
+                    "section": "§ 83 a",
+                    "description": "Kommunalbestyrelsen skal tilbyde et korterevarende og tidsafgrænset rehabiliteringsforløb til personer med nedsat funktionsevne, hvis rehabiliteringsforløbet vurderes at kunne forbedre personens funktionsevne og dermed nedsætte behovet for hjælp efter § 83, stk. 1. Vurderingen skal være individuel og konkret og tage udgangspunkt i modtagerens ressourcer og behov.",
+                    "group": {
+                        "id": "REHABILITATION2_SERVICELOV",
+                        "name": "Rehabilitering",
+                        "nspName": "Rehabilitering",
+                        "visitationType": {
+                            "id": "TRAINING_VISITATION",
+                            "_links": {}
+                        },
+                        "_links": {}
+                    },
+                    "medcomGroup": "PERSONAL_CARE",
+                    "hclDstParagraphMapping": "HCL_DST_83_A_SOCIAL_SERVICE_LAW",
+                    "paragraphGrantOfferPortalSupplierOfferType": null,
+                    "active": true,
+                    "_links": {
+                        "self": {
+                            "href": "/api/core/mobile/odensekommune/v2/paragraphs/48"
+                        }
+                    }
+                }
+            ],
+            "supplier": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "availableParagraphs": {
+                    "href": "/api/core/mobile/odensekommune/v2/paragraphs/active"
+                },
+                "availableSuppliers": {
+                    "href": "/api/core/mobile/odensekommune/v2/grants/models/CASEFLOW_PAY_FREQ/suppliers"
+                },
+                "refreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/grantElement/net.avaleo.business.domain.socialservice.SupplierSocialServiceElement/refresh"
+                }
+            }
+        },
+        {
+            "type": "denmarkStatisticMappingOffer",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": "NA",
+            "possibleValues": [
+                "9401777d-bdc5-4f52-9804-63c8cae9a792",
+                "a7cbf55b-6906-4b2a-872e-c48b4d728837",
+                "498fe92c-d7f7-41cd-9404-5b38fe113be0",
+                "a0fb02a2-367c-48bc-bacd-92e49a861a4c",
+                "d23e3e8a-7fcf-4603-9d75-481b6e47e0eb",
+                "25de7444-3919-4dab-b844-8cec6c15f30e",
+                "d90f4da6-f87a-43b5-833f-646b4baf16d6",
+                "070016aa-e164-4813-aca5-b75acab89d63",
+                "5ea75f09-8eec-4edc-aafd-a330a523c33e",
+                "NA"
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingDecisive",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "selectedValues": [
+                "NA"
+            ],
+            "possibleValues": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "17",
+                "18",
+                "NA"
+            ],
+            "identifier": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "resourceCount",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "lowerBound": 1,
+            "upperBound": 4,
+            "number": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "visitatedDurationInMinutes",
+            "metadata": {
+                "disabled": false,
+                "required": true,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "number": 30,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "piece",
+            "metadata": {
+                "disabled": true,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": "Hour",
+            "possibleValues": [
+                "Hour",
+                "Minute",
+                "Piece"
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "listPrice",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "priceDefinition": {
+                "type": "priceDefinition",
+                "id": 1067991,
+                "version": 0,
+                "valuePeriods": [],
+                "currentValue": null,
+                "rows": [],
+                "currentPrice": null,
+                "_links": {
+                    "prototypePriceDefinitionRow": {
+                        "href": "/api/core/mobile/odensekommune/v2/patientGrants/prototypePriceDefinitionRow"
+                    },
+                    "availableExternalFinancialAccounts": {
+                        "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                    }
+                }
+            },
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "prototypePriceDefinition": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/prototypePriceDefinition"
+                },
+                "availableExternalFinancialAccounts": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                }
+            }
+        },
+        {
+            "type": "supplierPrice",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "supplierPriceDefinitions": {},
+            "selectedSuppliers": {},
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "prototypePriceDefinition": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/prototypePriceDefinition"
+                },
+                "availableExternalFinancialAccounts": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                },
+                "availableSuppliers": {
+                    "href": "/api/core/mobile/odensekommune/v2/grants/models/CASEFLOW_PAY_FREQ/availableSuppliers?parameterizedSupplierId=1535"
+                }
+            }
+        },
+        {
+            "type": "localPrice",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": true,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "priceDefinition": {
+                "type": "priceDefinition",
+                "id": null,
+                "version": 0,
+                "valuePeriods": [],
+                "currentValue": null,
+                "rows": [],
+                "currentPrice": null,
+                "_links": {
+                    "prototypePriceDefinitionRow": {
+                        "href": "/api/core/mobile/odensekommune/v2/patientGrants/prototypePriceDefinitionRow"
+                    },
+                    "availableExternalFinancialAccounts": {
+                        "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                    }
+                }
+            },
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "prototypePriceDefinition": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/prototypePriceDefinition"
+                },
+                "refreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/grantElement/net.avaleo.business.domain.socialservice.LocalPriceElement/refresh"
+                }
+            }
+        },
+        {
+            "type": "price",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": true,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "priceLocked": false,
+            "isLockable": true,
+            "decimal": null,
+            "priceInPeriod": {},
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "staticFinancialAccount",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": true,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "financialAccountExternalId": null,
+            "oldFinancialAccountDisplayName": null,
+            "newFinancialAccountDisplayName": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "getInvoicingAccountPrototype": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts/prototype"
+                },
+                "availableExternalFinancialAccounts": {
+                    "href": "/api/core/mobile/odensekommune/v2/finance-account/invoicing/accounts"
+                }
+            }
+        },
+        {
+            "type": "utilisation",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "decimal": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "billingFactor",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "decimal": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "functionalLevel",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": null,
+            "possibleValues": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+            ],
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "personReference",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": null,
+            "maxLength": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "orderReference",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": null,
+            "maxLength": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "accountString",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": null,
+            "maxLength": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "klMapping",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": "H2",
+            "maxLength": null,
+            "klCatalogGrant": {
+                "uid": "5270beb2-5d61-46f0-acc3-d1ee2a750e53",
+                "uuid": "H2",
+                "name": "SEL § 83A",
+                "code": "H2",
+                "children": [],
+                "_links": {}
+            },
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "availableKLMappings": {
+                    "href": "/api/sts-classifications/klcataloggrants"
+                }
+            }
+        },
+        {
+            "type": "denmarkStatisticMapping",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": null,
+            "possibleValues": [
+                "Indberettes ud fra valgt FFB ydelse og FFB tilbud",
+                "1.1 Aktivitets- og samværsydelse",
+                "1.3 Behandling",
+                "1.4 Beskyttet beskæftigelsesydelse",
+                "1.8.1 Længerevarende botilbud inklusiv tilknyttede ydelser",
+                "1.8.2 Midlertidige botilbud inklusiv tilknyttede ydelser",
+                "1.12.0.1 Socialpædagogisk støtte i botilbudslignende tilbud",
+                "1.12.0.2 Andre former for socialpædagogisk støtte",
+                "1.12.1.1 Støtte til personer i hjemløshed, CTI-støttemetode",
+                "1.12.1.2 Støtte til personer i hjemløshed, ICM-støttemetode",
+                "1.12.1.3 Støtte til personer i hjemløshed, ACT og M-ACT-støttemetode",
+                "1.13.2 Støttepersonsordning - Borgerstyret Personlig Assistance (BPA)",
+                "1.13.3 Støttepersonsordning - Kontaktperson for døvblinde",
+                "1.13.4 Støttepersonsordning - Ledsageordning",
+                "1.17 Personlig og praktisk hjælp (behov for mere end 20 timer)",
+                "1.18.1 Gruppebaseret socialpædagogisk hjælp og støtte",
+                "1.18.2 Individuel tidsbegrænset socialpædagogisk hjælp og støtte",
+                "1.18.3 Socialt akuttilbud",
+                "1.19.1 Hjælp og støtte ved hastig fremskridende sygdom, jf. § 83 i lov om social service",
+                "1.19.2 Hjælp og støtte ved hastig fremskridende sygdom, jf. § 97 i lov om social service",
+                "1.19.3 Hjælp og støtte ved hastig fremskridende sygdom, jf. § 112 i lov om social service",
+                "1.19.4 Hjælp og støtte ved hastig fremskridende sygdom, jf. § 116 i lov om social service"
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingNursingArea",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": null,
+            "possibleValues": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "99"
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingPreventiveMeasure",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": null,
+            "possibleValues": [
+                210,
+                215,
+                225,
+                230,
+                240,
+                245,
+                250,
+                256,
+                257,
+                258,
+                259,
+                260,
+                261,
+                262,
+                268,
+                269,
+                270,
+                271,
+                272,
+                273,
+                274,
+                275,
+                277,
+                278,
+                290,
+                401,
+                402,
+                403,
+                404,
+                405,
+                406,
+                407,
+                408,
+                409,
+                415,
+                420,
+                425,
+                430,
+                435,
+                440,
+                445,
+                450,
+                451,
+                452,
+                455,
+                461,
+                462,
+                463,
+                464,
+                498
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "denmarkStatisticMappingSpecialNeedChildrenGrant",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "value": null,
+            "possibleValues": [
+                "001",
+                "002",
+                "003",
+                "004",
+                "005",
+                "006",
+                "007",
+                "008"
+            ],
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "kmdSag",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": true
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "kleNumber": {
+                "uid": "e260b29b-9801-11e4-ab73-0050c2490048",
+                "name": "27.36.06",
+                "description": "Rehabiliteringsforløb",
+                "_links": {}
+            },
+            "actionFacet": null,
+            "disableable": false,
+            "hideable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "availableKleNumbers": {
+                    "href": "/api/sts-classifications/klenumbers"
+                },
+                "availableActionFacets": {
+                    "href": "/api/sts-classifications/actionfacets"
+                }
+            }
+        },
+        {
+            "type": "supplementaryInformation",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": null,
+            "maxLength": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "description",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "OTHER",
+            "text": null,
+            "maxLength": null,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "rejectedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "removedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "cancelledDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "renouncedDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        },
+        {
+            "type": "basketGrantEndDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": false,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {
+                "refreshOnChange": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/grantElement/net.avaleo.business.domain.socialservice.BasketGrantEndDateUnit/refresh"
+                }
+            }
+        },
+        {
+            "type": "orderGrantEndDate",
+            "metadata": {
+                "disabled": false,
+                "required": false,
+                "hiddenOnCatalog": false,
+                "hiddenOnPatient": true,
+                "disabledOnPatient": false
+            },
+            "priority": 1,
+            "elementGrouping": "IMPORTANT_DATES",
+            "date": null,
+            "hasCommonValues": true,
+            "hideable": true,
+            "disableable": true,
+            "disabledOnCatalog": false,
+            "_links": {}
+        }
+    ],
+    "currentWorkflowTransitions": [
+        {
+            "id": 401,
+            "name": "Ansøg",
+            "actionType": null,
+            "resultWith": {
+                "id": 1401,
+                "name": "Ansøgt",
+                "key": null,
+                "_links": {}
+            },
+            "validateOnTransition": null,
+            "_links": {
+                "prepareEdit": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/bulkPrepareForEdit/401?ids=:2207-427261_0&parameterType=BULK_EDIT_CONDITION"
+                }
+            }
+        },
+        {
+            "id": 414,
+            "name": "Ansøg, Bevilg, Bestil",
+            "actionType": null,
+            "resultWith": {
+                "id": 1406,
+                "name": "Bestilt",
+                "key": null,
+                "_links": {}
+            },
+            "validateOnTransition": null,
+            "_links": {
+                "prepareEdit": {
+                    "href": "/api/core/mobile/odensekommune/v2/patientGrants/bulkPrepareForEdit/414?ids=:2207-427261_0&parameterType=BULK_EDIT_CONDITION"
+                }
+            }
+        }
+    ],
+    "patient": {
+    },
+    "basketGrantId": null,
+    "currentOrderGrantId": null,
+    "futureOrderGrantId": null,
+    "color": "E6C315",
+    "bulkIdentifiers": [
+        {
+            "patientGrantId": null,
+            "catalogGrantId": 2207,
+            "parentPatientGrantId": null,
+            "previousId": null,
+            "basketId": 427261,
+            "index": 0,
+            "isPackage": false,
+            "packageIdentifier": null,
+            "package": false,
+            "_links": {}
+        }
+    ],
+    "model": "CASEFLOW_PAY_FREQ",
+    "futureElements": null,
+    "futureWorkflowTransitions": [],
+    "_links": {
+        "self": {
+            "href": "/api/core/mobile/odensekommune/v2/patientGrants/bulkGet?parameterType=BULK_EDIT_CONDITION"
+        },
+        "availableBaskets": {
+            "href": "/api/core/mobile/odensekommune/v2/basket/availableForPatient/84981"
+        }
+    }
+}

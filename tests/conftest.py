@@ -1,5 +1,7 @@
 import pytest
 import os
+import json
+from pathlib import Path
 
 from dotenv import load_dotenv
 from kmd_nexus_client.manager import NexusClientManager
@@ -48,4 +50,17 @@ def test_indsats(nexus_manager: NexusClientManager, test_borger: dict):
 
     assert len(references) > 0, "Ingen referencer fundet for test indsats"
     return nexus_manager.hent_fra_reference(references[0])  # Return the first reference for testing
+
+
+@pytest.fixture(scope="session")
+def grant_prototype_data():
+    """Load grant prototype test data from fixtures."""
+    fixtures_dir = Path(__file__).parent / "fixtures"
+    grant_file = fixtures_dir / "grant-prototype.json"
+    
+    if not grant_file.exists():
+        raise FileNotFoundError(f"Grant prototype file not found: {grant_file}")
+    
+    with open(grant_file, "r", encoding="utf-8") as f:
+        return json.load(f)
 

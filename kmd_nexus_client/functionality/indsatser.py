@@ -5,45 +5,6 @@ from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import find_nodes
 
 
-def _update_grant_elements(current_elements, field_updates):
-    for item in current_elements:
-        item_type = item.get("type")
-
-        # Check if the type exists in field_updates
-        if item_type in field_updates:
-            new_value = field_updates[item_type]
-
-            # Apply the update based on the type
-            if item_type == "description" and "text" in item:
-                item["text"] = new_value
-            elif item_type == "plannedDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "allocationDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "orderedDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "entryDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "serviceDelivery" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "billingStartDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "billingEndDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "followUpDate" and "date" in item:
-                item["date"] = new_value
-            elif item_type == "repetition" and "next" in item:
-                item["next"] = new_value
-            elif item_type == "value" and "value" in item:
-                item["value"] = new_value
-            elif item_type == "text" and "text" in item:
-                item["text"] = new_value
-            elif item_type == "number" and "number" in item:
-                item["number"] = new_value
-
-    return current_elements
-
-
 class IndsatsClient:
     """
     Klient til indsats-operationer i KMD Nexus.
@@ -81,9 +42,9 @@ class IndsatsClient:
             prototype = self.client.get(
                 overgang_obj["_links"]["prepareEdit"]["href"]
             ).json()
-            prototype["elements"] = _update_grant_elements(
-                prototype["elements"], ændringer
-            )
+
+            self._fill_grant_elements(prototype["elements"], ændringer)
+
 
             response = self.client.post(
                 prototype["_links"]["save"]["href"], json=prototype
@@ -303,7 +264,7 @@ class IndsatsClient:
 
         # Handle fields if provided
         if fields:
-            self._fill_template_with_fields(template, fields)
+            self._fill_grant_elements(template["currentElements"], fields)
 
         # Save grant
         return self.client.post(
@@ -333,38 +294,111 @@ class IndsatsClient:
 
         supplier_element["supplier"] = matching_supplier
 
-    def _fill_template_with_fields(self, template: dict, fields: dict) -> None:
-        """Fill template with field values. Complex logic preserved from Blue Prism."""
-        elements = template.get("elements", [])
+    def _fill_grant_elements(self, elements: List[dict], fields: dict) -> None:
+        """Fill grant elements with field values. Complex logic preserved from Blue Prism."""
+        # elements = target_elements.get("elements", [])
 
         for field_name, field_value in fields.items():
             element = next((e for e in elements if e.get("type") == field_name), None)
 
-            if element:
-                if isinstance(field_value, str):
-                    if "text" in element:
-                        element["text"] = field_value
-                    if "value" in element:
-                        element["value"] = field_value
-                    if "pattern" in element:
-                        element["pattern"] = field_value
-                elif isinstance(field_value, (int, float)):
-                    element["number"] = int(field_value)
-                elif isinstance(field_value, datetime):
-                    # Handle timezone-naive datetime (assume local time) and convert to UTC
-                    if field_value.tzinfo is None:
-                        # Assume local time, make it timezone-aware, then convert to UTC
-                        local_dt = field_value.replace(
-                            tzinfo=datetime.now().astimezone().tzinfo
-                        )
-                        utc_dt = local_dt.astimezone(timezone.utc)
-                    else:
-                        # Already timezone-aware, convert to UTC
-                        utc_dt = field_value.astimezone(timezone.utc)
+            if not element:
+                raise ValueError(f"Field '{field_name}' not found in template elements")
 
-                    element["date"] = utc_dt.isoformat().replace(
-                        "+00:00", "Z"
-                    )  # TODO: Add more complex field type handling as needed
+            if "text" in element:
+                if not isinstance(field_value, str):
+                    raise ValueError(f"Field '{field_name}' expects a string value")
+                element["text"] = field_value
+                continue
+
+            if "date" in element:
+                if not isinstance(field_value, datetime):
+                    raise ValueError(f"Field '{field_name}' expects a date value")
+
+                if field_value.tzinfo is None:
+                    # Assume local time, make it timezone-aware, then convert to UTC
+                    local_dt = field_value.replace(
+                        tzinfo=datetime.now().astimezone().tzinfo
+                    )
+                    utc_dt = local_dt.astimezone(timezone.utc)
+                else:
+                    # Already timezone-aware, convert to UTC
+                    utc_dt = field_value.astimezone(timezone.utc)
+
+                element["date"] = utc_dt.isoformat().replace("+00:00", "Z")
+                continue
+
+            # Apparently value fields are bools if there are no possibleValues
+            if "value" in element  and "possibleValues" not in element:
+                if not isinstance(field_value, bool):
+                    raise ValueError(f"Field '{field_name}' expects a boolean value")
+                
+                element["value"] = field_value
+                continue
+
+            # Default handling of value fields
+            if "value" in element and "possibleValues" in element:
+                if not isinstance(field_value, str):
+                    raise ValueError(f"Field '{field_name}' expects a string value")
+
+                if field_value not in element.get("possibleValues", []):
+                    raise ValueError(
+                        f"Value '{field_value}' not in possible values for field '{field_name}'"
+                    )
+
+                element["value"] = field_value
+                continue
+
+            # Handle selectedValues field
+            if "selectedValues" in element:
+                if not isinstance(field_value, list):
+                    raise ValueError(
+                        f"Field '{field_name}' expects a list of selected values"
+                    )
+
+                # Validate each selected value against possible values
+                for value in field_value:
+                    if not isinstance(value, str):
+                        raise ValueError(
+                            f"Selected value '{value}' in field '{field_name}' must be a string"
+                        )
+                    if value not in element.get("possibleValues", []):
+                        raise ValueError(
+                            f"Selected value '{value}' not in possible values for field '{field_name}'"
+                        )
+
+                element["selectedValues"] = field_value
+                continue
+
+            # Handle decimal fields
+            if "decimal" in element:
+                if not isinstance(field_value, (int, float)):
+                    raise ValueError(f"Field '{field_name}' expects a decimal value")
+
+                # TODO: Actually verify decimal format used by Nexus
+                element["decimal"] = field_value
+                continue
+
+            # Supplier
+            if "supplier" in element:
+                if not isinstance(field_value, str):
+                    raise ValueError(f"Field '{field_name}' expects a supplier name")
+                
+                # Get available suppliers and find match
+                suppliers = self.client.get(
+                    element["_links"]["availableSuppliers"]["href"]
+                ).json()
+
+                matching_supplier = next(
+                    (s for s in suppliers if s.get("name") == field_value), None
+                )
+
+                if not matching_supplier:
+                    raise ValueError(f"Supplier '{field_value}' not found")
+                
+                element["supplier"] = matching_supplier
+                continue
+
+            raise ValueError(f"Unsupported field type for '{field_name}' in template")
 
     def _add_grant_note(self, grant: dict, note: str) -> None:
         """Add note to grant."""

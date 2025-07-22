@@ -1,73 +1,67 @@
-Type                                            Date    Text    Value   selectedValues  possibleValues  Decimal
-paragraph                                       False   False   False   False           False           False
-denmarkStatisticMappingTargetGroup              False   False   False   True            True            False
-denmarkStatisticRareDisability                  False   False   True    False           False           False
-denmarkStatisticMultipleDisabilityBooleanUnit   False   False   True    False           False           False
-denmarkStatisticMappingPrimaryTargetGroup       False   False   True    False           True            False
-denmarkStatisticMappingOtherTargetGroups        False   False   False   True            True            False
-payor                                           False   False   True    False           True            False
-invoiceLines                                    False   False   False   True            True            False
-debtorContact                                   False   False   False   False           False           False
-actingMunicipality                              False   False   False   False           False           False
-payingMunicipality                              False   False   False   False           False           False
-plannedDate                                     True    False   False   False           False           False
-workflowRequestedDate                           True    False   False   False           False           False
-workflowApprovedDate                            True    False   False   False           False           False
-orderedDate                                     True    False   False   False           False           False
-entryDate                                       True    False   False   False           False           False
-serviceDelivery                                 True    False   False   False           False           False
-billingStartDate                                True    False   False   False           False           False
-billingEndDate                                  True    False   False   False           False           False
-followUpDate                                    True    False   False   False           False           False
-repetition                                      False   False   False   False           False           False
-financialAccount                                False   False   False   False           False           False
-supplier                                        False   False   False   False           False           False
-denmarkStatisticMappingOffer                    False   False   True    False           True            False
-denmarkStatisticMappingDecisive                 False   False   False   True            True            False
-resourceCount                                   False   False   False   False           False           False
-visitatedDurationInMinutes                      False   False   False   False           False           False
-piece                                           False   False   True    False           True            False
-listPrice                                       False   False   False   False           False           False
-supplierPrice                                   False   False   False   False           False           False
-localPrice                                      False   False   False   False           False           False
-price                                           False   False   False   False           False           True
-staticFinancialAccount                          False   False   False   False           False           False
-utilisation                                     False   False   False   False           False           True
-billingFactor                                   False   False   False   False           False           True
-functionalLevel                                 False   False   True    False           True            False
-personReference                                 False   True    False   False           False           False
-orderReference                                  False   True    False   False           False           False
-accountString                                   False   True    False   False           False           False
-klMapping                                       False   True    False   False           False           False
-denmarkStatisticMapping                         False   False   True    False           True            False
-denmarkStatisticMappingNursingArea              False   False   True    False           True            False
-denmarkStatisticMappingPreventiveMeasure        False   False   True    False           True            False
-denmarkStatisticMappingSpecialNeedChildrenGrant False   False   True    False           True            False
-kmdSag                                          False   False   False   False           False           False
-supplementaryInformation                        False   True    False   False           False           False
-description                                     False   True    False   False           False           False
-rejectedDate                                    True    False   False   False           False           False
-removedDate                                     True    False   False   False           False           False
-cancelledDate                                   True    False   False   False           False           False
-renouncedDate                                   True    False   False   False           False           False
-basketGrantEndDate                              True    False   False   False           False           False
-orderGrantEndDate                               True    False   False   False           False           False
+# Grant Field Value Combinations
 
-Special cases:
+## Standard Field Types
 
-Type                                            Date    Text    Value   selectedValues  possibleValues  Decimal
-paragraph                                       False   False   False   False           False           False
-debtorContact                                   False   False   False   False           False           False
-actingMunicipality                              False   False   False   False           False           False
-payingMunicipality                              False   False   False   False           False           False
-repetition                                      False   False   False   False           False           False
-financialAccount                                False   False   False   False           False           False
-supplier                                        False   False   False   False           False           False
-resourceCount                                   False   False   False   False           False           False
-visitatedDurationInMinutes                      False   False   False   False           False           False
-listPrice                                       False   False   False   False           False           False
-supplierPrice                                   False   False   False   False           False           False
-localPrice                                      False   False   False   False           False           False
-staticFinancialAccount                          False   False   False   False           False           False
-kmdSag                                          False   False   False   False           False           False
+| Type | Date | Text | Value | selectedValues | possibleValues | Decimal | Implemented |
+|------|------|------|-------|----------------|----------------|---------|-------------|
+| denmarkStatisticMappingTargetGroup | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| denmarkStatisticRareDisability | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| denmarkStatisticMultipleDisabilityBooleanUnit | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| denmarkStatisticMappingPrimaryTargetGroup | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| denmarkStatisticMappingOtherTargetGroups | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| payor | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| invoiceLines | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| plannedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| workflowRequestedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| workflowApprovedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| orderedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| entryDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| serviceDelivery | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| billingStartDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| billingEndDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| followUpDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| denmarkStatisticMappingOffer | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| denmarkStatisticMappingDecisive | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| piece | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| price | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | 🔄 |
+| utilisation | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | 🔄 |
+| billingFactor | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | 🔄 |
+| functionalLevel | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| personReference | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| orderReference | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| accountString | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| klMapping | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| denmarkStatisticMapping | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| denmarkStatisticMappingNursingArea | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| denmarkStatisticMappingPreventiveMeasure | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| denmarkStatisticMappingSpecialNeedChildrenGrant | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| supplementaryInformation | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| description | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| rejectedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| removedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| cancelledDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| renouncedDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| basketGrantEndDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| orderGrantEndDate | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+## Special Cases
+
+These field types require custom handling due to their complex data structures:
+
+| Type | Date | Text | Value | selectedValues | possibleValues | Decimal | Implemented |
+|------|------|------|-------|----------------|----------------|---------|-------------|
+| paragraph | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| debtorContact | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| actingMunicipality | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| payingMunicipality | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| repetition | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| financialAccount | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| supplier | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| resourceCount | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| visitatedDurationInMinutes | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| listPrice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| supplierPrice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| localPrice | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| staticFinancialAccount | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| kmdSag | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
