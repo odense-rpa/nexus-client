@@ -5,7 +5,7 @@ from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import find_node_by_id, find_nodes
 
 
-def update_grant_elements(current_elements, field_updates):
+def _update_grant_elements(current_elements, field_updates):
     for item in current_elements:
         item_type = item.get("type")
 
@@ -47,10 +47,11 @@ def update_grant_elements(current_elements, field_updates):
 class IndsatsClient:
     """
     Klient til indsats-operationer i KMD Nexus.
-    
+
     VIGTIGT: Opret ikke denne klasse direkte!
     Brug NexusClientManager: nexus.indsats.hent_indsats(...)
     """
+
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
@@ -72,13 +73,15 @@ class IndsatsClient:
         )
 
         if not overgang_obj:
-            raise ValueError(f"Overgang {overgang} er ikke tilgængelig for denne indsats")
+            raise ValueError(
+                f"Overgang {overgang} er ikke tilgængelig for denne indsats"
+            )
 
         try:
             prototype = self.client.get(
                 overgang_obj["_links"]["prepareEdit"]["href"]
             ).json()
-            prototype["elements"] = update_grant_elements(
+            prototype["elements"] = _update_grant_elements(
                 prototype["elements"], ændringer
             )
 
@@ -232,17 +235,17 @@ class IndsatsClient:
         matching_node = find_nodes(
             node,
             lambda n: (
-                n.get("name") == grant_name and 
-                n.get("type") in ["catalogGrant", "catalogPackage"]
+                n.get("name") == grant_name
+                and n.get("type") in ["catalogGrant", "catalogPackage"]
             ),
             children_key="subcatalogs",
-            find_all=False
+            find_all=False,
         )
-        
+
         if matching_node:
             found_node = matching_node[0]
             return int(found_node["id"]), found_node.get("type") == "catalogPackage"
-        
+
         return 0, False
 
     def _create_grant_from_prototype(
@@ -372,49 +375,67 @@ class IndsatsClient:
         note_url = f"{self.client.base_url}/patientGrants/supplierComment?orderGrantIds={order_grant_id}"
         self.client.post(note_url, json={"comment": note})
 
-    # Other grant functions
-
-    def hent_aktive_indsats_referencer(
-        self, borger: dict, visning: str = "- Alt", inkluder_indsats_pakker=False
+    def filtrer_indsats_referencer(
+        self,
+        indsats_referencer: List[dict],
+        kun_aktive: bool = True,
+        leverandør_navn: str = "",
+        inkluder_indsatspakker: bool = False,
     ) -> List[dict]:
         """
-        Hent indsatser referencer for en borger.
+        Filtrer indsatsreferencer.
 
-        :param borger: Borgeren at hente indsatser referencer for
-        :param forløbsnavn: Forløbsnavnet at bruge (standard: "- Alt")
-        :return: Liste af indsatser referencer
+        :param indsatser_referencer: Liste af indsatser referencer at filtrere
+        :param kun_aktive: Om kun aktive indsatser skal inkluderes
+        :param leverandør_navn: Valgfri leverandør navn at filtrere efter
+        :param inkluder_indsatspakker: Om indsatspakker skal inkluderes i resultatet
+        :return: Filtreret liste af indsatser referencer
         """
-        # Get citizen pathway
-        pathway = self._get_citizen_pathway(borger, visning)
 
-        # Get pathway references
-        references_response = self.client.get(
-            pathway["_links"]["pathwayReferences"]["href"]
-        )
-        references_json = references_response.json()
-
-        # Use tree_helpers to find grant references
-        grant_references = find_nodes(
-            references_json,
+        filtered_refs = find_nodes(
+            indsats_referencer,
             lambda node: (
                 (
                     node.get("type") == "basketGrantReference"
-                    and node.get("workflowState", {}).get("name") not in ["Afsluttet", "Annulleret", "Fjernet", "Frafaldet", "Afgjort"]
-
+                    and (
+                        not kun_aktive
+                        or (
+                            kun_aktive
+                            and node.get("workflowState", {}).get("name")
+                            not in [
+                                "Afsluttet",
+                                "Annulleret",
+                                "Fjernet",
+                                "Frafaldet",
+                                "Afgjort",
+                            ]
+                        )
+                    )
+                    and (
+                        leverandør_navn == ""
+                        or any(
+                            [
+                                leverandør
+                                for leverandør in node.get("additionalInfo", [])
+                                if leverandør.get("key") == "Leverandør"
+                                and leverandør.get("value") == leverandør_navn
+                            ]
+                        )
+                    )
                 )
                 or (
-                    inkluder_indsats_pakker
+                    inkluder_indsatspakker
                     and node.get("type") == "basketGrantPackageReference"
                 )
             ),
-            children_key="children"
+            children_key="children",
         )
 
-        return grant_references
+        return filtered_refs
 
     def hent_indsats(self, indsats_reference: dict) -> dict:
         """
-        Hent fuld indsats detaljer fra en indsats reference.
+        Hent fulde indsats detaljer fra en indsats reference.
 
         :param indsats_reference: Indsats referencen der skal opløses
         :return: Fuld indsats objekt
@@ -439,94 +460,5 @@ class IndsatsClient:
 
         # Get the full grant object
         grant_response = self.client.get(grant_url)
-        grant = grant_response.json()
 
-        return grant
-
-    def filtrer_aktive_indsats_referencer(
-        self,
-        indsatser_referencer: List[dict],
-        kun_aktive: bool = True,
-        leverandør_navn: str = "",
-    ) -> List[dict]:
-        """
-        Filtrer indsatser referencer.
-
-        :param indsatser_referencer: Liste af indsatser referencer at filtrere
-        :param kun_aktive: Om kun aktive indsatser skal inkluderes
-        :param leverandør_navn: Valgfri leverandør navn at filtrere efter
-        :return: Filtreret liste af indsatser referencer
-        """
-        filtered_refs = []
-
-        for ref in indsatser_referencer:
-            # Filter by active status (matching Blue Prism's workflow state logic)
-            if kun_aktive:
-                workflow_state = ref.get("workflowState", {}).get("name", "")
-                
-                if workflow_state == "Afsluttet":
-                    continue
-
-            # Filter by supplier if specified (matching Blue Prism's supplier filtering)
-            if leverandør_navn:
-                # Check if reference has additional info with sufficient columns
-                additional_info = ref.get("additionalInfo", [])
-                if len(additional_info) <= 2:
-                    continue
-
-                # Look for supplier info
-                supplier_info = next(
-                    (
-                        info
-                        for info in additional_info
-                        if info.get("key") == "Leverandør"
-                    ),
-                    None,
-                )
-
-                if not supplier_info or supplier_info.get("value") != leverandør_navn:
-                    continue
-
-            filtered_refs.append(ref)
-
-        return filtered_refs
-
-    # Helper methods for hent_indsatser_referencer, hent_indsats, and filtrer_indsatser_referencer
-    def _get_citizen_pathway(self, citizen: dict, pathway_name: str = "- Alt") -> dict:
-        """Get citizen pathway."""
-        preferences_response = self.client.get(
-            citizen["_links"]["patientPreferences"]["href"]
-        )
-        preferences = preferences_response.json()
-
-        for item in preferences["CITIZEN_PATHWAY"]:
-            if item["name"] == pathway_name:
-                return self.client.get(item["_links"]["self"]["href"]).json()
-
-        raise ValueError(f"Pathway '{pathway_name}' not found")
-
-
-    def _extract_field_values(self, elements: List[dict]) -> dict:
-        """
-        Extract field values from grant elements (Blue Prism's element extraction logic).
-        """
-        field_values = {}
-
-        for element in elements:
-            element_type = element.get("type")
-            if "text" in element:
-                field_values[element_type] = element["text"]
-            elif "date" in element and element["date"] is not None:
-                field_values[element_type] = element["date"]
-            elif "number" in element:
-                field_values[element_type] = element["number"]
-            elif "decimal" in element:
-                field_values[element_type] = element["decimal"]
-            elif "boolean" in element:
-                field_values[element_type] = element["boolean"]
-            else:
-                # Store the whole element for complex types
-                field_values[element_type] = element
-
-        return field_values
-
+        return grant_response.json()

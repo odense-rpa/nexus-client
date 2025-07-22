@@ -38,36 +38,21 @@ def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
     assert hasattr(nexus_manager.indsats, 'rediger_indsats')
     assert hasattr(nexus_manager.indsats, 'hent_indsats_elementer')
     assert hasattr(nexus_manager.indsats, 'opret_indsats')
-    assert hasattr(nexus_manager.indsats, 'hent_aktive_indsats_referencer')
     assert hasattr(nexus_manager.indsats, 'hent_indsats')
-    assert hasattr(nexus_manager.indsats, 'filtrer_aktive_indsats_referencer')
+    assert hasattr(nexus_manager.indsats, 'filtrer_indsats_referencer')
     
     # Check that they are callable
     assert callable(nexus_manager.indsats.rediger_indsats)
     assert callable(nexus_manager.indsats.hent_indsats_elementer)
     assert callable(nexus_manager.indsats.opret_indsats)
-    assert callable(nexus_manager.indsats.hent_aktive_indsats_referencer)
     assert callable(nexus_manager.indsats.hent_indsats)
-    assert callable(nexus_manager.indsats.filtrer_aktive_indsats_referencer)
-
-
-def test_hent_indsatser_referencer(nexus_manager: NexusClientManager, test_borger: dict):
-    """Test hent_indsatser_referencer Danish function."""
-    # Get grant references using Danish method
-    indsats_referenser = nexus_manager.indsats.hent_aktive_indsats_referencer(
-        test_borger,
-        visning="- Alt",
-        inkluder_indsats_pakker=False
-    )
-    
-    # Should return a list (could be empty)
-    assert isinstance(indsats_referenser, list)
+    assert callable(nexus_manager.indsats.filtrer_indsats_referencer)
 
 
 def test_filtrer_indsats_referencer_empty_list(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referenser with empty input."""
     # Test filtering empty list
-    filtered = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
+    filtered = nexus_manager.indsats.filtrer_indsats_referencer(
         [],
         kun_aktive=True,
         leverandør_navn=""
@@ -76,19 +61,51 @@ def test_filtrer_indsats_referencer_empty_list(nexus_manager: NexusClientManager
     assert filtered == []
 
 
+def test_filtrer_indsats_referencer_real_data(nexus_manager: NexusClientManager, test_borger: dict):
+    visning = nexus_manager.borgere.hent_visning(test_borger) 
+    assert visning is not None, "Visning should not be None"
+
+    referencer = nexus_manager.borgere.hent_referencer(visning)
+    assert referencer is not None, "Referencer should not be None"
+
+    alle_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(referencer,kun_aktive=False)
+    assert len(alle_indsatser) > 0, "Der skal være referencer"
+
+    aktive_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(referencer, kun_aktive=True)
+    assert len(aktive_indsatser) > 0, "Der skal være aktive referencer"
+    assert len(alle_indsatser) >= len(aktive_indsatser), "Aktive referencer skal være en del af alle referencer"
+
+    leverandør_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(referencer, kun_aktive=False, leverandør_navn="Testleverandør Supporten Dag")
+    assert len(leverandør_indsatser) > 0, "Der skal være leverandør referencer"
+    assert len(leverandør_indsatser) <= len(aktive_indsatser), "Leverandør referencer skal være en del af alle referencer"
+
+    for indsats in leverandør_indsatser:
+        leverandør = next((
+            info for info in indsats.get("additionalInfo", [])
+            if info.get("key") == "Leverandør" and info.get("value") == "Testleverandør Supporten Dag"
+        ), None)
+
+        assert leverandør is not None, "Leverandør skal findes i additionalInfo"
+
+
+
+
 def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referencer with mock data."""
     # Create mock grant references
     mock_referenser = [
         {
+            "type": "basketGrantReference",
             "workflowState": {"name": "Bestilt"},
             "additionalInfo": []
         },
         {
+            "type": "basketGrantReference", 
             "workflowState": {"name": "Afsluttet"},
             "additionalInfo": []
         },
         {
+            "type": "basketGrantReference",
             "workflowState": {"name": "Bevilliget"},
             "additionalInfo": [
                 {"key": "Something"},
@@ -99,7 +116,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     ]
     
     # Test filtering for active only
-    aktive = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
+    aktive = nexus_manager.indsats.filtrer_indsats_referencer(
         mock_referenser,
         kun_aktive=True,
         leverandør_navn=""
@@ -110,7 +127,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     assert all(ref["workflowState"]["name"] != "Afsluttet" for ref in aktive)
     
     # Test filtering by supplier
-    med_leverandør = nexus_manager.indsats.filtrer_aktive_indsats_referencer(
+    med_leverandør = nexus_manager.indsats.filtrer_indsats_referencer(
         mock_referenser,
         kun_aktive=False,
         leverandør_navn="Test Leverandør"

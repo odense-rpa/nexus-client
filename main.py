@@ -20,12 +20,18 @@ nexus = NexusClientManager(
     client_secret=client_secret,
 )
 
-borger = nexus.borgere.hent_borger("0108589995")
+borger = nexus.borgere.hent_borger("0108589995") or {}
 
+visning = nexus.borgere.hent_visning(borger) or {}
 
-grant_refs = nexus.indsats.hent_indsatser_referencer(borger)
+referencer = nexus.borgere.hent_referencer(visning)
+
+grant_refs = nexus.indsats.filtrer_indsats_referencer(
+    referencer, kun_aktive=True, leverandør_navn="Testleverandør Supporten Dag"
+)
+
 
 print(len(grant_refs))
 for ref in grant_refs:
-    full_grant = nexus.indsats.hent_indsats(ref)
-    print(full_grant["name"])
+    # full_grant = nexus.indsats.hent_indsats(ref)
+    print(ref["name"])
