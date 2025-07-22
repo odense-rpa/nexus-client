@@ -28,7 +28,7 @@ class TestNexusClientManager:
         assert manager._instance == "test-instance"
         assert manager._client_id == "test-client-id"
         assert manager._client_secret == "test-client-secret"
-        assert manager._enable_ai_safety is False
+        # AI safety functionality removed
         
         # All clients should be None initially (lazy loading)
         assert manager._nexus_client is None
@@ -39,16 +39,6 @@ class TestNexusClientManager:
         assert manager._kalender_client is None
         assert manager._forløb_client is None
     
-    def test_manager_initialization_with_ai_safety(self):
-        """Test that the manager initializes correctly with AI safety enabled."""
-        manager = NexusClientManager(
-            instance="test-instance",
-            client_id="test-client-id",
-            client_secret="test-client-secret",
-            enable_ai_safety=True
-        )
-        
-        assert manager._enable_ai_safety is True
     
     @patch('kmd_nexus_client.manager.NexusClient')
     def test_nexus_client_lazy_loading(self, mock_nexus_client):
@@ -111,22 +101,6 @@ class TestNexusClientManager:
         # BorgerClient constructor should still only be called once
         assert mock_borgere_client.call_count == 1
     
-    @patch('kmd_nexus_client.manager.NexusClient')
-    @patch('kmd_nexus_client.manager._SafeBorgerClient')
-    def test_citizens_client_with_ai_safety(self, mock_safe_borgere_client, mock_nexus_client):
-        """Test that the SafeBorgerClient is used when AI safety is enabled."""
-        manager = NexusClientManager(
-            instance="test-instance",
-            client_id="test-client-id",
-            client_secret="test-client-secret",
-            enable_ai_safety=True
-        )
-        
-        # Access citizens property (backward compatibility)
-        citizens = manager.citizens
-        
-        # Should use SafeBorgerClient instead of regular BorgerClient
-        mock_safe_borgere_client.assert_called_once()
     
     @patch('kmd_nexus_client.manager.NexusClient')
     @patch('kmd_nexus_client.manager.KalenderClient')
@@ -205,43 +179,6 @@ class TestNexusClientManager:
         assert manager.calendar is manager.kalender  # calendar alias works
         assert manager.cases is manager.forløb  # cases alias works
 
-
-class TestSafeBorgerClient:
-    """Test the _SafeBorgerClient class."""
-    
-    @patch('kmd_nexus_client.nexus_ai_safety_wrapper.safe_get_citizen')
-    def test_safe_hent_borger_with_wrapper(self, mock_safe_get_citizen):
-        """Test that safe_get_citizen is used when available."""
-        from kmd_nexus_client.manager import _SafeBorgerClient
-        
-        mock_nexus_client = Mock()
-        safe_client = _SafeBorgerClient(mock_nexus_client)
-        
-        mock_safe_get_citizen.return_value = {"id": "test-borger"}
-        
-        result = safe_client.hent_borger("1234567890")
-        
-        mock_safe_get_citizen.assert_called_once_with(safe_client, "1234567890")
-        assert result == {"id": "test-borger"}
-    
-    def test_safe_get_citizen_fallback(self):
-        """Test that SafeBorgerClient can be instantiated and has fallback behavior."""
-        from kmd_nexus_client.manager import _SafeBorgerClient
-        
-        mock_nexus_client = Mock()
-        safe_client = _SafeBorgerClient(mock_nexus_client)
-        
-        # Test that it's an instance of BorgerClient (inheritance works)
-        from kmd_nexus_client.functionality.borgere import BorgerClient
-        assert isinstance(safe_client, BorgerClient)
-        
-        # Test that the hent_borger method exists and can be called
-        assert hasattr(safe_client, 'hent_borger')
-        assert callable(safe_client.hent_borger)
-        
-        # Test backward compatibility
-        assert hasattr(safe_client, 'get_citizen')
-        assert callable(safe_client.get_citizen)
 
 
 class TestNexusClientManagerMethods:

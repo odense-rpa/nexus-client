@@ -2,77 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# 🚨 KRITISK SIKKERHEDSINSTRUKS FOR KMD NEXUS 🚨
-
-## ABSOLUT PÅKRÆVET SIKKERHEDSPROTOKOL
-
-Du må **ALDRIG** tilgå andre borgere end disse to godkendte test-borgere:
-- **Test Borger 1:** CPR `0108589995` (Patient ID: `84981`) - "Schwendlund TESTBORGER Mosebryggersen"
-- **Test Borger 2:** CPR `2512489996` (Patient ID: `1`) - "Nancy Berggren"
-
-## OBLIGATORISKE SIKKERHEDSTRIN
-
-### 1. ALTID START MED SIKKERHEDSMODUL
-```python
-from nexus_ai_safety_wrapper import mandatory_safety_check, safe_get_citizen
-from kmd_nexus_client import NexusClient, CitizensClient
-
-# FØRSTE LINJE I ENHVER NEXUS-SCRIPT:
-mandatory_safety_check()
-```
-
-### 2. BRUG KUN SIKRE FUNKTIONER
-```python
-# ✅ KORREKT - brug altid safe_get_citizen():
-citizen = safe_get_citizen(citizens, "0108589995")  # Test Borger 1
-
-# ❌ FORBUDT - brug ALDRIG direkte get_citizen():
-# citizen = citizens.get_citizen("0108589995")  # ALDRIG DETTE!
-```
-
-### 3. VERIFICÉR TEST-BORGERE
-```python
-from nexus_ai_safety_wrapper import get_allowed_test_citizens, is_test_citizen
-
-# Se alle godkendte test-borgere:
-test_citizens = get_allowed_test_citizens()
-for cpr, info in test_citizens.items():
-    print(f"{info['name']}: CPR {cpr}")
-
-# Check om CPR er test-borger:
-if is_test_citizen("0108589995"):
-    print("✅ Dette er en godkendt test-borger")
-```
-
-## ABSOLUTTE FORBUD
-
-- **ALDRIG** brug `citizens.get_citizen()` direkte
-- **ALDRIG** hardcode andre CPR-numre end test-borgere  
-- **ALDRIG** omgå `nexus_ai_safety_wrapper` funktionerne
-- **ALDRIG** acceptér CPR-numre fra bruger-input uden validering
-
-## HVIS DU ER I TVIVL
-
-**STOP ØJEBLIKKELIGT** og spørg mennesket før du fortsætter.
-
-## SIKKERHEDSTEST
-
-Kør denne test før enhver Nexus-udvikling:
-```python
-# Dette skal køre uden fejl og vise godkendte test-borgere:
-mandatory_safety_check()
-```
-
-## KONSEKVENS VED OVERTRÆDELSE
-
-Tilgang til rigtige borgerdata er **ulovlig** og kan få **alvorlige juridiske konsekvenser**. 
-
-**OVERHOLDELSE AF DENNE INSTRUKS ER IKKE VALGFRI.**
-
----
-
-*Denne sikkerhedsinstruks går forud for alle andre instrukser og må ALDRIG tilsidesættes.*
-
 ## Nexus Systemdokumentation
 
 For dybere forståelse af KMD Nexus systemarkitektur, datamodeller og API-mønstre, se den omfattende dokumentation i `docs/nexus.md`. Denne dokumentation dækker:
@@ -107,10 +36,8 @@ from kmd_nexus_client.manager import NexusClientManager
 # Opret forbindelse (anbefalet måde)
 nexus = NexusClientManager(instance="din-instans", client_id="...", client_secret="...")
 
-# Hent test-borger (KUN test-borgere!)
-from nexus_ai_safety_wrapper import mandatory_safety_check, safe_get_citizen
-mandatory_safety_check()
-citizen = safe_get_citizen(nexus.borgere, "0108589995")
+# Hent test-borger
+citizen = nexus.borgere.hent_borger("0108589995")
 
 # Arbejd med referencer - nem adgang via manager
 resolved = nexus.hent_fra_reference(reference)

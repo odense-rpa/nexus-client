@@ -33,7 +33,6 @@ class NexusClientManager:
         instance: str,
         client_id: str,
         client_secret: str,
-        enable_ai_safety: bool = False,
         timeout: float = 30.0
     ):
         """
@@ -43,13 +42,11 @@ class NexusClientManager:
             instance: The name of the Nexus instance
             client_id: The OAuth2 client ID
             client_secret: The OAuth2 client secret
-            enable_ai_safety: Whether to enable AI safety wrapper integration
             timeout: Request timeout in seconds (default: 30.0)
         """
         self._instance = instance
         self._client_id = client_id
         self._client_secret = client_secret
-        self._enable_ai_safety = enable_ai_safety
         
         # Store configuration for lazy loading
         self._config = {
@@ -82,11 +79,7 @@ class NexusClientManager:
     def borgere(self) -> "BorgerClient":
         """Get the BorgerClient (lazy-loaded)."""
         if self._borgere_client is None:
-            if self._enable_ai_safety:
-                # Create a safety-wrapped version
-                self._borgere_client = _SafeBorgerClient(self.nexus_client)
-            else:
-                self._borgere_client = BorgerClient(self.nexus_client)
+            self._borgere_client = BorgerClient(self.nexus_client)
         return self._borgere_client
     
     @property
@@ -180,39 +173,3 @@ class NexusClientManager:
         """
         return self.nexus_client.hent_fra_reference(reference)
 
-
-class _SafeBorgerClient(BorgerClient):
-    """
-    A safety-wrapped version of CitizensClient that integrates with the AI safety wrapper.
-    
-    This class overrides the get_citizen method to use the safe_get_citizen function
-    from the nexus_ai_safety_wrapper module.
-    """
-    
-    def hent_borger(self, borger_cpr: str) -> Optional[dict]:
-        """
-        Hent en borger via CPR nummer med AI safety wrapper.
-        
-        Denne metode bruger safe_get_citizen funktionen som automatisk
-        validerer at CPR'et er en af de godkendte test-borgere.
-        
-        Args:
-            borger_cpr: CPR nummeret på borgeren der skal hentes
-            
-        Returns:
-            Borgerens detaljer, eller None hvis borgeren ikke blev fundet
-            
-        Raises:
-            NexusSecurityError: Hvis CPR'et ikke er en godkendt test-borger
-        """
-        try:
-            from kmd_nexus_client.nexus_ai_safety_wrapper import safe_get_citizen
-            return safe_get_citizen(self, borger_cpr)
-        except ImportError:
-            # Fall back to regular implementation if safety wrapper is not available
-            return super().hent_borger(borger_cpr)
-    
-    # Backward compatibility for safety wrapper
-    def get_citizen(self, citizen_cpr: str) -> Optional[dict]:
-        """DEPRECATED: Use hent_borger() instead."""
-        return self.hent_borger(citizen_cpr)

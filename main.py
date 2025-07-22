@@ -19,7 +19,6 @@ nexus = NexusClientManager(
     client_id=client_id,
     client_secret=client_secret,
 )
-#TODO enable_ai_safety flag virker ikke på NexusClientManager. Fix eller fjern?
 
 borger = nexus.borgere.hent_borger("0108589995")
 
