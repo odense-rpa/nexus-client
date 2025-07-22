@@ -61,15 +61,6 @@ class KalenderClient:
         # Get events
         return self.nexus_client.get(url).json()["eventResources"]
     
-    # Backward compatibility aliases
-    def get_citizen_calendar(self, citizen: dict, calendar_name: str = "Borgerkalender") -> dict:
-        """DEPRECATED: Use hent_kalender instead."""
-        return self.hent_kalender(citizen, calendar_name)
-    
-    def events(self, calendar: dict, start_date: date, end_date: date) -> dict:
-        """DEPRECATED: Use hent_begivenheder instead."""
-        return self.hent_begivenheder(calendar, start_date, end_date)
-    
     def _hent_præferencer(self, borger: dict) -> dict:
         """
         Hent præferencer for borgeren (privat hjælpefunktion).
@@ -79,8 +70,4 @@ class KalenderClient:
         """
         response = self.nexus_client.get(borger["_links"]["patientPreferences"]["href"])
         return response.json()
-
-
-# Backward compatibility alias
-CalendarClient = KalenderClient
         

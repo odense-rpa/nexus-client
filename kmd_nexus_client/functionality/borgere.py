@@ -166,36 +166,4 @@ class BorgerClient:
                     return found
         return None
 
-    # Backward compatibility aliases - DEPRECATED
-    def get_citizen(self, citizen_cpr: str) -> Optional[dict]:
-        """DEPRECATED: Use hent_borger() instead."""
-        return self.hent_borger(citizen_cpr)
-    
-    def get_citizen_preferences(self, citizen: dict) -> dict:
-        """DEPRECATED: Use hent_præferencer() instead."""
-        return self.hent_præferencer(citizen)
-    
-    def get_citizen_pathway(self, citizen: dict, pathway_name: str = "- Alt") -> Optional[dict]:
-        """DEPRECATED: Use hent_visning() instead."""
-        return self.hent_visning(citizen, pathway_name)
-    
-    def get_citizen_pathway_references(self, pathway: dict) -> List[dict]:
-        """DEPRECATED: Use hent_referencer() instead."""
-        return self.hent_referencer(pathway)
-    
-    def get_citizen_pathway_activities(self, pathway: dict) -> List[dict]:
-        """DEPRECATED: Use hent_aktiviteter() instead."""
-        return self.hent_aktiviteter(pathway)
-    
-    def resolve_reference(self, reference: dict) -> dict:
-        """DEPRECATED: Use client.hent_fra_reference() instead."""
-        return self.client.hent_fra_reference(reference)
-    
-    def get_citizen_lendings(self, citizen: dict) -> Optional[dict]:
-        """DEPRECATED: Use hent_udlån() instead."""
-        return self.hent_udlån(citizen)
-
-
-# Backward compatibility alias
-CitizensClient = BorgerClient
     

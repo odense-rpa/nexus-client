@@ -221,32 +221,4 @@ class OpgaverClient:
         except HTTPStatusError:
             return False
     
-    # Backward compatibility aliases
-    def get_assignments(self, object: dict) -> List[dict]:
-        """DEPRECATED: Use hent_opgaver instead."""
-        return self.hent_opgaver(object)
-    
-    def get_assignment_by_citizen(self, citizen: dict, assignment_id: int) -> Optional[dict]:
-        """DEPRECATED: Use hent_opgave_for_borger instead."""
-        return self.hent_opgave_for_borger(citizen, assignment_id)
-    
-    def get_assignment_types(self, object: dict) -> List[dict]:
-        """DEPRECATED: Use hent_opgavetyper instead."""
-        return self.hent_opgavetyper(object)
-    
-    def create_assignment(self, object: dict, assignment_type: str, title: str, responsible_organization: str, start_date: date, due_date: Optional[date] = None, description: Optional[str] = None, responsible_worker: Optional[dict] = None) -> dict:
-        """DEPRECATED: Use opret_opgave instead."""
-        return self.opret_opgave(object, assignment_type, title, responsible_organization, start_date, due_date, description, responsible_worker)
-    
-    def edit_assignment(self, updated_assignment: dict) -> dict:
-        """DEPRECATED: Use rediger_opgave instead."""
-        return self.rediger_opgave(updated_assignment)
-    
-    def close_assignment(self, assignment: dict) -> bool:
-        """DEPRECATED: Use luk_opgave instead."""
-        return self.luk_opgave(assignment)
-
-
-# Backward compatibility alias
-AssignmentsClient = OpgaverClient
         

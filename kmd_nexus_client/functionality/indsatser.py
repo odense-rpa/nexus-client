@@ -530,14 +530,3 @@ class IndsatsClient:
 
         return field_values
 
-    # Backward compatibility aliases
-    edit_grant = rediger_indsats
-    get_grant_elements = hent_indsats_elementer
-    create_grant = opret_indsats
-    get_grant_references = hent_aktive_indsats_referencer
-    get_grant = hent_indsats
-    filter_grant_references = filtrer_aktive_indsats_referencer
-
-
-# Backward compatibility class alias
-GrantsClient = IndsatsClient

@@ -196,19 +196,3 @@ class ForløbClient:
         except HTTPStatusError:
             return False
     
-    # Backward compatibility aliases
-    def get_citizen_cases(self, citizen: dict) -> Optional[dict]:
-        """DEPRECATED: Use hent_forløb instead."""
-        return self.hent_forløb(citizen)
-    
-    def create_citizen_case(self, citizen: dict, base_case_name: str, case_name: str = None) -> Optional[dict]:
-        """DEPRECATED: Use opret_forløb instead."""
-        return self.opret_forløb(citizen, base_case_name, case_name)
-    
-    def close_case(self, case_reference: dict) -> bool:
-        """DEPRECATED: Use luk_forløb instead."""
-        return self.luk_forløb(case_reference)
-
-
-# Backward compatibility alias
-CasesClient = ForløbClient

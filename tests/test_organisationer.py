@@ -2,7 +2,6 @@ import pytest
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 
 
 def test_hent_organisationer(nexus_manager: NexusClientManager):

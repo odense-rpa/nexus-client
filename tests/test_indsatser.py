@@ -2,7 +2,6 @@ import pytest
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.borgere import filter_references
 
 
@@ -31,31 +30,6 @@ def test_hent_indsats_elementer(nexus_manager: NexusClientManager, test_borger: 
     assert elementer is not None
 
 
-def test_backward_compatibility_grants_client(nexus_manager: NexusClientManager, grants_client, test_borger: dict):
-    """Test that GrantsClient backward compatibility works."""
-    from kmd_nexus_client.functionality.indsatser import GrantsClient
-    
-    # Verify grants_client is a GrantsClient instance
-    assert isinstance(grants_client, GrantsClient)
-    
-    # Test that old method names still work
-    citizen = test_borger
-    pathway = nexus_manager.borgere.hent_visning(citizen)
-    assert pathway is not None, "Pathway should not be None"
-    references = nexus_manager.borgere.hent_referencer(pathway)
-
-    references = filter_references(
-        references,
-        path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
-        active_pathways_only=True,
-    )
-
-    if len(references) > 0:
-        resolved = nexus_manager.hent_fra_reference(references[0])
-        
-        # Test the old method name
-        elements = grants_client.get_grant_elements(resolved)
-        assert elements is not None
 
 
 def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
@@ -158,42 +132,13 @@ def test_hent_indsats_error_handling(nexus_manager: NexusClientManager):
         nexus_manager.indsats.hent_indsats({"type": "unknownType"})
 
 
-def test_grants_to_indsats_inheritance():
-    """Test that GrantsClient is an alias for IndsatsClient."""
-    from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
-    
-    # Check that they are the same class
-    assert GrantsClient is IndsatsClient
 
 
-def test_manager_provides_both_properties():
-    """Test that NexusClientManager provides both grants and indsats properties."""
+def test_manager_provides_indsats_property():
+    """Test that NexusClientManager provides indsats property."""
     from kmd_nexus_client.manager import NexusClientManager
     
-    # Check that manager has both properties
-    assert hasattr(NexusClientManager, 'grants')
+    # Check that manager has indsats property
     assert hasattr(NexusClientManager, 'indsats')
 
 
-def test_old_english_method_names_work(nexus_manager: NexusClientManager, test_borger: dict):
-    """Test that old English method names still work via aliases."""
-    pathway = nexus_manager.borgere.hent_visning(test_borger)
-    assert pathway is not None, "Pathway should not be None"
-    references = nexus_manager.borgere.hent_referencer(pathway)
-
-    references = filter_references(
-        references,
-        path="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%",
-        active_pathways_only=True,
-    )
-
-    if len(references) > 0:
-        resolved = nexus_manager.hent_fra_reference(references[0])
-        
-        # Test the old English method name works
-        elements = nexus_manager.indsats.get_grant_elements(resolved)
-        assert elements is not None
-        
-        # Test that it returns the same result as the Danish method
-        elementer = nexus_manager.indsats.hent_indsats_elementer(resolved)
-        assert elements == elementer

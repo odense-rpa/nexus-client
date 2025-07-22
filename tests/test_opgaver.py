@@ -4,7 +4,6 @@ from datetime import date, timedelta
 from httpx import HTTPStatusError
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.borgere import filter_references
 
 
@@ -138,22 +137,6 @@ def test_rediger_opgave(nexus_manager: NexusClientManager, test_borger: dict):
     opgave = nexus_manager.opgaver.hent_opgave_for_borger(test_borger, opgave_id)
     assert opgave is not None
     assert opgave["title"] == "Test opgave fra RPA - dansk redigeret"
-
-
-# Test backward compatibility
-def test_backward_compatibility_aliases(nexus_manager: NexusClientManager, test_borger: dict):
-    """Test that old method names still work for backward compatibility."""
-    # Test that aliases exist
-    assert hasattr(nexus_manager.opgaver, 'get_assignments')
-    assert hasattr(nexus_manager.opgaver, 'get_assignment_by_citizen')
-    assert hasattr(nexus_manager.opgaver, 'create_assignment')
-    assert hasattr(nexus_manager.opgaver, 'edit_assignment')
-    
-    # Test get_assignment_by_citizen alias works
-    opgave_id = 5057474
-    result1 = nexus_manager.opgaver.get_assignment_by_citizen(test_borger, opgave_id)
-    result2 = nexus_manager.opgaver.hent_opgave_for_borger(test_borger, opgave_id)
-    assert result1 == result2
 
 
 # Test error handling
@@ -356,33 +339,6 @@ def test_luk_opgave_unit_tests(nexus_manager: NexusClientManager):
         nexus_manager.opgaver.nexus_client.put = original_put
 
 
-def test_close_assignment_backward_compatibility(nexus_manager: NexusClientManager):
-    """Test backward compatibility alias for close_assignment."""
-    opgave = {
-        "id": 123,
-        "title": "Test",
-        "actions": [
-            {"name": "Afslut", "_links": {"updateAssignment": {"href": "test-url"}}}
-        ]
-    }
-    
-    # Mock response
-    from unittest.mock import Mock
-    original_put = nexus_manager.opgaver.nexus_client.put
-    mock_response = Mock()
-    mock_response.status_code = 200
-    nexus_manager.opgaver.nexus_client.put = Mock(return_value=mock_response)
-    
-    try:
-        # Test that the old method name works
-        result = nexus_manager.opgaver.close_assignment(opgave)
-        assert result is True
-        
-        # Test that it calls the same underlying method
-        result_new = nexus_manager.opgaver.luk_opgave(opgave)
-        assert result == result_new
-    finally:
-        nexus_manager.opgaver.nexus_client.put = original_put
 
 
 def test_tree_helpers_integration_demo():
@@ -525,26 +481,3 @@ def test_hent_opgavetyper_success_case(nexus_manager: NexusClientManager):
         nexus_manager.opgaver.nexus_client.get = original_get
 
 
-def test_get_assignment_types_backward_compatibility(nexus_manager: NexusClientManager):
-    """Test backward compatibility alias for get_assignment_types."""
-    from unittest.mock import Mock
-    
-    mock_objekt = {
-        "_links": {
-            "availableAssignmentTypes": {"href": "test-url"}
-        }
-    }
-    
-    # Mock response
-    original_get = nexus_manager.opgaver.nexus_client.get
-    mock_response = Mock()
-    mock_response.json.return_value = [{"name": "Test Type"}]
-    nexus_manager.opgaver.nexus_client.get = Mock(return_value=mock_response)
-    
-    try:
-        # Test that the old method name works
-        result_old = nexus_manager.opgaver.get_assignment_types(mock_objekt)
-        result_new = nexus_manager.opgaver.hent_opgavetyper(mock_objekt)
-        assert result_old == result_new
-    finally:
-        nexus_manager.opgaver.nexus_client.get = original_get

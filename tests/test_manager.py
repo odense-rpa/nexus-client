@@ -2,14 +2,13 @@
 Tests for NexusClientManager functionality.
 """
 
-import pytest
 from unittest.mock import Mock, patch
 from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
-from kmd_nexus_client.functionality.indsatser import IndsatsClient, GrantsClient
+from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
 
@@ -35,7 +34,7 @@ class TestNexusClientManager:
         assert manager._borgere_client is None
         assert manager._organisationer_client is None
         assert manager._opgaver_client is None
-        assert manager._grants_client is None
+        assert manager._indsats_client is None
         assert manager._kalender_client is None
         assert manager._forløb_client is None
     
@@ -88,7 +87,7 @@ class TestNexusClientManager:
         # Should not be called yet
         mock_borgere_client.assert_not_called()
         
-        # Access citizens property (backward compatibility)
+        # Access citizens property
         citizens = manager.citizens
         
         # Should be called now
@@ -132,52 +131,32 @@ class TestNexusClientManager:
             client_secret="test-client-secret"
         )
         
-        # Access all client properties
+        # Access all client properties (Danish names)
         nexus_client = manager.nexus_client
-        citizens_client = manager.citizens
-        organizations_client = manager.organizations
-        assignments_client = manager.assignments
-        # Test Danish properties
+        borgere_client = manager.borgere
+        organisationer_client = manager.organisationer
         opgaver_client = manager.opgaver
-        grants_client = manager.grants
-        calendar_client = manager.calendar
-        cases_client = manager.cases
-        # Test Danish properties
+        indsats_client = manager.indsats
         kalender_client = manager.kalender
         forløb_client = manager.forløb
         
         # Verify all are the expected types
         assert isinstance(nexus_client, (NexusClient, Mock))
-        assert isinstance(citizens_client, (BorgerClient, Mock))
-        assert isinstance(organizations_client, (OrganisationerClient, Mock))
-        assert isinstance(assignments_client, (OpgaverClient, Mock))
-        # Verify Danish properties are same type
+        assert isinstance(borgere_client, (BorgerClient, Mock))
+        assert isinstance(organisationer_client, (OrganisationerClient, Mock))
         assert isinstance(opgaver_client, (OpgaverClient, Mock))
-        assert isinstance(grants_client, (GrantsClient, IndsatsClient, Mock))
-        assert isinstance(calendar_client, (KalenderClient, Mock))
-        assert isinstance(cases_client, (ForløbClient, Mock))
-        # Verify Danish properties are same type
+        assert isinstance(indsats_client, (IndsatsClient, Mock))
         assert isinstance(kalender_client, (KalenderClient, Mock))
         assert isinstance(forløb_client, (ForløbClient, Mock))
         
         # Verify lazy loading - accessing again should return same instances
         assert manager.nexus_client is nexus_client
-        assert manager.borgere is citizens_client  # borgere is the new primary property
-        assert manager.citizens is citizens_client  # citizens is backward compat
-        assert manager.organizations is organizations_client
-        assert manager.assignments is assignments_client
-        # Verify Danish properties point to same instances
+        assert manager.borgere is borgere_client
+        assert manager.organisationer is organisationer_client
         assert manager.opgaver is opgaver_client
-        assert manager.grants is grants_client
-        assert manager.calendar is calendar_client
-        assert manager.cases is cases_client
-        # Verify Danish properties point to same instances
+        assert manager.indsats is indsats_client
         assert manager.kalender is kalender_client
         assert manager.forløb is forløb_client
-        # Verify backward compatibility aliases
-        assert manager.assignments is manager.opgaver  # assignments alias works
-        assert manager.calendar is manager.kalender  # calendar alias works
-        assert manager.cases is manager.forløb  # cases alias works
 
 
 

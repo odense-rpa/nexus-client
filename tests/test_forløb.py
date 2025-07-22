@@ -15,7 +15,7 @@ def test_get_citizen_cases(nexus_manager: NexusClientManager, test_borger: dict)
     assert "href" in test_borger["_links"]["activePrograms"]
     
     # Test the actual method
-    cases = nexus_manager.forløb.get_citizen_cases(test_borger)
+    cases = nexus_manager.forløb.hent_forløb(test_borger)
     
     # Should not raise an exception and should return valid response
     assert cases is None or isinstance(cases, (dict, list))
@@ -31,7 +31,7 @@ def test_get_citizen_cases_missing_link(nexus_manager: NexusClientManager):
     
     # This should raise a KeyError due to missing link
     with pytest.raises(KeyError):
-        nexus_manager.forløb.get_citizen_cases(mock_citizen)
+        nexus_manager.forløb.hent_forløb(mock_citizen)
 
 
 def test_get_citizen_cases_http_error(nexus_manager: NexusClientManager, test_borger: dict):
@@ -41,7 +41,7 @@ def test_get_citizen_cases_http_error(nexus_manager: NexusClientManager, test_bo
     nexus_manager.forløb.client.get = Mock(side_effect=HTTPStatusError("Test error", request=Mock(), response=Mock()))
     
     try:
-        result = nexus_manager.forløb.get_citizen_cases(test_borger)
+        result = nexus_manager.forløb.hent_forløb(test_borger)
         assert result is None
     finally:
         # Restore original method
@@ -156,24 +156,3 @@ def test_luk_forløb_parameters(nexus_manager: NexusClientManager):
         nexus_manager.forløb.client.get = original_get
 
 
-# Test backward compatibility
-def test_backward_compatibility_aliases(nexus_manager: NexusClientManager, test_borger: dict):
-    """Test that old method names still work for backward compatibility."""
-    # Test get_citizen_cases alias
-    assert hasattr(nexus_manager.forløb, 'get_citizen_cases')
-    assert hasattr(nexus_manager.forløb, 'create_citizen_case')
-    assert hasattr(nexus_manager.forløb, 'close_case')
-    
-    # Test that aliases work (using mocked client to avoid real API calls)
-    original_get = nexus_manager.forløb.client.get
-    mock_response = Mock()
-    mock_response.json.return_value = {"test": "data"}
-    nexus_manager.forløb.client.get = Mock(return_value=mock_response)
-    
-    try:
-        # Test get_citizen_cases alias
-        result1 = nexus_manager.forløb.get_citizen_cases(test_borger)
-        result2 = nexus_manager.forløb.hent_forløb(test_borger)
-        assert result1 == result2
-    finally:
-        nexus_manager.forløb.client.get = original_get
