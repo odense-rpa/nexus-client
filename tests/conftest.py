@@ -33,34 +33,3 @@ def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""
     return nexus_manager.borgere.hent_borger("0108589995")
 
-# Individual client fixtures
-@pytest.fixture
-def borgere_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.borgere instead."""
-    return nexus_manager.borgere
-
-@pytest.fixture
-def organisationer_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.organisationer instead."""
-    return nexus_manager.organisationer
-
-@pytest.fixture
-def indsats_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.indsats instead."""
-    return nexus_manager.indsats
-
-
-@pytest.fixture
-def opgaver_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.opgaver instead."""
-    return nexus_manager.opgaver
-
-@pytest.fixture
-def kalender_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.kalender instead."""
-    return nexus_manager.kalender
-
-@pytest.fixture
-def forløb_client(nexus_manager: NexusClientManager):
-    """Use nexus_manager.forløb instead."""
-    return nexus_manager.forløb

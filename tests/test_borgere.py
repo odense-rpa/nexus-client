@@ -128,8 +128,3 @@ def test_hent_fra_reference_indsats(nexus_manager: NexusClientManager, test_borg
     assert resolved["name"] == references[0]["name"]
     assert "currentElements" in resolved
 
-# def test_hent_udlån(nexus_manager: NexusClientManager, test_borger: dict):
-#     citizen = test_borger
-#     lendings = borgere_client.hent_udlån(citizen)
-#     assert lendings is not None
-#     assert len(lendings) > 0

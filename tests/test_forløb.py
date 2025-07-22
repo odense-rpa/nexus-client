@@ -4,7 +4,6 @@ from httpx import HTTPStatusError
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.functionality.forløb import ForløbClient
 
 
 def test_get_citizen_cases(nexus_manager: NexusClientManager, test_borger: dict):
@@ -48,10 +47,6 @@ def test_get_citizen_cases_http_error(nexus_manager: NexusClientManager, test_bo
         nexus_manager.forløb.client.get = original_get
 
 
-def test_forløb_client_initialization(base_client):
-    """Test that ForløbClient initializes correctly."""
-    client = ForløbClient(base_client)
-    assert client.client == base_client
 
 
 # Tests for Danish functions
