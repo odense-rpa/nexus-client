@@ -245,6 +245,15 @@ class TestFilterByPath:
 
         assert len(grundforløb) == 1
 
+        grundforløb = filter_by_path(
+            referencer,
+            "/ÆHF - Forløbsindpla%",
+            active_pathways_only=True
+        )
+        assert len(grundforløb) == 1
+        assert grundforløb[0]["name"] == "ÆHF - Forløbsindplacering (Grundforløb)"
+
+
         indsatser = filter_by_path(
             referencer,
             "/Sundhedsfagligt grundforløb/FSIII/Indsatser/*",

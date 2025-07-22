@@ -214,7 +214,6 @@ def _path_matches(current_path: List[Dict[str, Any]], target_path: List[str]) ->
     - "*" matches any single segment
     - "%" as suffix matches any string starting with prefix
     """
-    # TODO: Matcher ikke ÆHF - Forløbsindplacering (Grundforløb), som forventet
     if len(current_path) != len(target_path):
         return False
     
@@ -233,9 +232,10 @@ def _path_matches(current_path: List[Dict[str, Any]], target_path: List[str]) ->
             name_match = node_name.startswith(prefix)
             type_match = node_type.startswith(prefix)
         else:
-            # Exact match with regex support
-            name_match = re.fullmatch(pattern.replace('%', '.*'), node_name) is not None
-            type_match = re.fullmatch(pattern.replace('%', '.*'), node_type) is not None
+            # Exact match with regex support - escape special chars then handle % wildcards
+            escaped_pattern = re.escape(pattern).replace(r'\%', '.*')
+            name_match = re.fullmatch(escaped_pattern, node_name) is not None
+            type_match = re.fullmatch(escaped_pattern, node_type) is not None
         
         if not (name_match or type_match):
             return False
