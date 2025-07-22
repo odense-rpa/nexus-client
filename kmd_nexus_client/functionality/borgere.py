@@ -112,7 +112,7 @@ class BorgerClient:
         Hent aktive forløb direkte via activePrograms link.
 
         :param borger: Borgeren der skal hentes aktive forløb for.
-        :return: Liste af aktive forløb som direkte objekter.
+        :return: Liste af aktive forløb som direkte objekter. De kan ikke anvendes direkte i andre funktioner. Brug istedet hent_visning til at få referencer.
         """
         return self.client.get(borger["_links"]["activePrograms"]["href"]).json()
 
