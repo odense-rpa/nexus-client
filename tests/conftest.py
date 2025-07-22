@@ -3,6 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from kmd_nexus_client.manager import NexusClientManager
+from kmd_nexus_client.tree_helpers import filter_by_path
 
 # Load environment variables from .env
 load_dotenv()
@@ -32,4 +33,19 @@ def base_client(nexus_manager):
 def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""
     return nexus_manager.borgere.hent_borger("0108589995")
+
+ 
+@pytest.fixture(scope="function")
+def test_indsats(nexus_manager: NexusClientManager, test_borger: dict):
+    visning = nexus_manager.borgere.hent_visning(test_borger)
+    assert visning is not None, "Ingen visning fundet for test borger"
+
+    references = nexus_manager.borgere.hent_referencer(visning)
+
+    references = filter_by_path(
+        references, path_pattern="/Sundhedsfagligt grundforløb/FSIII/Indsatser/Medicin%"
+    )
+
+    assert len(references) > 0, "Ingen referencer fundet for test indsats"
+    return nexus_manager.hent_fra_reference(references[0])  # Return the first reference for testing
 

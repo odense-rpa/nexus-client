@@ -1,47 +1,18 @@
-from typing import Optional, List, Callable
+from typing import Optional, List
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.utils import sanitize_cpr
-from kmd_nexus_client.tree_helpers import filter_by_path, filter_by_predicate
 
-
-def filter_references(json_input: List[dict], path: str, active_pathways_only: bool):
-    """
-    Filter pathway references by path pattern with wildcard support.
-    
-    DEPRECATED: Use tree_helpers.filter_by_path directly for new code.
-    This function is maintained for backward compatibility.
-    
-    :param json_input: List of root nodes to search
-    :param path: Path pattern like "/parent/child/*" or "/parent/child/name%"
-    :param active_pathways_only: If True, skip inactive pathways
-    :return: List of nodes matching the path pattern
-    """
-    return filter_by_path(json_input, path, active_pathways_only)
-
-
-def filter_pathway_references(references: List[dict], filter: Callable[[dict], bool]) -> List[dict]:
-    """
-    Filter pathway references recursively using a predicate function.
-    
-    DEPRECATED: Use tree_helpers.filter_by_predicate directly for new code.
-    This function is maintained for backward compatibility.
-    
-    :param references: The list of references to filter
-    :param filter: The filter function to apply
-    :return: The filtered list of references
-    """
-    return filter_by_predicate(references, filter)  
-    
 
 class BorgerClient:
     """
     Klient til borger-operationer i KMD Nexus.
-    
+
     VIGTIGT: Opret ikke denne klasse direkte!
     Brug NexusClientManager: nexus.borgere.hent_borger(...)
     """
+
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
@@ -82,7 +53,9 @@ class BorgerClient:
         response = self.client.get(borger["_links"]["patientPreferences"]["href"])
         return response.json()
 
-    def hent_visning(self, borger: dict, visnings_navn: str = "- Alt") -> Optional[dict]:
+    def hent_visning(
+        self, borger: dict, visnings_navn: str = "- Alt"
+    ) -> Optional[dict]:
         """
         Hent en visning for borgeren.
 
@@ -91,7 +64,7 @@ class BorgerClient:
         :return: Borgerens visning, eller None hvis visningen ikke findes.
         """
         preferences = self.hent_præferencer(borger)
-        
+
         for item in preferences["CITIZEN_PATHWAY"]:
             if item["name"] == visnings_navn:
                 return self.client.get(item["_links"]["self"]["href"]).json()
@@ -116,7 +89,6 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["patientActivities"]["href"]).json()
 
-        
     def hent_udlån(self, borger: dict) -> Optional[dict]:
         """
         Hent borgerens udlån.
@@ -144,26 +116,3 @@ class BorgerClient:
         """
         return self.client.get(borger["_links"]["activePrograms"]["href"]).json()
 
-    def find_reference(self, referencer: list, reference_navn: str, kun_aktive: bool = True) -> Optional[dict]:
-        """
-        Find en specifik reference rekursivt i reference-hierarkiet.
-
-        :param referencer: Listen af referencer der skal søges i.
-        :param reference_navn: Navnet på referencen der skal findes.
-        :param kun_aktive: Kun find aktive forløb (standard: True).
-        :return: Den fundne reference eller None hvis ikke fundet.
-        """
-        for ref in referencer:
-            # Check om dette er den ønskede reference
-            if ref.get("name") == reference_navn:
-                if not kun_aktive or ref.get("pathwayStatus") == "ACTIVE":
-                    return ref
-            
-            # Søg rekursivt i children
-            if "children" in ref and ref["children"]:
-                found = self.find_reference(ref["children"], reference_navn, kun_aktive)
-                if found:
-                    return found
-        return None
-
-    
