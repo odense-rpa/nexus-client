@@ -80,6 +80,8 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["pathwayReferences"]["href"]).json()
 
+    # TODO: Overvej en funktion der kan hente en enkelt reference i en visning og resolve den med det samme.
+
     def hent_aktiviteter(self, visning: dict) -> List[dict]:
         """
         Hent aktiviteter fra en borgervisning (flad liste med tilstande, organisationer, medicinkort osv.).

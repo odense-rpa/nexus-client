@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from httpx import HTTPStatusError
 from typing import Optional, List
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.tree_helpers import find_node_by_id, find_nodes
+from kmd_nexus_client.tree_helpers import find_nodes
 
 
 def _update_grant_elements(current_elements, field_updates):
