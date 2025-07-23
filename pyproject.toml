@@ -1,6 +1,6 @@
 [project]
 name = "kmd-nexus-client"
-version = "0.2.1"
+version = "0.2.2"
 description = "KMD Nexus Client for accessing the KMD Nexus API"
 readme = "README.md"
 requires-python = ">=3.12"
