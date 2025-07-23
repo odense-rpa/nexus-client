@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from httpx import HTTPStatusError
 from typing import Optional, List, Tuple, Dict
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import find_nodes
@@ -21,6 +20,7 @@ class IndsatsClient:
         Rediger en indsats.
 
         :param indsats: Indsatsen der skal redigeres.
+        :param ændringer: Dictionary med feltændringer der skal anvendes.
         :param overgang: Overgangen der skal anvendes på indsatsen.
         :return: Den opdaterede indsats.
         """
@@ -38,23 +38,15 @@ class IndsatsClient:
                 f"Overgang {overgang} er ikke tilgængelig for denne indsats"
             )
 
-        try:
-            prototype = self.client.get(
-                overgang_obj["_links"]["prepareEdit"]["href"]
-            ).json()
+        prototype = self.client.get(
+            overgang_obj["_links"]["prepareEdit"]["href"]
+        ).json()
 
-            self._fill_grant_elements(prototype["elements"], ændringer)
+        self._fill_grant_elements(prototype["elements"], ændringer)
 
-            response = self.client.post(
-                prototype["_links"]["save"]["href"], json=prototype
-            )
+        response = self.client.post(prototype["_links"]["save"]["href"], json=prototype)
 
-            return response.json()
-
-        except HTTPStatusError as e:
-            if e.response.status_code == 404:
-                return None
-            raise
+        return response.json()
 
     def hent_indsats_elementer(self, indsats: dict) -> dict:
         """
@@ -115,7 +107,7 @@ class IndsatsClient:
         leverandør: str = "",
         oprettelsesform: str = "",
         indsatsnote: str = "",
-    ) -> Tuple[Dict, bool, str]:
+    ) -> dict:
         """
         Opret en ny indsats.
 
@@ -128,32 +120,28 @@ class IndsatsClient:
         :param oprettelsesform: Oprettelsesform/overgangs navn (f.eks. "Ansøg, Bevilg, Bestil")
         :param indsatsnote: Valgfri note til indsatsen
         :return: tupple med 'indsats' (indsats objekt), 'succes' (boolean), 'error' (str, hvis fejl opstod)
+        :raises ValueError: Hvis indsatsen ikke findes i kataloget eller der opstår fejl under oprettelse
+        :raises httpx.HTTPStatusError: Hvis der opstår HTTP fejl under API kald
         """
-        try:
-            # Get the correct basket for this pathway combination
-            basket = self._get_correct_basket(borger, grundforløb, forløb)
+        # Get the correct basket for this pathway combination
+        basket = self._get_correct_basket(borger, grundforløb, forløb)
 
-            # Find the grant in the catalog and get its ID
-            grant_id, is_package = self._find_grant_in_catalog(basket, indsats)
+        # Find the grant in the catalog and get its ID
+        grant_id, is_package = self._find_grant_in_catalog(basket, indsats)
 
-            # Create the grant from prototype
-            created_grant = self._create_grant_from_prototype(
-                basket, grant_id, is_package
-            )
+        # Create the grant from prototype
+        created_grant = self._create_grant_from_prototype(basket, grant_id, is_package)
 
-            # Configure and save the grant
-            final_grant = self._configure_and_save_grant(
-                created_grant, oprettelsesform, leverandør, felter
-            )
+        # Configure and save the grant
+        final_grant = self._configure_and_save_grant(
+            created_grant, oprettelsesform, leverandør, felter
+        )
 
-            # Add note if provided
-            if indsatsnote:
-                self._add_grant_note(final_grant, indsatsnote)
+        # Add note if provided
+        if indsatsnote:
+            self._add_grant_note(final_grant, indsatsnote)
 
-            return (final_grant, True, "")
-
-        except Exception as e:
-            return ({}, False, str(e))
+        return final_grant
 
     def _get_correct_basket(self, citizen: dict, grundforløb: str, forløb: str) -> dict:
         """Get the basket for the specified pathway combination."""
