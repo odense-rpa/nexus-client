@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from httpx import HTTPStatusError
-from typing import Optional, List
+from typing import Optional, List, Tuple, Dict
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import find_nodes
 
@@ -44,7 +44,6 @@ class IndsatsClient:
             ).json()
 
             self._fill_grant_elements(prototype["elements"], ændringer)
-
 
             response = self.client.post(
                 prototype["_links"]["save"]["href"], json=prototype
@@ -112,11 +111,11 @@ class IndsatsClient:
         grundforløb: str,
         forløb: str,
         indsats: str,
+        felter: dict = {},
         leverandør: str = "",
         oprettelsesform: str = "",
-        felter: Optional[dict] = None,
         indsatsnote: str = "",
-    ) -> dict:
+    ) -> Tuple[Dict, bool, str]:
         """
         Opret en ny indsats.
 
@@ -124,11 +123,11 @@ class IndsatsClient:
         :param grundforløb: Grundforløbets navn (f.eks. "Sundhedsfagligt grundforløb")
         :param forløb: Forløbets navn (f.eks. "FSIII")
         :param indsats: Navnet på indsatsen der skal oprettes
-        :param leverandør: Valgfri leverandørs navn
-        :param oprettelsesform: Oprettelsesform/overgangs navn (f.eks. "Tildel, Bestil")
         :param felter: Valgfri dictionary med feltværdier
+        :param leverandør: Valgfri leverandørs navn
+        :param oprettelsesform: Oprettelsesform/overgangs navn (f.eks. "Ansøg, Bevilg, Bestil")
         :param indsatsnote: Valgfri note til indsatsen
-        :return: Dict med 'indsats' (indsats objekt) og 'succes' (boolean)
+        :return: tupple med 'indsats' (indsats objekt), 'succes' (boolean), 'error' (str, hvis fejl opstod)
         """
         try:
             # Get the correct basket for this pathway combination
@@ -151,10 +150,10 @@ class IndsatsClient:
             if indsatsnote:
                 self._add_grant_note(final_grant, indsatsnote)
 
-            return {"indsats": final_grant, "succes": True}
+            return (final_grant, True, "")
 
         except Exception as e:
-            return {"indsats": None, "succes": False, "error": str(e)}
+            return ({}, False, str(e))
 
     def _get_correct_basket(self, citizen: dict, grundforløb: str, forløb: str) -> dict:
         """Get the basket for the specified pathway combination."""
@@ -264,7 +263,7 @@ class IndsatsClient:
 
         # Handle fields if provided
         if fields:
-            self._fill_grant_elements(template["currentElements"], fields)
+            self._fill_grant_elements(template["elements"], fields)
 
         # Save grant
         return self.client.post(
@@ -328,10 +327,10 @@ class IndsatsClient:
                 continue
 
             # Apparently value fields are bools if there are no possibleValues
-            if "value" in element  and "possibleValues" not in element:
+            if "value" in element and "possibleValues" not in element:
                 if not isinstance(field_value, bool):
                     raise ValueError(f"Field '{field_name}' expects a boolean value")
-                
+
                 element["value"] = field_value
                 continue
 
@@ -382,7 +381,7 @@ class IndsatsClient:
             if "supplier" in element:
                 if not isinstance(field_value, str):
                     raise ValueError(f"Field '{field_name}' expects a supplier name")
-                
+
                 # Get available suppliers and find match
                 suppliers = self.client.get(
                     element["_links"]["availableSuppliers"]["href"]
@@ -394,7 +393,7 @@ class IndsatsClient:
 
                 if not matching_supplier:
                     raise ValueError(f"Supplier '{field_value}' not found")
-                
+
                 element["supplier"] = matching_supplier
                 continue
 
