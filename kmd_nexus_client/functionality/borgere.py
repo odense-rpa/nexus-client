@@ -91,11 +91,9 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["patientActivities"]["href"]).json()
 
-    def hent_udlån(self, borger: dict) -> Optional[dict]:
+    def hent_udlån(self, borger: dict) -> List[dict]:
         """
         Hent borgerens udlån.
-
-        TODO: Kontroller returtype - virker forkert
 
         :param borger: Borgeren der skal hentes udlån for.
         :return: Borgerens udlån, eller None hvis ingen udlån er tilgængelige.
