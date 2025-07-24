@@ -429,6 +429,7 @@ class IndsatsClient:
                                 "Fjernet",
                                 "Frafaldet",
                                 "Afgjort",
+                                "Afslået"
                             ]
                         )
                     )
