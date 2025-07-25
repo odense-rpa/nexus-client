@@ -8,10 +8,10 @@ from kmd_nexus_client.client import NexusClient
 class OrganisationerClient:
     """
     Klient til håndtering af organisationer i KMD Nexus.
-    
+
     VIGTIGT: Opret ikke denne klasse direkte!
     Brug NexusClientManager: nexus.organisationer.hent_organisation(...)
-    
+
     Danske funktioner:
     - hent_organisationer() -> List[dict]
     - hent_leverandører() -> List[dict]
@@ -25,7 +25,7 @@ class OrganisationerClient:
     - opdater_borger_organisations_relation(relation, slut_dato, primær_organisation) -> bool
     - opdater_leverandør(opdateret_leverandør) -> dict
     """
-    
+
     def __init__(self, nexus_client: NexusClient):
         self.nexus_client = nexus_client
 
@@ -37,7 +37,7 @@ class OrganisationerClient:
         """
         response = self.nexus_client.get(self.nexus_client.api["organizations"])
         return response.json()
-    
+
     def hent_leverandører(self) -> List[dict]:
         """
         Hent alle leverandører.
@@ -46,7 +46,7 @@ class OrganisationerClient:
         """
         response = self.nexus_client.get(self.nexus_client.api["suppliers"])
         return response.json()
-    
+
     def hent_organisation_ved_navn(self, navn: str) -> dict:
         """
         Hent organisation ved navn.
@@ -57,7 +57,9 @@ class OrganisationerClient:
         organisationer = self.hent_organisationer()
         return [org for org in organisationer if org["name"] == navn][0]
 
-    def hent_organisationer_for_borger(self, borger: dict, kun_aktive: bool = True) -> List[dict]:
+    def hent_organisationer_for_borger(
+        self, borger: dict, kun_aktive: bool = True
+    ) -> List[dict]:
         """
         Hent alle organisationer for en borger.
 
@@ -100,13 +102,16 @@ class OrganisationerClient:
 
         if url is None:
             raise ValueError("API indeholder ikke professionals endpoint.")
-        
+
         response = self.nexus_client.get(url, params={"query": initialer})
 
         if response.status_code == 404:
             return None
-                
-        medarbejder = next((a for a in response.json() if a.get("primaryIdentifier") == initialer), None)
+
+        medarbejder = next(
+            (a for a in response.json() if a.get("primaryIdentifier") == initialer),
+            None,
+        )
         return medarbejder
 
     def hent_medarbejdere_for_organisation(self, organisation: dict) -> List[dict]:
@@ -155,7 +160,7 @@ class OrganisationerClient:
             organisations_relation = self.nexus_client.get(
                 organisations_relation["_links"]["self"]["href"]
             ).json()
-            
+
         response = self.nexus_client.delete(
             organisations_relation["_links"]["removeFromPatient"]["href"]
         )
@@ -186,7 +191,7 @@ class OrganisationerClient:
             json=relation,
         )
         return response.status_code == 200
-    
+
     def opdater_leverandør(self, opdateret_leverandør: dict) -> dict:
         """
         Opdater en leverandør.
@@ -197,7 +202,7 @@ class OrganisationerClient:
         try:
             response = self.nexus_client.put(
                 opdateret_leverandør["_links"]["update"]["href"],
-                json=opdateret_leverandør
+                json=opdateret_leverandør,
             )
             return response.json()
 

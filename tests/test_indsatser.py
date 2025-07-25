@@ -143,4 +143,3 @@ def test_manager_provides_indsats_property():
 
     # Check that manager has indsats property
     assert hasattr(NexusClientManager, "indsatser")
-

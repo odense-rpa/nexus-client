@@ -6,8 +6,9 @@ from datetime import date, timedelta
 from kmd_nexus_client.manager import NexusClientManager
 
 
-
-def test_hent_opgave_på_indsats(nexus_manager: NexusClientManager, test_borger: dict,test_indsats: dict):
+def test_hent_opgave_på_indsats(
+    nexus_manager: NexusClientManager, test_borger: dict, test_indsats: dict
+):
     resolved_grant_assignments = nexus_manager.opgaver.hent_opgaver(test_indsats)
 
     assert resolved_grant_assignments is not None
@@ -16,9 +17,7 @@ def test_hent_opgave_på_indsats(nexus_manager: NexusClientManager, test_borger:
     assert len(resolved_grant_assignments) > 0, "Ingen opgaver fundet for indsats"
 
 
-def test_hent_opgave_på_borger(
-    nexus_manager: NexusClientManager, test_borger: dict
-):
+def test_hent_opgave_på_borger(nexus_manager: NexusClientManager, test_borger: dict):
     assignment_id = 5057474  # Test borger opgave - bliver evt. lukket.
 
     assignment = nexus_manager.opgaver.hent_opgave_for_borger(
@@ -29,7 +28,6 @@ def test_hent_opgave_på_borger(
 
 
 def test_opret_opgave(nexus_manager: NexusClientManager, test_indsats: dict):
-
     assignment = nexus_manager.opgaver.opret_opgave(
         objekt=test_indsats,
         opgave_type="Tværfagligt samarbejde",
@@ -40,6 +38,7 @@ def test_opret_opgave(nexus_manager: NexusClientManager, test_indsats: dict):
     )
 
     assert assignment is not None
+
 
 def test_rediger_opgave(nexus_manager: NexusClientManager, test_borger: dict):
     opgave_id = 5057474  # Test borger opgave - bliver evt. lukket.
@@ -67,7 +66,9 @@ def test_hent_opgaver_missing_link(nexus_manager: NexusClientManager):
         nexus_manager.opgaver.hent_opgaver(mock_objekt)
 
 
-def test_hent_opgavetyper(nexus_manager: NexusClientManager, test_borger: dict, test_indsats: dict):
+def test_hent_opgavetyper(
+    nexus_manager: NexusClientManager, test_borger: dict, test_indsats: dict
+):
     """Test hent_opgavetyper Danish function."""
 
     if "availableAssignmentTypes" not in test_indsats.get("_links", {}):
@@ -82,5 +83,3 @@ def test_hent_opgavetyper(nexus_manager: NexusClientManager, test_borger: dict, 
         for opgavetype in opgavetyper:
             assert "name" in opgavetype
             assert "_links" in opgavetype
-
-

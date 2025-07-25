@@ -20,7 +20,7 @@ nexus = NexusClientManager(
     client_secret=client_secret,
 )
 
-borger = nexus.borgere.hent_borger("0108589995") or {}    # Falsk test-cpr nummer
+borger = nexus.borgere.hent_borger("0108589995") or {}  # Falsk test-cpr nummer
 
 visning = nexus.borgere.hent_visning(borger) or {}
 
@@ -31,4 +31,3 @@ visning = nexus.borgere.hent_visning(borger) or {}
 # )
 
 pass
-
