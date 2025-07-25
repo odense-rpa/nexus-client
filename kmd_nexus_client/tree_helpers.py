@@ -326,7 +326,9 @@ def get_node_path(
         List representing path from root to target, or None if not found
     """
     if compare_fn is None:
-        compare_fn = lambda a, b: a is b
+        def default_compare_fn(a, b):
+            return a is b
+        compare_fn = default_compare_fn
     
     found_path = None
     

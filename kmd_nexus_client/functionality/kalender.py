@@ -1,5 +1,4 @@
-from typing import List
-from datetime import date, datetime, timedelta
+from datetime import date
 
 from kmd_nexus_client.client import NexusClient
 

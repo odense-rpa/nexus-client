@@ -1,11 +1,9 @@
 import pytest
 
 from datetime import date, timedelta
-from httpx import HTTPStatusError
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.tree_helpers import filter_by_path
 
 
 

@@ -1,11 +1,9 @@
 import os
 import logging
 from dotenv import load_dotenv
-from datetime import datetime
 
 from kmd_nexus_client import NexusClientManager
 
-import json
 
 logging.basicConfig(level=logging.INFO)
 

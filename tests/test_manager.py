@@ -113,7 +113,8 @@ class TestNexusClientManager:
         
         # Access kalender property
         kalender = manager.kalender
-        
+        assert kalender is not None
+
         # KalenderClient should be called with only nexus_client (no borgere dependency)
         mock_kalender_client.assert_called_once()
         call_args = mock_kalender_client.call_args[0]

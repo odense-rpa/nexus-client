@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
