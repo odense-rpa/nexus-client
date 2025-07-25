@@ -25,7 +25,7 @@ class NexusClientManager:
     Eksempel:
         nexus = NexusClientManager(instance="...", client_id="...", client_secret="...")
         borger = nexus.borgere.hent_borger("1234567890")
-        indsatser = nexus.indsats.hent_indsatser_referencer(borger)
+        indsatser = nexus.indsatser.hent_indsatser_referencer(borger)
     """
     
     def __init__(
@@ -82,11 +82,6 @@ class NexusClientManager:
         return self._borgere_client
     
     @property
-    def organizations(self) -> OrganisationerClient:
-        """DEPRECATED: Use organisationer property instead."""
-        return self.organisationer
-    
-    @property
     def organisationer(self) -> OrganisationerClient:
         """Get the OrganisationerClient (lazy-loaded)."""
         if self._organisationer_client is None:
@@ -100,14 +95,8 @@ class NexusClientManager:
             self._opgaver_client = OpgaverClient(self.nexus_client)
         return self._opgaver_client
     
-    # Backward compatibility property
     @property
-    def assignments(self):
-        """DEPRECATED: Use opgaver property instead."""
-        return self.opgaver
-    
-    @property
-    def indsats(self) -> IndsatsClient:
+    def indsatser(self) -> IndsatsClient:
         """Get the IndsatsClient (lazy-loaded)."""
         if self._indsats_client is None:
             self._indsats_client = IndsatsClient(self.nexus_client)
@@ -120,30 +109,12 @@ class NexusClientManager:
             self._kalender_client = KalenderClient(self.nexus_client)
         return self._kalender_client
     
-    # Backward compatibility property
-    @property
-    def calendar(self):
-        """DEPRECATED: Use kalender property instead."""
-        return self.kalender
-    
-    # Backward compatibility property
-    @property
-    def citizens(self):
-        """DEPRECATED: Use borgere property instead."""
-        return self.borgere
-    
     @property
     def forløb(self) -> ForløbClient:
         """Get the ForløbClient (lazy-loaded)."""
         if self._forløb_client is None:
             self._forløb_client = ForløbClient(self.nexus_client)
         return self._forløb_client
-    
-    # Backward compatibility property
-    @property
-    def cases(self):
-        """DEPRECATED: Use forløb property instead."""
-        return self.forløb
     
     def hent_fra_reference(self, reference: dict) -> dict:
         """

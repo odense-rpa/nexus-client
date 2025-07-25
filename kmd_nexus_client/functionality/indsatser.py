@@ -9,7 +9,7 @@ class IndsatsClient:
     Klient til indsats-operationer i KMD Nexus.
 
     VIGTIGT: Opret ikke denne klasse direkte!
-    Brug NexusClientManager: nexus.indsats.hent_indsats(...)
+    Brug NexusClientManager: nexus.indsatser.hent_indsats(...)
     """
 
     def __init__(self, nexus_client: NexusClient):

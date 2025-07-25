@@ -25,7 +25,7 @@ def get_test_element(grant_prototype_data, element_type, as_list=True):
 
 def test_text_fields_success_and_exception(nexus_manager, grant_prototype_data):
     """Test text field handling - personReference field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "personReference")
@@ -45,7 +45,7 @@ def test_text_fields_success_and_exception(nexus_manager, grant_prototype_data):
 
 def test_date_fields_success_and_exception(nexus_manager, grant_prototype_data):
     """Test date field handling - plannedDate field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "plannedDate")
@@ -77,7 +77,7 @@ def test_date_fields_success_and_exception(nexus_manager, grant_prototype_data):
 
 def test_value_with_possible_values_success_and_exception(nexus_manager, grant_prototype_data):
     """Test value field with possibleValues - payor field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "payor")
@@ -104,7 +104,7 @@ def test_value_with_possible_values_success_and_exception(nexus_manager, grant_p
 
 def test_boolean_value_fields_success_and_exception(nexus_manager, grant_prototype_data):
     """Test boolean value field - denmarkStatisticRareDisability field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "denmarkStatisticRareDisability")
@@ -130,7 +130,7 @@ def test_boolean_value_fields_success_and_exception(nexus_manager, grant_prototy
 
 def test_selected_values_success_and_exception(nexus_manager, grant_prototype_data):
     """Test selectedValues field - denmarkStatisticMappingTargetGroup field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "denmarkStatisticMappingTargetGroup")
@@ -164,7 +164,7 @@ def test_selected_values_success_and_exception(nexus_manager, grant_prototype_da
 
 def test_decimal_fields_success_and_exception(nexus_manager, grant_prototype_data):
     """Test decimal field - price field."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Get test element
     elements = get_test_element(grant_prototype_data, "price")
@@ -190,7 +190,7 @@ def test_decimal_fields_success_and_exception(nexus_manager, grant_prototype_dat
 
 def test_supplier_fields_success_and_exception(nexus_manager, grant_prototype_data):
     """Test supplier field handling."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Mock the client.client.get method directly
     with patch.object(client.client, 'get') as mock_get:
@@ -228,7 +228,7 @@ def test_supplier_fields_success_and_exception(nexus_manager, grant_prototype_da
 
 def test_fill_grant_elements_modifies_original_data(nexus_manager, grant_prototype_data):
     """Test that _fill_grant_elements modifies the original data structure by reference."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Use actual currentElements from prototype (not copies)
     elements = grant_prototype_data["currentElements"]
@@ -261,7 +261,7 @@ def test_fill_grant_elements_modifies_original_data(nexus_manager, grant_prototy
 
 def test_error_handling_field_not_found_and_unsupported_type(nexus_manager, grant_prototype_data):  # grant_prototype_data not used - testing errors only
     """Test error handling for field not found and unsupported field types."""
-    client = nexus_manager.indsats
+    client = nexus_manager.indsatser
     
     # Test field not found
     elements = [{"type": "existingField", "text": "test"}]

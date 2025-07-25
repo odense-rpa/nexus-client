@@ -88,13 +88,13 @@ class TestNexusClientManager:
         mock_borgere_client.assert_not_called()
         
         # Access citizens property
-        citizens = manager.citizens
+        citizens = manager.borgere
         
         # Should be called now
         mock_borgere_client.assert_called_once()
         
         # Second access should return the same instance
-        citizens2 = manager.citizens
+        citizens2 = manager.borgere
         assert citizens is citizens2
         
         # BorgerClient constructor should still only be called once
@@ -136,7 +136,7 @@ class TestNexusClientManager:
         borgere_client = manager.borgere
         organisationer_client = manager.organisationer
         opgaver_client = manager.opgaver
-        indsats_client = manager.indsats
+        indsats_client = manager.indsatser
         kalender_client = manager.kalender
         forløb_client = manager.forløb
         
@@ -154,7 +154,7 @@ class TestNexusClientManager:
         assert manager.borgere is borgere_client
         assert manager.organisationer is organisationer_client
         assert manager.opgaver is opgaver_client
-        assert manager.indsats is indsats_client
+        assert manager.indsatser is indsats_client
         assert manager.kalender is kalender_client
         assert manager.forløb is forløb_client
 

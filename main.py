@@ -28,7 +28,7 @@ visning = nexus.borgere.hent_visning(borger) or {}
 
 # referencer = nexus.borgere.hent_referencer(visning)
 
-# grant_refs = nexus.indsats.filtrer_indsats_referencer(
+# grant_refs = nexus.indsatser.filtrer_indsats_referencer(
 #     referencer, kun_aktive=True, leverandør_navn="Testleverandør Supporten Dag"
 # )
 
