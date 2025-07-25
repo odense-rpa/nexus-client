@@ -71,8 +71,6 @@ def create_response_logging_hook(
 
         # Build complete log entry with nested HTTP structure
         extra = {
-            "event_type": "http_transaction",
-            "is_error": response.is_error,
             "http": {
                 "method": method,
                 "url": url,
