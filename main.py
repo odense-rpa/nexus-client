@@ -7,7 +7,7 @@ from kmd_nexus_client import NexusClientManager
 
 import json
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 

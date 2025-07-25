@@ -39,6 +39,8 @@ class NexusClient:
 
         # Set up logging
         self.logger = logging.getLogger("kmd.nexus")
+        
+        # Set httpx to a higher logging level to avoid clutter
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("httpcore").setLevel(logging.WARNING)
 
