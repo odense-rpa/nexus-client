@@ -38,7 +38,7 @@ class NexusClient:
         )
 
         # Set up logging
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("kmd.nexus")
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("httpcore").setLevel(logging.WARNING)
 

@@ -14,7 +14,7 @@ import httpx
 
 
 def create_response_logging_hook(
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger
 ) -> Callable[[httpx.Response], None]:
     """
     Create response logging hook for KMD Nexus API that captures HTTP transactions.
@@ -25,9 +25,6 @@ def create_response_logging_hook(
     Returns:
         Response hook function
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
-
     # KMD Nexus specific endpoints to skip logging (reduce noise)
     non_logging_endpoints = ["/patients/search", "/protocol/openid-connect/token"]
 
@@ -65,22 +62,39 @@ def create_response_logging_hook(
             # Response content not available or not readable
             response_json = None
 
-        # Build complete log entry
+        # Extract headers
+        request_headers = dict(request.headers) if hasattr(request, 'headers') else {}
+        response_headers = dict(response.headers) if hasattr(response, 'headers') else {}
+        
+        # Calculate duration in milliseconds
+        duration_ms = int(response.elapsed.total_seconds() * 1000) if hasattr(response, 'elapsed') and response.elapsed else 0
+
+        # Build complete log entry with nested HTTP structure
         extra = {
             "event_type": "http_transaction",
-            "http_method": method,
-            "http_url": url,
-            "http_status": status,
-            "request_json": request_json,
-            "response_json": response_json,
             "is_error": response.is_error,
+            "http": {
+                "method": method,
+                "url": url,
+                "request_headers": request_headers,
+                "request_body": request_json,
+                "response_status": status,
+                "response_headers": response_headers,
+                "response_body": response_json,
+                "duration_ms": duration_ms,
+            },
         }
 
         # Log with appropriate level
         if response.is_error:
             logger.error(f"HTTP {status}: {method} {url}", extra=extra)
         else:
-            logger.info(f"HTTP {status}: {method} {url}", extra=extra)
+            if request.method in ["GET", "HEAD", "OPTIONS"]:
+                logger.debug(f"HTTP {status}: {method} {url}", extra=extra)
+            else:
+                logger.info(f"HTTP {status}: {method} {url}", extra=extra)
+
+        return  # End of log_response function
 
     return log_response
 
