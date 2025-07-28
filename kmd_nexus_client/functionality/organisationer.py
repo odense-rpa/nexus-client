@@ -47,7 +47,7 @@ class OrganisationerClient:
         response = self.nexus_client.get(self.nexus_client.api["suppliers"])
         return response.json()
 
-    def hent_organisation_ved_navn(self, navn: str) -> dict:
+    def hent_organisation_ved_navn(self, navn: str) -> dict | None:
         """
         Hent organisation ved navn.
 
@@ -55,7 +55,7 @@ class OrganisationerClient:
         :return: Organisationen.
         """
         organisationer = self.hent_organisationer()
-        return [org for org in organisationer if org["name"] == navn][0]
+        return next((org for org in organisationer if org["name"] == navn), None)
 
     def hent_organisationer_for_borger(
         self, borger: dict, kun_aktive: bool = True

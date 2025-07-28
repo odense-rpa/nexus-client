@@ -65,6 +65,13 @@ def test_hent_organisation_ved_navn(nexus_manager: NexusClientManager):
     assert organisation is not None
     assert organisation["name"] == "Sundhedsfagligt Team"
 
+    # Test med en ikke eksisterende organisation
+    organisation = nexus_manager.organisationer.hent_organisation_ved_navn(
+        "Ikke-eksisterende Organisation"
+    )
+
+    assert organisation is None
+
 
 def test_hent_organisationer_for_borger(
     nexus_manager: NexusClientManager, test_borger: dict
