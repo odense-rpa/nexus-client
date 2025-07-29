@@ -43,7 +43,7 @@ def create_response_logging_hook(
         Response hook function
     """
     # KMD Nexus specific endpoints to skip logging (reduce noise and avoid sensitive data)
-    non_logging_endpoints = ["/protocol/openid-connect/token"]
+    non_logging_endpoints = ["/protocol/openid-connect/token","/patients/search"]
 
     def log_response(response: httpx.Response) -> None:
         """Log complete HTTP transaction from response."""
