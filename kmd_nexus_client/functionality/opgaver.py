@@ -41,6 +41,14 @@ class OpgaverClient:
 
         return response.json()
     
+    def hent_opgave_historik(self, objekt: dict) -> List[dict] | None:
+         if "assignments" not in objekt["_links"]:
+            raise ValueError("Objekt indeholder ikke assignments link.")
+         
+         response = self.nexus_client.get(objekt["_links"]["assignments"]["href"])
+
+         return response.json()
+    
     def hent_opgave_for_borger(self, borger: dict, opgave_id: int) -> Optional[dict]:
         # The way the API is called in this function is an exception, by directly using a hardcoded path, instead of using the HATEOAS design.
         # The alternative is to map assignment ids from the database to the citizen activity and reference json.
