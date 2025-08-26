@@ -39,13 +39,13 @@ def is_valid_cpr(cpr: str) -> bool:
 def sanitize_cpr(cpr: str) -> str:
     """
     Sanitize a CPR number by removing any spaces or dashes.
-    
+
     :param cpr: A CPR number to sanitize.
     :return: The sanitized CPR number.
     """
     cpr = cpr.replace("-", "").replace(" ", "").strip()
-    
+
     if not is_valid_cpr(cpr):
         raise ValueError("Invalid CPR number.")
-    
+
     return cpr

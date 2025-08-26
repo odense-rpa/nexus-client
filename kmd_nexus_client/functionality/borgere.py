@@ -115,4 +115,3 @@ class BorgerClient:
         :return: Liste af aktive forløb som direkte objekter. De kan ikke anvendes direkte i andre funktioner. Brug istedet hent_visning til at få referencer.
         """
         return self.client.get(borger["_links"]["activePrograms"]["href"]).json()
-

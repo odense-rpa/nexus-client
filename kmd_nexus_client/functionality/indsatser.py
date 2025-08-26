@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, List
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import find_nodes
 
@@ -9,7 +9,7 @@ class IndsatsClient:
     Klient til indsats-operationer i KMD Nexus.
 
     VIGTIGT: Opret ikke denne klasse direkte!
-    Brug NexusClientManager: nexus.indsats.hent_indsats(...)
+    Brug NexusClientManager: nexus.indsatser.hent_indsats(...)
     """
 
     def __init__(self, nexus_client: NexusClient):
@@ -429,7 +429,7 @@ class IndsatsClient:
                                 "Fjernet",
                                 "Frafaldet",
                                 "Afgjort",
-                                "Afslået"
+                                "Afslået",
                             ]
                         )
                     )

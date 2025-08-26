@@ -43,7 +43,7 @@ citizen = nexus.borgere.hent_borger("0108589995")
 resolved = nexus.hent_fra_reference(reference)
 
 # Adgang til alle klienter via manager
-indsatser = nexus.indsats.hent_indsats_referencer(citizen)
+indsatser = nexus.indsatser.hent_indsats_referencer(citizen)
 opgaver = nexus.opgaver.hent_opgaver(resolved_object)
 ```
 
@@ -60,7 +60,7 @@ Python client library for KMD Nexus API, providing interoperability through REST
 - **BorgerClient** (`nexus.borgere`): Citizen data and pathway navigation
 - **OrganisationerClient** (`nexus.organisationer`): Organization and supplier management  
 - **OpgaverClient** (`nexus.opgaver`): Assignment/task creation and management
-- **IndsatsClient** (`nexus.indsats`): Grant-related operations
+- **IndsatsClient** (`nexus.indsatser`): Grant-related operations
 - **KalenderClient** (`nexus.kalender`): Calendar and scheduling
 - **ForløbClient** (`nexus.forløb`): Case/pathway management
 

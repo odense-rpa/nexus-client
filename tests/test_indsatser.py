@@ -6,7 +6,7 @@ from kmd_nexus_client.manager import NexusClientManager
 
 def test_hent_indsats_elementer(nexus_manager: NexusClientManager, test_indsats: dict):
     """Test hent_indsats_elementer Danish function."""
-    elementer = nexus_manager.indsats.hent_indsats_elementer(test_indsats)
+    elementer = nexus_manager.indsatser.hent_indsats_elementer(test_indsats)
 
     assert elementer is not None
 
@@ -14,24 +14,24 @@ def test_hent_indsats_elementer(nexus_manager: NexusClientManager, test_indsats:
 def test_indsats_client_methods_exist(nexus_manager: NexusClientManager):
     """Test that all Danish methods exist on IndsatsClient."""
     # Check that all methods exist
-    assert hasattr(nexus_manager.indsats, "rediger_indsats")
-    assert hasattr(nexus_manager.indsats, "hent_indsats_elementer")
-    assert hasattr(nexus_manager.indsats, "opret_indsats")
-    assert hasattr(nexus_manager.indsats, "hent_indsats")
-    assert hasattr(nexus_manager.indsats, "filtrer_indsats_referencer")
+    assert hasattr(nexus_manager.indsatser, "rediger_indsats")
+    assert hasattr(nexus_manager.indsatser, "hent_indsats_elementer")
+    assert hasattr(nexus_manager.indsatser, "opret_indsats")
+    assert hasattr(nexus_manager.indsatser, "hent_indsats")
+    assert hasattr(nexus_manager.indsatser, "filtrer_indsats_referencer")
 
     # Check that they are callable
-    assert callable(nexus_manager.indsats.rediger_indsats)
-    assert callable(nexus_manager.indsats.hent_indsats_elementer)
-    assert callable(nexus_manager.indsats.opret_indsats)
-    assert callable(nexus_manager.indsats.hent_indsats)
-    assert callable(nexus_manager.indsats.filtrer_indsats_referencer)
+    assert callable(nexus_manager.indsatser.rediger_indsats)
+    assert callable(nexus_manager.indsatser.hent_indsats_elementer)
+    assert callable(nexus_manager.indsatser.opret_indsats)
+    assert callable(nexus_manager.indsatser.hent_indsats)
+    assert callable(nexus_manager.indsatser.filtrer_indsats_referencer)
 
 
 def test_filtrer_indsats_referencer_empty_list(nexus_manager: NexusClientManager):
     """Test filtrer_indsats_referenser with empty input."""
     # Test filtering empty list
-    filtered = nexus_manager.indsats.filtrer_indsats_referencer(
+    filtered = nexus_manager.indsatser.filtrer_indsats_referencer(
         [], kun_aktive=True, leverandør_navn=""
     )
 
@@ -47,12 +47,12 @@ def test_filtrer_indsats_referencer_real_data(
     referencer = nexus_manager.borgere.hent_referencer(visning)
     assert referencer is not None, "Referencer should not be None"
 
-    alle_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(
+    alle_indsatser = nexus_manager.indsatser.filtrer_indsats_referencer(
         referencer, kun_aktive=False
     )
     assert len(alle_indsatser) > 0, "Der skal være referencer"
 
-    aktive_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(
+    aktive_indsatser = nexus_manager.indsatser.filtrer_indsats_referencer(
         referencer, kun_aktive=True
     )
     assert len(aktive_indsatser) > 0, "Der skal være aktive referencer"
@@ -60,7 +60,7 @@ def test_filtrer_indsats_referencer_real_data(
         "Aktive referencer skal være en del af alle referencer"
     )
 
-    leverandør_indsatser = nexus_manager.indsats.filtrer_indsats_referencer(
+    leverandør_indsatser = nexus_manager.indsatser.filtrer_indsats_referencer(
         referencer, kun_aktive=False, leverandør_navn="Testleverandør Supporten Dag"
     )
     assert len(leverandør_indsatser) > 0, "Der skal være leverandør referencer"
@@ -108,7 +108,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     ]
 
     # Test filtering for active only
-    aktive = nexus_manager.indsats.filtrer_indsats_referencer(
+    aktive = nexus_manager.indsatser.filtrer_indsats_referencer(
         mock_referenser, kun_aktive=True, leverandør_navn=""
     )
 
@@ -117,7 +117,7 @@ def test_filtrer_indsats_referencer_with_mock_data(nexus_manager: NexusClientMan
     assert all(ref["workflowState"]["name"] != "Afsluttet" for ref in aktive)
 
     # Test filtering by supplier
-    med_leverandør = nexus_manager.indsats.filtrer_indsats_referencer(
+    med_leverandør = nexus_manager.indsatser.filtrer_indsats_referencer(
         mock_referenser, kun_aktive=False, leverandør_navn="Test Leverandør"
     )
 
@@ -130,11 +130,11 @@ def test_hent_indsats_error_handling(nexus_manager: NexusClientManager):
     """Test hent_indsats error handling."""
     # Test with invalid reference
     with pytest.raises(ValueError, match="Input er ikke en gyldig indsats reference"):
-        nexus_manager.indsats.hent_indsats({})
+        nexus_manager.indsatser.hent_indsats({})
 
     # Test with unknown reference type
     with pytest.raises(ValueError, match="Ukendt reference type"):
-        nexus_manager.indsats.hent_indsats({"type": "unknownType"})
+        nexus_manager.indsatser.hent_indsats({"type": "unknownType"})
 
 
 def test_manager_provides_indsats_property():
@@ -142,5 +142,4 @@ def test_manager_provides_indsats_property():
     from kmd_nexus_client.manager import NexusClientManager
 
     # Check that manager has indsats property
-    assert hasattr(NexusClientManager, "indsats")
-
+    assert hasattr(NexusClientManager, "indsatser")

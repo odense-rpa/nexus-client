@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
@@ -7,10 +7,11 @@ from kmd_nexus_client.client import NexusClient
 class ForløbClient:
     """
     Klient til forløbs-operationer i KMD Nexus.
-    
+
     VIGTIGT: Opret ikke denne klasse direkte!
     Brug NexusClientManager: nexus.forløb.hent_forløb(...)
     """
+
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
@@ -195,4 +196,3 @@ class ForløbClient:
 
         except HTTPStatusError:
             return False
-    

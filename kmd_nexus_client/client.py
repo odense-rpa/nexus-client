@@ -5,20 +5,18 @@ from urllib.parse import urljoin
 
 from .hooks import create_response_logging_hook
 
+
 class NexusClient:
     """
     Basis klient til KMD Nexus API kommunikation.
-    
+
     VIGTIGT: Brug NexusClientManager i stedet for direkte instantiering.
     """
+
     api: dict
 
     def __init__(
-        self, 
-        instance: str, 
-        client_id: str, 
-        client_secret: str,
-        timeout: float = 30.0
+        self, instance: str, client_id: str, client_secret: str, timeout: float = 30.0
     ):
         """
         Initialize the NexusClient with an instance name and client credentials.
@@ -38,13 +36,15 @@ class NexusClient:
         )
 
         # Set up logging
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("kmd.nexus")
+
+        # Set httpx to a higher logging level to avoid clutter
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("httpcore").setLevel(logging.WARNING)
 
         # Create response logging hook
         response_hook = create_response_logging_hook(logger=self.logger)
-        hooks = {'response': [response_hook]}
+        hooks = {"response": [response_hook]}
 
         # Set up the OAuth2 client with event hooks
         self.client = OAuth2Client(
@@ -52,7 +52,7 @@ class NexusClient:
             client_secret=client_secret,
             token_endpoint=self.token_url,
             timeout=timeout,
-            event_hooks=hooks
+            event_hooks=hooks,
         )
 
         # Automatically fetch the token during initialization
@@ -69,7 +69,7 @@ class NexusClient:
     def get(self, endpoint: str, **kwargs) -> httpx.Response:
         """
         Perform GET request to the specified endpoint.
-        
+
         :param endpoint: API endpoint (relative or absolute URL)
         :param kwargs: Additional arguments passed to httpx
         :return: HTTP response
@@ -82,8 +82,8 @@ class NexusClient:
     def post(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         """
         Perform POST request to the specified endpoint.
-        
-        :param endpoint: API endpoint (relative or absolute URL) 
+
+        :param endpoint: API endpoint (relative or absolute URL)
         :param json: JSON data to send in request body
         :param kwargs: Additional arguments passed to httpx
         :return: HTTP response
@@ -96,7 +96,7 @@ class NexusClient:
     def put(self, endpoint: str, json: dict, **kwargs) -> httpx.Response:
         """
         Perform PUT request to the specified endpoint.
-        
+
         :param endpoint: API endpoint (relative or absolute URL)
         :param json: JSON data to send in request body
         :param kwargs: Additional arguments passed to httpx
@@ -110,7 +110,7 @@ class NexusClient:
     def delete(self, endpoint: str, **kwargs) -> httpx.Response:
         """
         Perform DELETE request to the specified endpoint.
-        
+
         :param endpoint: API endpoint (relative or absolute URL)
         :param kwargs: Additional arguments passed to httpx
         :return: HTTP response
@@ -119,7 +119,6 @@ class NexusClient:
         response = self.client.delete(url, **kwargs)
         response.raise_for_status()
         return response
-
 
     def parse_links(self, response: httpx.Response) -> dict:
         """Extract and normalize links from HATEOAS JSON."""
@@ -142,5 +141,6 @@ class NexusClient:
         if "self" in reference["_links"]:
             return self.get(reference["_links"]["self"]["href"]).json()
 
-        raise ValueError("Kan ikke hente fra reference - hverken referencedObject eller self link fundet.")
-
+        raise ValueError(
+            "Kan ikke hente fra reference - hverken referencedObject eller self link fundet."
+        )
