@@ -46,3 +46,9 @@ def test_hent_referencer(nexus_manager: NexusClientManager, test_borger: dict):
     references = nexus_manager.borgere.hent_referencer(pathway)
     assert references is not None
     assert len(references) > 0
+
+def test_opret_borger(nexus_manager: NexusClientManager):
+    # Test on the fly, ikke commit.
+    cpr = ""
+    response = nexus_manager.borgere.opret_borger(cpr)
+    assert response is not None

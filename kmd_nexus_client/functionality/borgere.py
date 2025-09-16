@@ -91,7 +91,7 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["patientActivities"]["href"]).json()
 
-    def hent_udlån(self, borger: dict) -> List[dict]:
+    def hent_udlån(self, borger: dict) -> List[dict]|None:
         """
         Hent borgerens udlån.
 
@@ -115,3 +115,37 @@ class BorgerClient:
         :return: Liste af aktive forløb som direkte objekter. De kan ikke anvendes direkte i andre funktioner. Brug istedet hent_visning til at få referencer.
         """
         return self.client.get(borger["_links"]["activePrograms"]["href"]).json()
+
+    def opret_borger(self, borger_cpr: str) -> dict|None:
+        """
+        Opret en ny borger i KMD Nexus.
+
+        :param borger_data: Data for den nye borger.
+        :param cpr: CPR nummeret på borgeren der skal oprettes.
+        :return: Det oprettede borgerobjekt.
+        """
+        
+        cpr = sanitize_cpr(borger_cpr)
+
+        try:
+            prototype_response = self.client.get(
+                f"{self.client.api["patients"]}/prototypeBasedOnCprSystem?cpr={cpr}"                
+            )
+
+            if prototype_response.status_code != 200:
+                raise ValueError("Kan ikke hente prototype for borger.")
+
+            prototype = prototype_response.json()
+
+            response = self.client.post(
+                self.client.api["patients"],
+                json=prototype,
+            )
+
+            return response.json()
+
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None
+            raise        
+       
