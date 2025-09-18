@@ -14,6 +14,7 @@ from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
 from kmd_nexus_client.functionality.medcom import MedComClient
+from kmd_nexus_client.functionality.skemaer import SkemaerClient
 
 
 class NexusClientManager:
@@ -57,6 +58,7 @@ class NexusClientManager:
         self._kalender_client: Optional[KalenderClient] = None
         self._forløb_client: Optional[ForløbClient] = None
         self._medcom_client: Optional[MedComClient] = None
+        self._skemaer_client: Optional[SkemaerClient] = None
 
     @property
     def nexus_client(self) -> NexusClient:
@@ -119,6 +121,13 @@ class NexusClientManager:
             self._medcom_client = MedComClient(self.nexus_client)
         return self._medcom_client
     
+    @property
+    def skemaer(self) -> SkemaerClient:
+        """Get the SkemaerClient (lazy-loaded)."""
+        if self._skemaer_client is None:
+            self._skemaer_client = SkemaerClient(self.nexus_client)
+        return self._skemaer_client
+
     def hent_fra_reference(self, reference: dict) -> dict:
         """
         Hent fuldt objekt fra en reference.
