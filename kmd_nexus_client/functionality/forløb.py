@@ -1,5 +1,6 @@
 from typing import Optional
 from httpx import HTTPStatusError
+from datetime import datetime
 
 from kmd_nexus_client.client import NexusClient
 
@@ -196,3 +197,56 @@ class ForløbClient:
 
         except HTTPStatusError:
             return False
+
+    def opret_dokument(self, borger: dict, forløb: dict, fil: bytes, filnavn: str, titel: str, noter: str, modtaget: datetime, indholdstype: str = "application/pdf") -> dict|None:
+        """
+        Opret et dokument for en borger i et forløb.
+
+        :param borger: Borgerens oplysninger.
+        :param forløb: Forløbets oplysninger.
+        :param fil: Filen der skal uploades.
+        :param filnavn: Navnet på filen.
+        :param titel: Titlen på dokumentet.
+        :param noter: Noter til dokumentet.
+        :param modtaget: Dato og tid for modtagelse.
+        :param indholdstype: Indholdstypen for dokumentet (default: "application/pdf").
+        :return: True hvis dokumentet blev oprettet, False ellers.
+        """
+        try:
+            prototype = self.client.get(
+                forløb["_links"]["documentPrototype"]["href"]
+            )
+
+            if prototype.status_code != 200:
+                return None
+
+            dokument = prototype.json()
+            dokument["name"] = titel
+            dokument["notes"] = noter
+            dokument["relevanceDate"] = modtaget.isoformat() # to UTC string
+            dokument["originalFileName"] = filnavn
+
+            oprettet_dokument = self.client.post(
+                dokument["_links"]["create"]["href"], json=dokument
+            )
+
+            if oprettet_dokument.status_code != 200:
+                return None
+            
+            # Upload the file using self.client, which handles authentication
+            upload_url = oprettet_dokument.json().get("_links", {}).get("upload", {}).get("href")
+
+            if not upload_url:
+                return None
+            
+            files = {
+                "file": (filnavn, fil, indholdstype)
+            }
+            resp = self.client.post(upload_url, files=files, json={})
+
+            if resp.status_code != 200:
+                return None
+            return resp.json()
+
+        except HTTPStatusError:
+            return None

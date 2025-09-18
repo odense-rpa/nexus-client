@@ -1,9 +1,11 @@
 import pytest
+from datetime import datetime
 from unittest.mock import Mock
 from httpx import HTTPStatusError
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
+from kmd_nexus_client.tree_helpers import filter_by_path
 
 
 def test_get_citizen_cases(nexus_manager: NexusClientManager, test_borger: dict):
@@ -145,3 +147,33 @@ def test_luk_forløb_parameters(nexus_manager: NexusClientManager):
         assert result is False  # Expected due to mocked 404
     finally:
         nexus_manager.forløb.client.get = original_get
+
+def test_opret_dokument(nexus_manager: NexusClientManager, test_borger: dict):
+    pass
+    #visning = nexus_manager.borgere.hent_visning(test_borger)
+    #assert visning is not None
+
+    #referencer = nexus_manager.borgere.hent_referencer(visning)
+    #assert referencer is not None
+
+    #forløb = filter_by_path(
+    #        referencer,
+    #        "/Sundhedsfagligt grundforløb/Korrespondance - Personlige hjælpemidler",
+    #        active_pathways_only=True,
+    #    )
+    
+    #forløb = nexus_manager.hent_fra_reference(forløb[0])
+
+    #with open("test_file.txt", "rb") as f:
+    #    dokument = f.read()
+
+    #oprettet_dokument = nexus_manager.forløb.opret_dokument(
+    #    borger=test_borger,
+    #    forløb=forløb,
+    #    fil=dokument,
+    #    filnavn="test_file.txt",
+    #    titel="Test Dokument",
+    #    noter="Dette er et test dokument",
+    #    modtaget=datetime.now(),
+    #    indholdstype="text/plain"
+    #)
