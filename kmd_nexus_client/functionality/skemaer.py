@@ -1,7 +1,10 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
+
+if TYPE_CHECKING:
+    from kmd_nexus_client.manager import NexusClientManager
 
 
 class SkemaerClient:
@@ -15,10 +18,11 @@ class SkemaerClient:
     Brug NexusClientManager: nexus.skemaer.hent_skema(...)
     """
 
-    def __init__(self, nexus_client: NexusClient):
+    def __init__(self, nexus_client: NexusClient, manager: Optional["NexusClientManager"] = None):
         self.client = nexus_client
+        self._manager = manager
 
-    def hent_tilgængelige_skematyper(self, objekt: dict) -> List[dict]:
+    def hent_skemadefinition_uden_forløb(self, objekt: dict) -> List[dict]:
         """
         Hent alle tilgængelige skematyper (form definitions) for et objekt.
 
@@ -30,6 +34,45 @@ class SkemaerClient:
         
         response = self.client.get(objekt["_links"]["availableFormDefinitions"]["href"])
         return response.json()
+    
+    def hent_skemadefinition_på_forløb(self, grundforløb: str, forløb: str, objekt: dict) -> List[dict]:
+        """
+        Hent alle tilgængelige skematyper (form definitions) for et objekt inden for et specifikt forløb.
+
+        :param grundforløb: ID eller navn på grundforløb.
+        :param forløb: ID eller navn på forløb.
+        :param objekt: Objekt at hente skematyper for (borger, pathway reference, etc.).
+        :return: Liste af tilgængelige skematyper inden for det angivne forløb.
+        """
+        if "availableFormDefinitions" not in objekt.get("_links", {}):
+            raise ValueError("Objekt indeholder ikke availableFormDefinitions link.")
+
+        # Access BorgerClient through manager if available, otherwise create directly
+        if self._manager is not None:
+            borgere_client = self._manager.borgere
+        else:
+            # Fallback: create BorgerClient directly (not recommended but functional)
+            from kmd_nexus_client.functionality.borgere import BorgerClient
+            borgere_client = BorgerClient(self.client)
+            
+        visning = borgere_client.hent_visning(borger=objekt, visnings_navn="-Aktive forløb")
+        referencer = borgere_client.hent_referencer(visning=visning)
+
+        # Find the specific grundforløb reference (first match)
+        grundforløb_ref = next((ref for ref in referencer if ref.get("name") == grundforløb or ref.get("id") == grundforløb and ref.get("type") == "patientPathwayReference"), None)
+        if not grundforløb_ref:
+            raise ValueError(f"Ingen referencer fundet for det angivne grundforløb: {grundforløb}")
+
+        # Now look in that specific grundforløb's children for the forløb
+        forløb_refs = next((child for child in grundforløb_ref.get("children", []) if child.get("name") == forløb or child.get("id") == forløb and child.get("type") == "patientPathwayReference"), None)
+        if not forløb_refs:
+            raise ValueError(f"Ingen forløb fundet for: {forløb}")
+
+        referencer = self.client.get(forløb_refs["_links"]["self"]["href"]).json()
+
+        skemadefinitioner = self.client.get(referencer["_links"]["availableFormDefinitions"]["href"]).json()
+        
+        return skemadefinitioner
 
     def hent_skema_fra_reference(self, reference: dict) -> dict:
         """
@@ -137,7 +180,9 @@ class SkemaerClient:
         objekt: dict, 
         skematype_navn: str, 
         handling_navn: str, 
-        data: Dict[str, Any]
+        data: Dict[str, Any],
+        grundforløb: Optional[str] = None,
+        forløb: Optional[str] = None
     ) -> dict:
         """
         Komplet skema oprettelsesprocess i ét kald - implementerer den 5-trins process.
@@ -146,10 +191,19 @@ class SkemaerClient:
         :param skematype_navn: Navn på skematype (f.eks. "Observation").
         :param handling_navn: Navn på handling (f.eks. "Aktivt").
         :param data: Dictionary med feltdata til udfyldelse.
+        :param grundforløb: (valgfri) Grundforløb hvis skema er på et forløb.
+        :param forløb: (valgfri) Forløb hvis skema er på et forløb.
         :return: Oprettet skema instans.
         """
         # Trin 1: Hent tilgængelige skematyper
-        skematyper = self.hent_tilgængelige_skematyper(objekt)
+        if grundforløb and forløb:
+            skematyper = self.hent_skemadefinition_på_forløb(
+                grundforløb=grundforløb,
+                forløb=forløb,
+                objekt=objekt,
+            )
+        else:
+            skematyper = self.hent_skemadefinition_uden_forløb(objekt)
         skematype = self._find_skematype_by_name(skematyper, skematype_navn)
         if not skematype:
             raise ValueError(f"Skematype '{skematype_navn}' ikke fundet.")

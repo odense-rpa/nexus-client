@@ -63,7 +63,7 @@ class BorgerClient:
         :param visnings_navn: Navnet på visningen (standard: "- Alt").
         :return: Borgerens visning, eller None hvis visningen ikke findes.
         """
-        preferences = self.hent_præferencer(borger)
+        preferences = self.hent_præferencer(borger=borger)
 
         for item in preferences["CITIZEN_PATHWAY"]:
             if item["name"] == visnings_navn:

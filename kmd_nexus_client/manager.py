@@ -125,7 +125,7 @@ class NexusClientManager:
     def skemaer(self) -> SkemaerClient:
         """Get the SkemaerClient (lazy-loaded)."""
         if self._skemaer_client is None:
-            self._skemaer_client = SkemaerClient(self.nexus_client)
+            self._skemaer_client = SkemaerClient(self.nexus_client, manager=self)
         return self._skemaer_client
 
     def hent_fra_reference(self, reference: dict) -> dict:
