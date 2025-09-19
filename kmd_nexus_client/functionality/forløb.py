@@ -198,7 +198,7 @@ class ForløbClient:
         except HTTPStatusError:
             return False
 
-    def opret_dokument(self, borger: dict, forløb: dict, fil: bytes, filnavn: str, titel: str, noter: str, modtaget: datetime, indholdstype: str = "application/pdf") -> dict|None:
+    def opret_dokument(self, borger: dict, forløb: dict, fil: bytes, filnavn: str, titel: str, noter: Optional[str], modtaget: datetime, indholdstype: str = "application/pdf") -> dict|None:
         """
         Opret et dokument for en borger i et forløb.
 
