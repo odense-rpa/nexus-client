@@ -322,13 +322,9 @@ class SkemaerClient:
                 row['Grundforløb'] = ''
                 row['Forløb'] = ''
             
-            # Håndter _links
+            # Håndter _links - bevar den fulde link struktur
             if token.get('_links'):
-                links_dict = {}
-                for link_name, link_data in token['_links'].items():
-                    if isinstance(link_data, dict) and 'href' in link_data:
-                        links_dict[link_name] = link_data['href']
-                row['_links'] = links_dict
+                row['_links'] = token['_links']
             else:
                 row['_links'] = {}
             

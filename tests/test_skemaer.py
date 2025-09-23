@@ -80,3 +80,15 @@ def test_hent_skemareferencer(nexus_manager: NexusClientManager, test_borger: di
     
     assert isinstance(skemareferencer, list)
     # Skemareferencer kan være tomme, så vi checker bare at det er en liste
+
+def test_hent_skema_fra_reference(nexus_manager: NexusClientManager, test_borger: dict):
+    """Test at hente et skema fra en skemareference."""
+    skemareferencer = nexus_manager.skemaer.hent_skemareferencer(borger=test_borger)
+
+    # find selv et skema du vil bruge - 12345 virker næppe
+    skemareference = next((ref for ref in skemareferencer if ref["Skemaid"] == 12345), None)
+    skema = nexus_manager.skemaer.hent_skema_fra_reference(reference=skemareference)
+
+    assert skema is not None
+    assert "id" in skema
+    assert skema["id"] == skemareference["id"]
