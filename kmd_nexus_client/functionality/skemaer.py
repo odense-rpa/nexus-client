@@ -47,23 +47,23 @@ class SkemaerClient:
         if "availableFormDefinitions" not in objekt.get("_links", {}):
             raise ValueError("Objekt indeholder ikke availableFormDefinitions link.")
 
-        # Access BorgerClient through manager if available, otherwise create directly
+        # Tilgå BorgerClient gennem manager hvis tilgængelig, ellers opret direkte
         if self._manager is not None:
             borgere_client = self._manager.borgere
         else:
-            # Fallback: create BorgerClient directly (not recommended but functional)
+            # Fallback: opret BorgerClient direkte (ikke anbefalet men funktionelt)
             from kmd_nexus_client.functionality.borgere import BorgerClient
             borgere_client = BorgerClient(self.client)
             
         visning = borgere_client.hent_visning(borger=objekt, visnings_navn="-Aktive forløb")
         referencer = borgere_client.hent_referencer(visning=visning)
 
-        # Find the specific grundforløb reference (first match)
+        # Find den specifikke grundforløbsreference (første match)
         grundforløb_ref = next((ref for ref in referencer if ref.get("name") == grundforløb or ref.get("id") == grundforløb and ref.get("type") == "patientPathwayReference"), None)
         if not grundforløb_ref:
             raise ValueError(f"Ingen referencer fundet for det angivne grundforløb: {grundforløb}")
 
-        # Now look in that specific grundforløb's children for the forløb
+        # Nu søg i det specifikke grundforløbs børn efter forløbet
         forløb_refs = next((child for child in grundforløb_ref.get("children", []) if child.get("name") == forløb or child.get("id") == forløb and child.get("type") == "patientPathwayReference"), None)
         if not forløb_refs:
             raise ValueError(f"Ingen forløb fundet for: {forløb}")
@@ -145,8 +145,10 @@ class SkemaerClient:
                     
         return prototype
 
-    def opret_skema(self, prototype: dict, handling: dict) -> dict:
+    def _opret_skema(self, prototype: dict, handling: dict) -> dict:
         """
+        PRIVAT METODE - brug opret_komplet_skema() i stedet. 
+
         Opret et nyt skema baseret på udfyldt prototype og valgt handling.
 
         :param prototype: Udfyldt skema prototype fra udfyld_skema_felter().
@@ -177,7 +179,7 @@ class SkemaerClient:
 
     def opret_komplet_skema(
         self, 
-        objekt: dict, 
+        borger: dict, 
         skematype_navn: str, 
         handling_navn: str, 
         data: Dict[str, Any],
@@ -200,10 +202,10 @@ class SkemaerClient:
             skematyper = self.hent_skemadefinition_på_forløb(
                 grundforløb=grundforløb,
                 forløb=forløb,
-                objekt=objekt,
+                objekt=borger,
             )
         else:
-            skematyper = self.hent_skemadefinition_uden_forløb(objekt)
+            skematyper = self.hent_skemadefinition_uden_forløb(borger)
         skematype = self._find_skematype_by_name(skematyper, skematype_navn)
         if not skematype:
             raise ValueError(f"Skematype '{skematype_navn}' ikke fundet.")
@@ -221,7 +223,7 @@ class SkemaerClient:
         udfyldt_prototype = self.udfyld_skema_felter(prototype, data)
         
         # Trin 5: Opret skema
-        return self.opret_skema(udfyldt_prototype, handling)
+        return self._opret_skema(udfyldt_prototype, handling)
 
     def valider_skema_data(self, skema: dict, data: Dict[str, Any]) -> Dict[str, List[str]]:
         """

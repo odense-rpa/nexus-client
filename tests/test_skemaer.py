@@ -40,7 +40,7 @@ def test_opret_skema_på_borger_uden_forløb(nexus_manager: NexusClientManager, 
 
     
     oprettet_skema = nexus_manager.skemaer.opret_komplet_skema(
-        objekt=citizen,
+        borger=citizen,
         data=skema_data,
         skematype_navn=skema_navn,
         handling_navn=handling
@@ -64,7 +64,7 @@ def test_opret_skema_på_borger_på_forløb(nexus_manager: NexusClientManager, t
 
     
     oprettet_skema = nexus_manager.skemaer.opret_komplet_skema(
-        objekt=citizen,
+        borger=citizen,
         grundforløb=grundforløb,
         forløb=forløb,
         data=skema_data,
