@@ -16,17 +16,14 @@ def test_hent_skemadefinition_på_forløb(nexus_manager: NexusClientManager, tes
     citizen = test_borger
     grundforløb = "Sundhedsfagligt grundforløb"
     forløb = "FSIII"
-    skema_navn = "Sagsnotat - Ældre"
     
     skema = nexus_manager.skemaer.hent_skemadefinition_på_forløb(
-        objekt=citizen,
+        borger=citizen,
         grundforløb=grundforløb,
         forløb=forløb,
-        skema_navn=skema_navn
     )
     
-    assert isinstance(skema, dict)
-    assert skema["title"] == skema_navn
+    assert isinstance(skema, list)
 
 def test_opret_skema_på_borger_uden_forløb(nexus_manager: NexusClientManager, test_borger: dict):
     """Test at oprette et skema på en borger uden forløb."""
@@ -75,3 +72,11 @@ def test_opret_skema_på_borger_på_forløb(nexus_manager: NexusClientManager, t
     assert oprettet_skema is not None
     assert "id" in oprettet_skema
     assert oprettet_skema["formDefinition"]["title"] == skema_navn
+
+def test_hent_skemareferencer(nexus_manager: NexusClientManager, test_borger: dict):
+    """Test at hente skemareferencer for en borger."""
+    citizen = test_borger
+    skemareferencer = nexus_manager.skemaer.hent_skemareferencer(borger=citizen)
+    
+    assert isinstance(skemareferencer, list)
+    # Skemareferencer kan være tomme, så vi checker bare at det er en liste

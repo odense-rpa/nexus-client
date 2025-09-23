@@ -1,4 +1,6 @@
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
+import json
+from datetime import datetime
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
@@ -22,20 +24,20 @@ class SkemaerClient:
         self.client = nexus_client
         self._manager = manager
 
-    def hent_skemadefinition_uden_forløb(self, objekt: dict) -> List[dict]:
+    def hent_skemadefinition_uden_forløb(self, borger: dict) -> List[dict]:
         """
         Hent alle tilgængelige skematyper (form definitions) for et objekt.
 
         :param objekt: Objekt at hente skematyper for (borger, forløb/pathway reference, etc.).
         :return: Liste af tilgængelige skematyper.
         """
-        if "availableFormDefinitions" not in objekt.get("_links", {}):
+        if "availableFormDefinitions" not in borger.get("_links", {}):
             raise ValueError("Objekt indeholder ikke availableFormDefinitions link.")
         
-        response = self.client.get(objekt["_links"]["availableFormDefinitions"]["href"])
+        response = self.client.get(borger["_links"]["availableFormDefinitions"]["href"])
         return response.json()
     
-    def hent_skemadefinition_på_forløb(self, grundforløb: str, forløb: str, objekt: dict) -> List[dict]:
+    def hent_skemadefinition_på_forløb(self, grundforløb: str, forløb: str, borger: dict) -> List[dict]:
         """
         Hent alle tilgængelige skematyper (form definitions) for et objekt inden for et specifikt forløb.
 
@@ -44,7 +46,7 @@ class SkemaerClient:
         :param objekt: Objekt at hente skematyper for (borger, pathway reference, etc.).
         :return: Liste af tilgængelige skematyper inden for det angivne forløb.
         """
-        if "availableFormDefinitions" not in objekt.get("_links", {}):
+        if "availableFormDefinitions" not in borger.get("_links", {}):
             raise ValueError("Objekt indeholder ikke availableFormDefinitions link.")
 
         # Tilgå BorgerClient gennem manager hvis tilgængelig, ellers opret direkte
@@ -55,7 +57,7 @@ class SkemaerClient:
             from kmd_nexus_client.functionality.borgere import BorgerClient
             borgere_client = BorgerClient(self.client)
             
-        visning = borgere_client.hent_visning(borger=objekt, visnings_navn="-Aktive forløb")
+        visning = borgere_client.hent_visning(borger=borger, visnings_navn="-Aktive forløb")
         referencer = borgere_client.hent_referencer(visning=visning)
 
         # Find den specifikke grundforløbsreference (første match)
@@ -202,7 +204,7 @@ class SkemaerClient:
             skematyper = self.hent_skemadefinition_på_forløb(
                 grundforløb=grundforløb,
                 forløb=forløb,
-                objekt=borger,
+                borger=borger,
             )
         else:
             skematyper = self.hent_skemadefinition_uden_forløb(borger)
@@ -262,8 +264,130 @@ class SkemaerClient:
                     
         return errors
 
+    def hent_skemareferencer(self, borger: dict) -> List[Dict[str, Any]]:
+        """
+        Hent og parse alle skema referencer for en borger til en liste af dictionaries.
+        
+        :param borger: Borger objekt at hente skema referencer for.
+        :return: Liste af dictionaries med skema information
+        """
+        # Tilgå BorgerClient gennem manager hvis tilgængelig, ellers opret direkte
+        if self._manager is not None:
+            borgere_client = self._manager.borgere
+        else:
+            # Fallback: opret BorgerClient direkte (ikke anbefalet men funktionelt)
+            from kmd_nexus_client.functionality.borgere import BorgerClient
+            borgere_client = BorgerClient(self.client)
+
+        visning = borgere_client.hent_visning(borger=borger, visnings_navn="-Alt")
+        referencer = borgere_client.hent_referencer(visning=visning)
+        
+        skemaer = []
+        
+        # Find alle tokens hvor type er "formDataV2Reference"
+        tokens = self._find_all_tokens(referencer, lambda token: 
+            isinstance(token, dict) and 
+            token.get("type") == "formDataV2Reference"
+        )
+       
+        for token in tokens:
+            row = {}
+            
+            # Grundlæggende felter
+            row['Skemaid'] = int(token.get('formDataId', 0))
+            row['Navn'] = token.get('name', '')
+            
+            # Parse dato
+            if token.get('date'):
+                try:
+                    row['Dato'] = datetime.fromisoformat(token['date'].replace('Z', '+00:00'))
+                except:
+                    row['Dato'] = None
+            else:
+                row['Dato'] = None
+            
+            # Status fra workflow state
+            if token.get('workflowState') and token['workflowState'].get('name'):
+                row['Status'] = token['workflowState']['name']
+            else:
+                row['Status'] = ''
+            
+            # Find parent pathway references
+            path = self._get_parent_pathway_names(token)
+            
+            if len(path) >= 2:
+                row['Grundforløb'] = path[1]
+                row['Forløb'] = path[0]
+            else:
+                row['Grundforløb'] = ''
+                row['Forløb'] = ''
+            
+            # Håndter _links
+            if token.get('_links'):
+                links_dict = {}
+                for link_name, link_data in token['_links'].items():
+                    if isinstance(link_data, dict) and 'href' in link_data:
+                        links_dict[link_name] = link_data['href']
+                row['_links'] = links_dict
+            else:
+                row['_links'] = {}
+            
+            skemaer.append(row)
+        
+        return skemaer
+
 
     # Private/helper methods
+
+    def _find_all_tokens(self, data: Any, condition_func) -> List[Dict]:
+        """
+        Find alle tokens i nested JSON struktur der opfylder en betingelse.
+        
+        :param data: JSON data at søge i
+        :param condition_func: Function der returnerer True for matchende tokens
+        :return: Liste af matchende tokens
+        """
+        results = []
+        
+        def search_recursive(obj, parent=None):
+            if isinstance(obj, dict):
+                # Tilføj parent reference for at kunne navigere op
+                obj['_parent'] = parent
+                
+                if condition_func(obj):
+                    results.append(obj)
+                
+                for key, value in obj.items():
+                    if key != '_parent':  # Undgå cirkular reference
+                        search_recursive(value, obj)
+                        
+            elif isinstance(obj, list):
+                for item in obj:
+                    search_recursive(item, parent)
+        
+        search_recursive(data)
+        return results
+
+    def _get_parent_pathway_names(self, token: Dict) -> List[str]:
+        """
+        Få parent pathway navne ved at navigere op gennem parent struktur.
+        
+        :param token: Token at finde parents for
+        :return: Liste af pathway navne (nærmeste først)
+        """
+        path = []
+        parent = token.get('_parent')
+        
+        while parent is not None:
+            if (isinstance(parent, dict) and 
+                parent.get('type') == 'patientPathwayReference' and 
+                parent.get('name')):
+                path.append(parent['name'])
+            
+            parent = parent.get('_parent')
+        
+        return path
+    
     def _find_skematype_by_name(self, skematyper: List[dict], navn: str) -> Optional[dict]:
         """
         Find et skematype i en liste baseret på navn.
