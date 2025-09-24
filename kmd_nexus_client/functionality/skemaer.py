@@ -130,15 +130,16 @@ class SkemaerClient:
                 value = data[label]
                 
                 if field_type in ["radioGroup", "dropDown"]:
-                    # Validér at værdien findes i possibleValues
+                    # Validér at værdien findes i possibleValues (tjekker name-feltet)
                     possible_values = item.get("possibleValues", [])
-                    if value not in possible_values:
-                        raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige værdier: {possible_values}")
+                    if not any(v.get("name") == value for v in possible_values):
+                        raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}")
                 
                 elif field_type == "date":
-                    # Validér datoformat (kan udvides med mere validering)
-                    if isinstance(value, str) and len(value) == 10:  # Basic YYYY-MM-DD check
-                        item["value"] = value
+                    # Accept datetime and format as UTC ISO string
+                    from datetime import datetime, timezone
+                    if isinstance(value, datetime):
+                        item["value"] = value.astimezone(timezone.utc).isoformat()
                     else:
                         raise ValueError(f"Ugyldig datoformat for felt '{label}': {value}")
                 else:
