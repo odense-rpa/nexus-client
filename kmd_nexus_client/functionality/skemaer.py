@@ -130,9 +130,13 @@ class SkemaerClient:
                 value = data[label]
                 
                 if field_type in ["radioGroup", "dropDown"]:
-                    # Validér at værdien findes i possibleValues (tjekker name-feltet)
+                    # Sæt item["value"] hvis en af possibleValues har name == value, ellers fejl
                     possible_values = item.get("possibleValues", [])
-                    if not any(v.get("name") == value for v in possible_values):
+                    for v in possible_values:
+                        if v.get("name") == value:
+                            item["value"] = value
+                            break
+                    else:
                         raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}")
                 
                 elif field_type == "date":
