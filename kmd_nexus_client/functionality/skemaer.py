@@ -134,7 +134,7 @@ class SkemaerClient:
                     possible_values = item.get("possibleValues", [])
                     for v in possible_values:
                         if v.get("name") == value:
-                            item["value"] = value
+                            item["value"] = v
                             break
                     else:
                         raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}")
