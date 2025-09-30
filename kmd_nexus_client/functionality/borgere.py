@@ -149,3 +149,22 @@ class BorgerClient:
                 return None
             raise        
        
+    def aktiver_borger_fra_kladde(self, borger: dict) -> dict:
+        """
+        Gemmer en borger fra status kladde uden ændringer, hvilket "aktiverer" borgeren i Nexus.
+
+        :param borger: Borgeren der skal opdateres.        
+        :return: Det opdaterede borgerobjekt.
+        """
+
+        prototype = self.client.get(borger["_links"]["self"]["href"]).json()
+        
+        if not prototype:
+            raise ValueError("Kan ikke hente borgerens nuværende data.")
+
+        response = self.client.put(
+            borger["_links"]["update"]["href"],
+            json=prototype,
+        )
+
+        return response.json()
