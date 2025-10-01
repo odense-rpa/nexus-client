@@ -177,3 +177,11 @@ def test_opret_dokument(nexus_manager: NexusClientManager, test_borger: dict):
     #    modtaget=datetime.now(),
     #    indholdstype="text/plain"
     #)
+
+def test_opret_grundforløb_med_forløb(nexus_manager: NexusClientManager, test_borger: dict):
+    pass
+    # nexus_manager.forløb.opret_forløb(
+    #     borger=test_borger,
+    #     grundforløb_navn="Test systemadministratorer - grundforløb",
+    #     forløb_navn="Test systemadministratorer"
+    # )

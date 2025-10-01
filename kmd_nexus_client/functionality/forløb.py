@@ -85,7 +85,25 @@ class ForløbClient:
                 if enroll_response.status_code != 200:
                     return None
 
-                matching_base_case = enroll_response.json()
+                # Genindlæs grundforløbsreference, til opretning af forløb.
+                base_cases_response = self.client.get(
+                    borger["_links"]["availablePathwayAssociation"]["href"]
+                )
+
+                if base_cases_response.status_code != 200:
+                    return None
+
+                base_cases = base_cases_response.json()
+
+                # Find the matching base case
+                matching_base_case = None
+                for base_case in base_cases:
+                    if base_case.get("name") == grundforløb_navn:
+                        matching_base_case = base_case
+                        break
+
+                if not matching_base_case:
+                    return None
 
             # If no specific case name provided, return just the base case
             if not forløb_navn:
