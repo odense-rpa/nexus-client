@@ -13,10 +13,40 @@ def test_hent_organisationer(nexus_manager: NexusClientManager):
 
 def test_hent_organisationer_med_træhierarki(nexus_manager: NexusClientManager):
     """Test hent_organisationer_med_træhierarki Danish function."""
-    organisationer = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+    organisationer_tree = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
 
-    assert organisationer is not None
-    assert len(organisationer) > 0
+    assert organisationer_tree is not None
+    assert isinstance(organisationer_tree, dict), "Tree should be a dictionary"
+    assert "name" in organisationer_tree, "Root organization should have a name"
+    assert "children" in organisationer_tree, "Root organization should have children"
+    assert len(organisationer_tree.get("children", [])) > 0, "Root should have child organizations"
+
+def test_hent_organisationer_med_træhierarki_med_godkendt_liste(nexus_manager: NexusClientManager):
+    """Test hent_organisationer_med_træhierarki Danish function with approved list."""
+    from kmd_nexus_client.tree_helpers import find_nodes
+    
+    godkendt_liste = ["Lysningen",
+                    "Erhvervet hjerneskade",
+                    "Fysisk Funktionsnedsættelse",
+                    "E-Team",
+                    "Vedvarende sygdomsudvikling 1",
+                    "Vedvarende sygdomsudvikling 2",
+                    "Kære Pleje Odense ApS",
+                    "Svane Pleje, Syd ApS"
+    ]
+    organisationer_tree = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+
+    # Find all organizations in the tree that match the approved list
+    filtrerede_organisationer = find_nodes(
+        organisationer_tree, 
+        lambda org: org.get("name", "") in godkendt_liste
+    )
+
+    assert organisationer_tree is not None
+    assert len(filtrerede_organisationer) == len(godkendt_liste), f"Expected {len(godkendt_liste)} organizations, but found {len(filtrerede_organisationer)}"
+    assert all(
+        org["name"] in godkendt_liste for org in filtrerede_organisationer
+    ), "Alle organisationer i den filtrerede liste skal være i den godkendte liste"
 
 
 def test_hent_leverandører(nexus_manager: NexusClientManager):
