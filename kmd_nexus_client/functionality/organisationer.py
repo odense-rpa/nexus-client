@@ -38,6 +38,16 @@ class OrganisationerClient:
         response = self.nexus_client.get(self.nexus_client.api["organizations"])
         return response.json()
 
+    def hent_organisationer_med_træhierarki(self) -> List[dict]:
+        """
+        Hent alle organisationer med deres træhierarki.
+
+        :return: Alle organisationer med træhierarki.
+        """
+
+        response = self.nexus_client.get(self.nexus_client.api["organizationsTree"])
+        return response.json()
+
     def hent_leverandører(self) -> List[dict]:
         """
         Hent alle leverandører.
