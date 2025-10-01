@@ -11,6 +11,13 @@ def test_hent_organisationer(nexus_manager: NexusClientManager):
     assert organisationer is not None
     assert len(organisationer) > 0
 
+def test_hent_organisationer_med_træhierarki(nexus_manager: NexusClientManager):
+    """Test hent_organisationer_med_træhierarki Danish function."""
+    organisationer = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+
+    assert organisationer is not None
+    assert len(organisationer) > 0
+
 
 def test_hent_leverandører(nexus_manager: NexusClientManager):
     """Test hent_leverandører Danish function."""
