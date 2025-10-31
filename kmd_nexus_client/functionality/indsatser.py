@@ -57,9 +57,9 @@ class IndsatsClient:
         """
         dest = {}
 
-        if "currentElements" in indsats:
+        if indsats.get("currentElements", {}):
             elements = indsats["currentElements"]
-        elif "futureElements" in indsats:
+        elif indsats.get("futureElements", {}):
             elements = indsats["futureElements"]
         else:
             return dest
