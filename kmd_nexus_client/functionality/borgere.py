@@ -168,3 +168,24 @@ class BorgerClient:
         )
 
         return response.json()
+    
+    def opret_netværksperson(self, borger, netværksperson_data: dict) -> dict:
+        """
+        Opret en netværksperson for en borger.
+
+        :param borger: Borgeren der skal oprettes en netværksperson for.
+        :param netværksperson_data: Data for den nye netværksperson.
+        :return: Det oprettede netværksperson objekt.
+        """
+
+        netværksperson_prototype = self.client.get(borger["_links"]["patientNetworkContactPrototype"]["href"]).json()
+
+        for key, value in netværksperson_data.items():
+            netværksperson_prototype[key] = value
+
+        response = self.client.post(
+            netværksperson_prototype["_links"]["create"]["href"],
+            json=netværksperson_prototype,
+        )
+
+        return response.json()

@@ -52,3 +52,25 @@ def test_opret_borger(nexus_manager: NexusClientManager):
     cpr = ""
     response = nexus_manager.borgere.opret_borger(cpr)
     assert response is not None
+
+def test_opret_netværksperson_på_borger(nexus_manager: NexusClientManager, test_borger: dict):
+    citizen = test_borger    
+
+    koordinator_skema_data = {
+        "Navn": "Simon Orefici Frederiksen",
+        "Organisationstilknytning": "Borgmesterforvaltningen - Odense Kommune",
+        "Stillingsbetegnelse": "RPA Udvikler",
+    }
+
+    response_json = nexus_manager.borgere.opret_netværksperson(
+        borger=citizen,
+        netværksperson_data={
+            "firstName": koordinator_skema_data["Navn"].split(" ")[0],
+            "lastName": " ".join(koordinator_skema_data["Navn"].split(" ")[1:]),
+            "relationDescription": f"Koordinator - {koordinator_skema_data['Organisationstilknytning']}",
+            "title": koordinator_skema_data["Stillingsbetegnelse"],
+        }
+    )
+
+    assert len(response_json) > 0
+    

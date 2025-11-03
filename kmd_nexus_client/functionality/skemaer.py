@@ -1,13 +1,12 @@
-from typing import Optional, List, Dict, Any, TYPE_CHECKING
 import json
+
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime
 from httpx import HTTPStatusError
-
 from kmd_nexus_client.client import NexusClient
 
 if TYPE_CHECKING:
     from kmd_nexus_client.manager import NexusClientManager
-
 
 class SkemaerClient:
     """
