@@ -230,6 +230,31 @@ class SkemaerClient:
         
         # Trin 5: Opret skema
         return self._opret_skema(udfyldt_prototype, handling)
+    
+    def rediger_skema(self, skema: dict, handling_navn: str, data: Dict[str, Any]) -> dict:
+        """
+        Rediger et eksisterende skema med nye data.
+
+        :param skema: Eksisterende skema instans.
+        :param handling_navn: Navn på handling der skal udføres ved opdatering.
+        :param data: Dictionary med feltdata til opdatering.
+        :return: Opdateret skema instans.
+        """
+
+        skema = self.client.hent_fra_reference(skema)        
+        handlinger = self.hent_tilgængelige_handlinger(skema)
+
+        handling = self._find_handling_by_name(handlinger, handling_navn)
+        if not handling:
+            raise ValueError(f"Handling '{handling_navn}' ikke fundet.")
+        
+        udfyldt_skema = self.udfyld_skema_felter(skema, data)
+        
+        response = self.client.put(
+            handling["_links"]["updateFormData"]["href"],
+            json=udfyldt_skema
+        )
+        return response.json()
 
     def valider_skema_data(self, skema: dict, data: Dict[str, Any]) -> Dict[str, List[str]]:
         """
