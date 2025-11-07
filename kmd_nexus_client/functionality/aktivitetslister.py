@@ -13,10 +13,10 @@ class AktivitetslisteClient:
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
-    def hent_aktivitetsliste(self, navn: str, organisation: Optional[dict], medarbejder: Optional[dict], antal_sider: int = 50) -> dict | None:
+    def hent_aktivitetsliste(self, navn: str, organisation: Optional[dict], medarbejder: Optional[dict], antal_sider: int = 50) -> list[dict] | None:
         """
-        Fetch activities from Nexus API and return them as a dictionary.
-        
+        Fetch activities from Nexus API and return them as a list of dictionaries.
+
         Returns:
             Dictionary of activities keyed by activity ID
         """
@@ -40,7 +40,7 @@ class AktivitetslisteClient:
         else:
             content_url = base_content_url + f"&pageSize={antal_sider}&assignmentOrganizationAssignee=ALL_ORGANIZATIONS&assignmentProfessionalAssignee=NO_PROFESSIONAL_CRITERIA"
 
-        activities_dict = {}  # Initialize the dictionary to store activities
+        activities_dict = []  # Initialize the dictionary to store activities
 
         try:
             response = self.client.get(content_url)
@@ -55,7 +55,7 @@ class AktivitetslisteClient:
                 if isinstance(temp_activity, list):
                     for activity in temp_activity:
                         if isinstance(activity, dict) and "id" in activity:
-                            activities_dict[activity["id"]] = activity
+                            activities_dict.append(activity)
 
                 j += 1
 

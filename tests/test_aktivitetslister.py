@@ -11,5 +11,5 @@ def test_hent_aktivitetsliste_elementer(nexus_manager: NexusClientManager):
     )
 
     assert aktivitetsliste is not None
-    assert isinstance(aktivitetsliste, dict)
+    assert isinstance(aktivitetsliste, list)
     assert len(aktivitetsliste) > 0
