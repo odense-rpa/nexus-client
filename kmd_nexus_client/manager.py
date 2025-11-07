@@ -7,6 +7,7 @@ a single entry point with lazy-loaded properties for each functionality.
 
 from typing import Optional
 from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.functionality.aktivitetslister import AktivitetslisteClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
@@ -51,6 +52,7 @@ class NexusClientManager:
 
         # Lazy-loaded clients
         self._nexus_client: Optional[NexusClient] = None
+        self._aktivitetsliste_client: Optional[AktivitetslisteClient] = None
         self._borgere_client: Optional["BorgerClient"] = None
         self._organisationer_client: Optional[OrganisationerClient] = None
         self._opgaver_client: Optional[OpgaverClient] = None
@@ -71,6 +73,13 @@ class NexusClientManager:
                 **self._config,
             )
         return self._nexus_client
+    
+    @property
+    def aktivitetslister(self) -> AktivitetslisteClient:
+        """Get the AktivitetslisteClient (lazy-loaded)."""
+        if self._aktivitetsliste_client is None:
+            self._aktivitetsliste_client = AktivitetslisteClient(self.nexus_client)
+        return self._aktivitetsliste_client
 
     @property
     def borgere(self) -> "BorgerClient":
