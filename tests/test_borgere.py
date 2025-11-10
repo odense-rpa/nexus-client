@@ -73,4 +73,3 @@ def test_opret_netværksperson_på_borger(nexus_manager: NexusClientManager, tes
     )
 
     assert len(response_json) > 0
-    

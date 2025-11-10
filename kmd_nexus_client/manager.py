@@ -14,6 +14,7 @@ from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
 from kmd_nexus_client.functionality.medcom import MedComClient
+from kmd_nexus_client.functionality.medicin import MedicinClient
 from kmd_nexus_client.functionality.skemaer import SkemaerClient
 
 
@@ -58,6 +59,7 @@ class NexusClientManager:
         self._kalender_client: Optional[KalenderClient] = None
         self._forløb_client: Optional[ForløbClient] = None
         self._medcom_client: Optional[MedComClient] = None
+        self._medicin_client: Optional[MedicinClient] = None
         self._skemaer_client: Optional[SkemaerClient] = None
 
     @property
@@ -120,6 +122,13 @@ class NexusClientManager:
         if self._medcom_client is None:
             self._medcom_client = MedComClient(self.nexus_client)
         return self._medcom_client
+
+    @property
+    def medicin(self) -> MedicinClient:
+        """Get the MedicinClient (lazy-loaded)."""
+        if self._medicin_client is None:
+            self._medicin_client = MedicinClient(self.nexus_client)
+        return self._medicin_client
     
     @property
     def skemaer(self) -> SkemaerClient:
