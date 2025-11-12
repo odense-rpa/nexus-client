@@ -137,7 +137,15 @@ class SkemaerClient:
                             break
                     else:
                         raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}")
-                
+                elif field_type in ["checkGroup"]:
+                    possible_values = item.get("possibleValues", [])
+                    values = []                    
+                    for v in possible_values:
+                        if v.get("name") == value:
+                            values.append(v)
+
+                    item["value"] = values
+
                 elif field_type == "date":
                     # Accept datetime and format as UTC ISO string
                     from datetime import datetime, timezone
