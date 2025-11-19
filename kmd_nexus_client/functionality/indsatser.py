@@ -289,7 +289,8 @@ class IndsatsClient:
             element = next((e for e in elements if e.get("type") == field_name), None)
 
             if not element:
-                raise ValueError(f"Field '{field_name}' not found in template elements")
+                # Silently skip unknown fields to allow updates of grants that differ
+                continue
 
             if "text" in element:
                 if not isinstance(field_value, str):
