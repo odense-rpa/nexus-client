@@ -357,6 +357,14 @@ class IndsatsClient:
                 element["selectedValues"] = field_value
                 continue
 
+            # Handle number fields
+            if "number" in element:
+                if not isinstance(field_value, (int, float)):
+                    raise ValueError(f"Field '{field_name}' expects a number value")
+                
+                element["number"] = field_value
+                continue
+
             # Handle decimal fields
             if "decimal" in element:
                 if not isinstance(field_value, (int, float)):
@@ -389,22 +397,11 @@ class IndsatsClient:
             if "next" in element:
                 if not isinstance(field_value, dict):
                     raise ValueError(f"Field '{field_name}' expects a dict value")
-
-                # Process repetition settings
-                # Expected field_value structure:
-                # {
-                #     "pattern": str,  # e.g., "WEEK" or other patterns
-                #     "count": int,
-                #     "weekdays": int (optional, used if pattern is "WEEK"),
-                #     "weekenddays": int (optional, used if pattern is "WEEK"),
-                #     "shifts": list[dict]  # List of shift dictionaries with "title" key
-                # }
                 
-                repetition_obj = element["repetition"]
-                repetition_obj["pattern"] = field_value["pattern"]
-                repetition_obj["count"] = int(field_value["count"])
+                element["pattern"] = field_value["pattern"]
+                element["count"] = int(field_value["count"])
                 
-                week_obj = repetition_obj.get("next", {})
+                week_obj = element.get("next", {})
                 
                 if field_value["pattern"] == "WEEK":
                     week_obj["weekdays"] = int(field_value.get("weekdays", 0))
