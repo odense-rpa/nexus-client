@@ -386,7 +386,7 @@ class IndsatsClient:
                 element["supplier"] = matching_supplier
                 continue
 
-            if "repetition" in element:
+            if "next" in element:
                 if not isinstance(field_value, dict):
                     raise ValueError(f"Field '{field_name}' expects a dict value")
 
