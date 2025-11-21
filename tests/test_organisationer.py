@@ -395,3 +395,10 @@ def test_integration_all_danish_methods(
     assert len(org_medarbejdere) > 0
 
     print("✅ Alle danske organisationer metoder fungerer korrekt")
+
+def test_hent_depotlister(nexus_manager: NexusClientManager):
+    borgere = nexus_manager.organisationer.hent_borgere_med_udlåns_bestillinger()
+    assert borgere is not None
+    assert len(borgere) > 0
+            
+

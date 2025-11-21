@@ -1,9 +1,8 @@
 from typing import List
 from datetime import date
 from httpx import HTTPStatusError
-
 from kmd_nexus_client.client import NexusClient
-
+from kmd_nexus_client.utils import sanitize_cpr
 
 class OrganisationerClient:
     """
@@ -220,3 +219,30 @@ class OrganisationerClient:
             if e.response.status_code == 404:
                 return None
             raise
+
+    def hent_borgere_med_udlåns_bestillinger(self) -> List[dict]|None:
+        """
+        Hent alle borgere med udlånsbestillinger.
+
+        :return: Liste over borgere med udlånsbestillinger, eller None hvis ingen findes.
+        """
+        # Hacky, men kan ikke se en umiddelbar kobling i Network monitor
+        liste_links = [
+            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=a1b03fee-6684-4c22-8b82-7912d0d849f7",
+            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=ef415c49-afd8-417a-92b6-fd26ace24859",
+            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7cd9bf46-5bf5-4e41-9239-0ed935e7e8f9",
+            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7ee5774f-d76d-4250-a827-61efd8664be4",        
+        ]
+        
+        borgere = []
+
+        for link in liste_links:
+            ordrer = self.nexus_client.get(link).json()
+            for ordre in ordrer:
+                try:
+                    cpr = sanitize_cpr(ordre["receiver"]["patientIdentifier"])
+                    borgere.append(cpr)
+                except ValueError:
+                    continue
+        
+        return borgere if borgere else None
