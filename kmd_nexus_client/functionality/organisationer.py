@@ -220,7 +220,7 @@ class OrganisationerClient:
                 return None
             raise
 
-    def hent_borgere_med_udlåns_bestillinger(self) -> List[dict]|None:
+    def hent_borgere_med_udlåns_bestillinger(self) -> List[str]|None:
         """
         Hent alle borgere med udlånsbestillinger.
 
