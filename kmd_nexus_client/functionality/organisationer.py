@@ -241,7 +241,9 @@ class OrganisationerClient:
             for ordre in ordrer:
                 try:
                     cpr = sanitize_cpr(ordre["receiver"]["patientIdentifier"])
-                    borgere.append(cpr)
+
+                    if cpr not in borgere:
+                        borgere.append(cpr)
                 except ValueError:
                     continue
         
