@@ -59,7 +59,7 @@ class AktivitetslisteClient:
 
                 j += 1
 
-                if j >= antal_sider:
+                if j >= antal_sider or j == len(pages):
                     return activities_dict            
             
         except Exception:            
