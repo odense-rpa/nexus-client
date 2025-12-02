@@ -2,6 +2,7 @@ import pytest
 
 # Fixtures are automatically loaded from conftest.py
 from kmd_nexus_client.manager import NexusClientManager
+from kmd_nexus_client.tree_helpers import filter_by_path
 
 
 def test_hent_organisationer(nexus_manager: NexusClientManager):
@@ -402,3 +403,21 @@ def test_hent_depotlister(nexus_manager: NexusClientManager):
     assert len(borgere) > 0
             
 
+def test_fjern_medarbejder_fra_forløb(nexus_manager: NexusClientManager, test_borger: dict):
+    visning = nexus_manager.borgere.hent_visning(test_borger)
+    assert visning is not None
+
+    referencer = nexus_manager.borgere.hent_referencer(visning)
+    assert referencer is not None
+
+    medarbejdere = filter_by_path(
+           referencer,
+           "/Børn og Unge Grundforløb/Sag: Anbringelse/professionalReference",
+           active_pathways_only=True,
+       )
+    
+    if len(medarbejdere) == 0:
+        pytest.skip("Ingen medarbejdere fundet i forløb til test af fjern_medarbejder_fra_forløb")
+
+    succes = nexus_manager.organisationer.fjern_medarbejder_fra_forløb(medarbejdere[0])
+    assert succes

@@ -100,7 +100,7 @@ class OrganisationerClient:
         response = self.nexus_client.get(organisation["_links"]["patients"]["href"])
         return response.json()
 
-    def hent_medarbejder_ved_initialer(self, initialer: str) -> dict:
+    def hent_medarbejder_ved_initialer(self, initialer: str) -> dict|None:
         """
         Hent en medarbejder ved initialer.
 
@@ -139,6 +139,23 @@ class OrganisationerClient:
             organisation["_links"]["professionals"]["href"]
         )
         return response.json()
+    
+    def fjern_medarbejder_fra_forløb(self, medarbejder_reference: dict) -> bool:
+        """
+        Fjern en medarbejder fra et forløb.
+
+        :param forløb: Forløbet der skal fjernes medarbejderen fra.
+        :param medarbejder: Medarbejderen der skal fjernes fra forløbet.
+        :return: True hvis succesfuldt fjernet, False ellers.
+        """
+        
+        medarbejder = self.nexus_client.hent_fra_reference(medarbejder_reference)
+
+        response = self.nexus_client.delete(
+            medarbejder["_links"]["delete"]["href"]
+        )
+
+        return response.status_code == 200
 
     def tilføj_borger_til_organisation(self, borger: dict, organisation: dict) -> bool:
         """
