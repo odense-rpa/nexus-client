@@ -477,6 +477,7 @@ class IndsatsClient:
                                 "Frafaldet",
                                 "Afgjort",
                                 "Afslået",
+                                "Ophørt"
                             ]
                         )
                     )
