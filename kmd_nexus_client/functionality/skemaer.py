@@ -189,7 +189,7 @@ class SkemaerClient:
             raise ValueError("Skema indeholder ikke audit link.")
             
         response = self.client.get(skema["_links"]["audit"]["href"])
-        return response.json()
+        return response.json().get("auditEntries", [])
 
     def opret_komplet_skema(
         self, 
