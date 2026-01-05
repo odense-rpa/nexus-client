@@ -17,6 +17,7 @@ from kmd_nexus_client.functionality.forløb import ForløbClient
 from kmd_nexus_client.functionality.medcom import MedComClient
 from kmd_nexus_client.functionality.medicin import MedicinClient
 from kmd_nexus_client.functionality.skemaer import SkemaerClient
+from kmd_nexus_client.functionality.tilstande import TilstandeClient
 
 
 class NexusClientManager:
@@ -63,6 +64,7 @@ class NexusClientManager:
         self._medcom_client: Optional[MedComClient] = None
         self._medicin_client: Optional[MedicinClient] = None
         self._skemaer_client: Optional[SkemaerClient] = None
+        self._tilstande_client: Optional[TilstandeClient] = None
 
     @property
     def nexus_client(self) -> NexusClient:
@@ -75,7 +77,7 @@ class NexusClientManager:
                 **self._config,
             )
         return self._nexus_client
-    
+
     @property
     def aktivitetslister(self) -> AktivitetslisteClient:
         """Get the AktivitetslisteClient (lazy-loaded)."""
@@ -138,13 +140,20 @@ class NexusClientManager:
         if self._medicin_client is None:
             self._medicin_client = MedicinClient(self.nexus_client)
         return self._medicin_client
-    
+
     @property
     def skemaer(self) -> SkemaerClient:
         """Get the SkemaerClient (lazy-loaded)."""
         if self._skemaer_client is None:
             self._skemaer_client = SkemaerClient(self.nexus_client, manager=self)
         return self._skemaer_client
+
+    @property
+    def tilstande(self) -> TilstandeClient:
+        """Get the TilstandeClient (lazy-loaded)."""
+        if self._tilstande_client is None:
+            self._tilstande_client = TilstandeClient(self.nexus_client)
+        return self._tilstande_client
 
     def hent_fra_reference(self, reference: dict) -> dict:
         """
