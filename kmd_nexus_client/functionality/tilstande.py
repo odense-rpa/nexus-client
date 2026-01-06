@@ -71,3 +71,54 @@ class TilstandeClient:
 
         # Der returneres en liste fordi man teknisk kan multi-oprette tilstande, det gør vi bare ikke
         return response.json()[0]
+
+
+    def rediger_tilstand(self, tilstand: dict, status: str = "PCActive", **kwargs) -> dict:
+        """
+        Rediger en eksisterende tilstand for en given borger.
+        :param tilstand: Tilstands data.
+        :param status: Ny status kode for tilstanden.
+        :param kwargs: Yderligere felter der skal opdateres.
+        :return: Opdateret tilstands data.
+        """
+
+        prototype = self.nexus_client.get(
+            tilstand["_links"]["observationsPrototype"]["href"]
+        ).json()
+
+        # Opdater status
+        state_value = [
+            s for s in prototype["state"]["possibleValues"] if s["code"] == status
+        ][0]
+
+        prototype["state"]["value"] = state_value
+
+        # Opdater yderligere felter
+        for key, value in kwargs.items():
+
+            if key not in prototype:
+                raise ValueError(f"Feltet '{key}' findes ikke i tilstanden.")
+            
+            if prototype[key]["type"] == "singleValue":
+                matched_value = next(
+                         (v for v in prototype[key]["possibleValues"] if (v["code"] == value or v["name"] == value)), None
+                     )
+                
+                if matched_value:
+                    prototype[key]["value"] = matched_value
+                else:
+                    raise ValueError(
+                        f"Ugyldig værdi '{value}' for feltet '{key}'."
+                    )
+                continue
+
+            if prototype[key]["type"] == "string":
+                prototype[key]["value"] = value
+                continue
+
+        response = self.nexus_client.post(
+            prototype["_links"]["create"]["href"], json=prototype
+         )
+
+        conditions = response.json()
+        return conditions[0]  # Returner den opdaterede tilstand

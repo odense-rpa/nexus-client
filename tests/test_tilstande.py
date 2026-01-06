@@ -2,7 +2,6 @@ from kmd_nexus_client.manager import NexusClientManager
 
 
 def test_hent_tilstande(nexus_manager: NexusClientManager, test_borger: dict):
-
     assert "patientConditions" in test_borger["_links"]
 
     # Test the actual method
@@ -12,8 +11,8 @@ def test_hent_tilstande(nexus_manager: NexusClientManager, test_borger: dict):
     assert isinstance(tilstande, list)
     assert all(isinstance(t, dict) for t in tilstande)
 
+
 def test_hent_tilstandstyper(nexus_manager: NexusClientManager, test_borger: dict):
-    
     assert "availableConditionClassifications" in test_borger["_links"]
 
     # Test the actual method
@@ -24,15 +23,37 @@ def test_hent_tilstandstyper(nexus_manager: NexusClientManager, test_borger: dic
     assert len(tilstandstyper) > 0
     assert all(isinstance(t, dict) for t in tilstandstyper)
 
-def test_opret_tilstand(nexus_manager: NexusClientManager, test_borger: dict):
 
+def test_opret_tilstand(nexus_manager: NexusClientManager, test_borger: dict):
     tilstandstyper = nexus_manager.tilstande.hent_tilstandstyper(test_borger)
     assert len(tilstandstyper) > 0
 
-    tilstandstype = [t for t in tilstandstyper if t["name"]=="Energi og handlekraft" and t["klMappingCode"]=="J4.6"][0]
+    tilstandstype = [
+        t
+        for t in tilstandstyper
+        if t["name"] == "Energi og handlekraft" and t["klMappingCode"] == "J4.6"
+    ][0]
 
     # Test the actual method
     ny_tilstand = nexus_manager.tilstande.opret_tilstand(test_borger, tilstandstype)
 
     # Should not raise an exception and should return valid response
     assert isinstance(ny_tilstand, dict)
+
+
+def test_rediger_tilstand(nexus_manager: NexusClientManager, test_borger: dict):
+    tilstande = nexus_manager.tilstande.hent_tilstande(test_borger)
+    assert len(tilstande) > 0
+    ny_tilstand = tilstande[0]
+
+    # Test the actual method
+    redigeret_tilstand = nexus_manager.tilstande.rediger_tilstand(
+        ny_tilstand,
+        status="PCActive",
+        expectedLevelDescription="Dette er fritekst",
+        currentLevel="LightLimitations",
+    )
+
+    # Should not raise an exception and should return valid response
+    assert isinstance(redigeret_tilstand, dict)
+    assert redigeret_tilstand["expectedLevelDescription"] == "Dette er fritekst"
