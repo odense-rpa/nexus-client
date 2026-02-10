@@ -3,6 +3,7 @@ import logging
 from dotenv import load_dotenv
 
 from kmd_nexus_client import NexusClientManager
+from kmd_nexus_client.tree_helpers import filter_by_path
 
 
 logging.basicConfig(level=logging.INFO)
@@ -20,14 +21,9 @@ nexus = NexusClientManager(
     client_secret=client_secret,
 )
 
-borger = nexus.borgere.hent_borger("0108589995") or {}  # Falsk test-cpr nummer
+borger = nexus.borgere.hent_borger("0104909989") or {}  # Falsk test-cpr nummer
 
 visning = nexus.borgere.hent_visning(borger) or {}
-
-# referencer = nexus.borgere.hent_referencer(visning)
-
-# grant_refs = nexus.indsatser.filtrer_indsats_referencer(
-#     referencer, kun_aktive=True, leverandør_navn="Testleverandør Supporten Dag"
-# )
+referencer = nexus.borgere.hent_referencer(visning)
 
 pass

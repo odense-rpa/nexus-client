@@ -4,7 +4,7 @@ from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime
 from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
-
+from kmd_nexus_client.tree_helpers import filter_by_predicate
 if TYPE_CHECKING:
     from kmd_nexus_client.manager import NexusClientManager
 
@@ -369,6 +369,37 @@ class SkemaerClient:
         
         return skemaer
 
+
+    def flyt_skema(self, skema: dict, ny_placering: str) -> dict:
+        """
+        Skift placering af et skema ved at opdatere dets parent pathway reference.
+
+        :param skema: Skema instans der skal flyttes.
+        :param ny_placering: ID eller navn på den nye pathway reference.
+        :return: Opdateret skema instans efter flytning.
+        """
+        # Hent nuværende skema data for at få adgang til _links
+        skema = self.client.hent_fra_reference(skema)
+        
+        # Hent availablePathwayAssociations for skema
+        if "availablePathwayAssociations" not in skema.get("_links", {}):
+            raise ValueError("Skema indeholder ikke availablePathwayAssociations link.")
+        
+        tilgænglige = self.client.get(skema["_links"]["availablePathwayAssociations"]["href"]).json()
+
+        valgt = filter_by_predicate(tilgænglige, lambda ref: (ref.get("patientPathwayPlacement",{})).get("name","") == ny_placering or ref.get("patientPathwayPlacement",{}).get("programPathwayId","") == ny_placering)
+
+        if len(valgt) != 1:
+            raise ValueError(f"Der skal være præcis én match for ny placering '{ny_placering}', fundet: {len(valgt)}")
+        
+        skema["pathwayAssociation"]["placement"] = valgt[0]["patientPathwayPlacement"]
+
+        svar = self.client.put(
+            skema["_links"]["updatePlacement"]["href"],
+            json=skema
+        ).json()
+
+        return svar
 
     # Private/helper methods
 
