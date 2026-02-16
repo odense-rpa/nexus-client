@@ -153,6 +153,16 @@ class SkemaerClient:
                         item["value"] = value.astimezone(timezone.utc).isoformat()
                     else:
                         raise ValueError(f"Ugyldig datoformat for felt '{label}': {value}")
+                elif field_type == "radioTree":
+                        
+                        values = self.client.get(item["_links"]["search"]["href"],params={ "query": value }).json()
+
+                        diagnoses = filter_by_predicate(values, lambda v: v.get("code","") == value)
+
+                        if(len(diagnoses) != 1):
+                            raise ValueError(f"Der skal være præcis én match for diagnose '{value}', fundet: {len(diagnoses)}")
+                            
+                        item["value"] = diagnoses[0]
                 else:
                     # Standard tekstfelter og andre simple typer
                     item["value"] = value

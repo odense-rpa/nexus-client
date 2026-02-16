@@ -173,3 +173,22 @@ def test_hent_koordinator_skema_opret_netværksperson(nexus_manager: NexusClient
     )
 
     assert skema is not None, "Skema should not be None after editing"
+
+
+def test_skema_med_diagnose(nexus_manager: NexusClientManager, test_borger: dict):
+    """Test at håndtere skema med diagnosefelt."""
+    citizen = test_borger
+    skema_data = {
+        "Diagnose": "DG041"
+    }
+    skema_navn = "Diagnose ICD-10"
+    handling = "Aktivt"
+
+    skema = nexus_manager.skemaer.opret_komplet_skema(
+        borger=citizen,
+        data=skema_data,
+        skematype_navn=skema_navn,
+        handling_navn=handling
+    )
+
+    assert skema is not None
