@@ -18,6 +18,17 @@ def test_hent_borger_ikke_fundet(nexus_manager: NexusClientManager):
     assert citizen is None
 
 
+def test_søg_borgere(nexus_manager: NexusClientManager):
+    resultater = nexus_manager.borgere.søg_borgere("Nancy")
+    assert resultater is not None
+    assert len(resultater) > 0
+
+    resultater_20 = nexus_manager.borgere.søg_borgere("Nancy",20)
+    assert resultater_20 is not None
+    assert len(resultater_20) > len(resultater)
+
+
+
 def test_hent_præferencer(nexus_manager: NexusClientManager, test_borger: dict):
     citizen = test_borger
     preferences = nexus_manager.borgere.hent_præferencer(citizen)

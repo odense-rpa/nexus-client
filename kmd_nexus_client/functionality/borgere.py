@@ -43,6 +43,23 @@ class BorgerClient:
                 return None
             raise
 
+    def søg_borgere(self, søgning: str, antal: int = 10 ) -> List[dict]:
+        """
+        Søg efter borgere baseret på en søgestreng.
+
+        :param søgning: Søgestrengen der skal bruges til at finde borgere (f.eks. navn eller del af CPR).
+        :param antal: Antal resultater der skal returneres (standard: 10).
+        :return: En liste af borgere der matcher søgningen.
+        """
+
+
+        response = self.client.get(
+            self.client.api["searchPatients"],
+            params={"query": søgning, "maxResults": antal},
+        )
+
+        return response.json()
+
     def hent_præferencer(self, borger: dict) -> dict:
         """
         Hent præferencer for borgeren.
