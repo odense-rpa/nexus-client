@@ -217,6 +217,34 @@ class MedComClient:
             forloeb_navn
         )
 
+    def opdater_niveau(self, besked: dict, niveau: str) -> bool:
+        """
+        Opdater niveauet for en MedCom besked.
+
+        :param besked: Beskeden der skal opdateres.
+        :param niveau: Niveauet der skal sættes (Valg: BASIC eller ADVANCED).
+        :return: True hvis succesfuldt tildelt, False ellers.
+        """
+        try:
+            if niveau not in ["BASIC", "ADVANCED"]:
+                raise ValueError("Niveau skal være 'BASIC' eller 'ADVANCED'")
+
+            modificeret_besked = besked.copy()
+            
+            # Sæt niveau
+            modificeret_besked["level"] = niveau
+            
+            # Opdater besked
+            response = self.client.put(
+                besked["_links"]["self"]["href"],
+                json=modificeret_besked
+            )
+            return response.status_code == 200
+        except HTTPStatusError:
+            return False
+
+
+
     def filtrer_beskeder(self, beskeder: List[dict], **kriterier) -> List[dict]:
         """
         Filtrer MedCom beskeder baseret på kriterier.
