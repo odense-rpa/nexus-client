@@ -202,10 +202,11 @@ class MedComClient:
         
         # Find forløb med matchende navn
         target_forloeb = None
-        for forloeb in tilgaengelige_forloeb:
-            if forloeb.get("name") == forloeb_navn:
-                target_forloeb = forloeb
-                break
+        for grundforloeb in tilgaengelige_forloeb:
+            for forloeb in grundforloeb.get("children", []):
+                if forloeb.get("name") == forloeb_navn:
+                    target_forloeb = forloeb
+                    break
         
         if not target_forloeb:
             return False
