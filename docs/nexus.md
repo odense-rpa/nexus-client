@@ -48,15 +48,15 @@ KMD Nexus tilbyder API-adgang gennem OAuth2 Client Credentials flow og følger H
 
 **Autentificering:**
 ```
-https://iam.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token
+https://iam.{host}.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token
 ```
 
 **Base API URL:**
 ```
-https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/
+https://{instance}.{host}.kmd.dk/api/core/mobile/{instance}/v2/
 ```
 
-Hvor `{instance}` er din lokale Nexus-instans (f.eks. `odensekommune`).
+Hvor `{instance}` er din lokale Nexus-instans (f.eks. `odensekommune`) og `{host}` er host-segmentet (f.eks. `nexus` eller `nexus-test`).
 
 #### OAuth2 Client Credentials
 
@@ -79,7 +79,8 @@ from kmd_nexus_client import NexusClient
 client = NexusClient(
     instance="odensekommune", 
     client_id="<client_id>", 
-    client_secret="<client_secret>"
+    client_secret="<client_secret>",
+    host="nexus",
 )
 
 # API endpoints tilgængelige via client.api dictionary
@@ -87,8 +88,8 @@ print(client.api)  # Viser alle tilgængelige endpoints
 ```
 
 **URL-struktur:**
-- **Token URL:** `https://iam.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token`
-- **Base API URL:** `https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/`
+- **Token URL:** `https://iam.{host}.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token`
+- **Base API URL:** `https://{instance}.{host}.kmd.dk/api/core/mobile/{instance}/v2/`
 
 #### Borger (Patient) Endpoints
 
@@ -1443,4 +1444,3 @@ Selvom aktivitetslister ikke er direkte tilknyttet borgere, indeholder de elemen
 - MedCom beskeder sendt til/fra specifikke borgere
 
 Dette giver et tværgående perspektiv mens der stadig er sporbarhed tilbage til den oprindelige borger.
-

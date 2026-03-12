@@ -4,7 +4,7 @@ Tests for NexusClientManager functionality.
 
 from unittest.mock import Mock, patch
 from kmd_nexus_client.manager import NexusClientManager
-from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.client import DEFAULT_HOST, NexusClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
@@ -27,6 +27,7 @@ class TestNexusClientManager:
         assert manager._instance == "test-instance"
         assert manager._client_id == "test-client-id"
         assert manager._client_secret == "test-client-secret"
+        assert manager._host == DEFAULT_HOST
         # AI safety functionality removed
 
         # All clients should be None initially (lazy loading)
@@ -56,7 +57,7 @@ class TestNexusClientManager:
         # Should be called now with hook configuration
         expected_call = mock_nexus_client.call_args
         assert expected_call is not None
-        args, kwargs = expected_call
+        _, kwargs = expected_call
 
         # Check required parameters
         assert kwargs["instance"] == "test-instance"
@@ -64,6 +65,7 @@ class TestNexusClientManager:
         assert kwargs["client_secret"] == "test-client-secret"
 
         # Check that configuration parameters are present (defaults)
+        assert kwargs["host"] == DEFAULT_HOST
         assert "timeout" in kwargs
 
         # Second access should return the same instance
@@ -72,6 +74,23 @@ class TestNexusClientManager:
 
         # NexusClient constructor should still only be called once
         assert mock_nexus_client.call_count == 1
+
+    @patch("kmd_nexus_client.manager.NexusClient")
+    def test_nexus_client_passes_custom_host(self, mock_nexus_client):
+        """Test that the base NexusClient receives a configured host."""
+        manager = NexusClientManager(
+            instance="test-instance",
+            client_id="test-client-id",
+            client_secret="test-client-secret",
+            host="nexus-test",
+        )
+
+        manager.nexus_client
+
+        expected_call = mock_nexus_client.call_args
+        assert expected_call is not None
+        _, kwargs = expected_call
+        assert kwargs["host"] == "nexus-test"
 
     @patch("kmd_nexus_client.manager.NexusClient")
     @patch("kmd_nexus_client.manager.BorgerClient")

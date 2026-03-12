@@ -6,7 +6,7 @@ a single entry point with lazy-loaded properties for each functionality.
 """
 
 from typing import Optional
-from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.client import DEFAULT_HOST, NexusClient
 from kmd_nexus_client.functionality.aktivitetslister import AktivitetslisteClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
@@ -34,7 +34,12 @@ class NexusClientManager:
     """
 
     def __init__(
-        self, instance: str, client_id: str, client_secret: str, timeout: float = 30.0
+        self,
+        instance: str,
+        client_id: str,
+        client_secret: str,
+        host: str = DEFAULT_HOST,
+        timeout: float = 30.0,
     ):
         """
         Initialize the NexusClientManager.
@@ -43,11 +48,13 @@ class NexusClientManager:
             instance: The name of the Nexus instance
             client_id: The OAuth2 client ID
             client_secret: The OAuth2 client secret
+            host: Nexus host segment, e.g. ``nexus`` or ``nexus-test``
             timeout: Request timeout in seconds (default: 30.0)
         """
         self._instance = instance
         self._client_id = client_id
         self._client_secret = client_secret
+        self._host = host
 
         # Store configuration for lazy loading
         self._config = {"timeout": timeout}
@@ -74,6 +81,7 @@ class NexusClientManager:
                 instance=self._instance,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
+                host=self._host,
                 **self._config,
             )
         return self._nexus_client

@@ -22,6 +22,7 @@ Dokumentationen er på dansk og giver den kontekst der skal til for at forstå N
    - `CLIENT_ID`: Dit OAuth2 client ID
    - `CLIENT_SECRET`: Dit OAuth2 client secret  
    - `INSTANCE`: Nexus instans navn
+   - `HOST`: Nexus host segment, f.eks. `nexus` eller `nexus-test`
 3. **Test opsætning**: `pytest tests/test_client.py -v`
 
 ### Basis kommandoer
@@ -34,7 +35,12 @@ Dokumentationen er på dansk og giver den kontekst der skal til for at forstå N
 from kmd_nexus_client.manager import NexusClientManager
 
 # Opret forbindelse (anbefalet måde)
-nexus = NexusClientManager(instance="din-instans", client_id="...", client_secret="...")
+nexus = NexusClientManager(
+    instance="din-instans",
+    client_id="...",
+    client_secret="...",
+    host="nexus",
+)
 
 # Hent test-borger
 citizen = nexus.borgere.hent_borger("0108589995")
@@ -93,7 +99,12 @@ Python client library for KMD Nexus API, providing interoperability through REST
 ```python
 from kmd_nexus_client import NexusClient, CitizensClient
 
-client = NexusClient(instance="instance", client_id="id", client_secret="secret")
+client = NexusClient(
+    instance="instance",
+    client_id="id",
+    client_secret="secret",
+    host="nexus",
+)
 citizens = CitizensClient(client)
 ```
 

@@ -1,9 +1,12 @@
-import httpx
 import logging
-from authlib.integrations.httpx_client import OAuth2Client
 from urllib.parse import urljoin
 
+import httpx
+from authlib.integrations.httpx_client import OAuth2Client
+
 from .hooks import create_response_logging_hook
+
+DEFAULT_HOST = "nexus"
 
 
 class NexusClient:
@@ -16,7 +19,12 @@ class NexusClient:
     api: dict
 
     def __init__(
-        self, instance: str, client_id: str, client_secret: str, timeout: float = 30.0
+        self,
+        instance: str,
+        client_id: str,
+        client_secret: str,
+        host: str = DEFAULT_HOST,
+        timeout: float = 30.0,
     ):
         """
         Initialize the NexusClient with an instance name and client credentials.
@@ -24,15 +32,20 @@ class NexusClient:
         :param instance: The name of the Nexus instance.
         :param client_id: The OAuth2 client ID.
         :param client_secret: The OAuth2 client secret.
+        :param host: Nexus host segment, e.g. ``nexus`` or ``nexus-test``.
         :param timeout: Request timeout in seconds (default: 30.0).
         """
         if not instance:
             raise ValueError("Instance name must be provided.")
+        if not host.strip():
+            raise ValueError("Host must be provided.")
 
-        # Construct the token and base URLs dynamically - note only works on production instances
-        self.token_url = f"https://iam.nexus.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token"
+        self.host = host.strip()
+
+        # Construct the token and base URLs from the configured host segment.
+        self.token_url = f"https://iam.{self.host}.kmd.dk/authx/realms/{instance}/protocol/openid-connect/token"
         self.base_url = (
-            f"https://{instance}.nexus.kmd.dk/api/core/mobile/{instance}/v2/"
+            f"https://{instance}.{self.host}.kmd.dk/api/core/mobile/{instance}/v2/"
         )
 
         # Set up logging

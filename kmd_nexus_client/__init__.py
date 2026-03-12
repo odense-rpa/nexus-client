@@ -6,7 +6,12 @@ VIGTIGT: Brug altid NexusClientManager i stedet for individuelle klienter!
 Anbefalet brug:
     from kmd_nexus_client import NexusClientManager
 
-    nexus = NexusClientManager(instance="...", client_id="...", client_secret="...")
+    nexus = NexusClientManager(
+        instance="...",
+        client_id="...",
+        client_secret="...",
+        host="nexus",
+    )
     borgere = nexus.borgere.hent_alle_borgere()
 """
 

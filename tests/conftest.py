@@ -1,9 +1,10 @@
-import pytest
-import os
 import json
+import os
 from pathlib import Path
 
+import pytest
 from dotenv import load_dotenv
+
 from kmd_nexus_client.manager import NexusClientManager
 from kmd_nexus_client.tree_helpers import filter_by_path
 
@@ -17,6 +18,7 @@ def nexus_manager():
     client_id = os.getenv("CLIENT_ID")
     client_secret = os.getenv("CLIENT_SECRET")
     instance = os.getenv("INSTANCE")
+    host = os.getenv("HOST") or ""
 
     if not all([client_id, client_secret, instance]):
         raise ValueError(
@@ -27,6 +29,7 @@ def nexus_manager():
         instance=instance,
         client_id=client_id,
         client_secret=client_secret,
+        host=host,
     )
 
 
