@@ -157,7 +157,7 @@ class MedComClient:
         except HTTPStatusError:
             return []
 
-    def tildel_til_forloeb(self, besked: dict, forloeb_id: str, forloeb_navn: str = "MedCom") -> bool:
+    def tildel_til_forloeb(self, besked: dict, grundforloeb: dict, forloeb: dict) -> bool:
         """
         Tildel en MedCom besked til et specifikt forløb.
 
@@ -174,11 +174,27 @@ class MedComClient:
             if "pathwayAssociation" not in modificeret_besked:
                 modificeret_besked["pathwayAssociation"] = {}
             
-            # Sæt placement
-            modificeret_besked["pathwayAssociation"]["placement"] = {
-                "programPathwayId": forloeb_id,
-                "name": forloeb_navn
-            }
+            if not forloeb:
+                # Sæt grundforløb
+                modificeret_besked["pathwayAssociation"]["placement"] = {
+                    "name": grundforloeb.get("name", ""),
+                    "programPathwayId": grundforloeb.get("programPathwayId", ""),
+                    "pathwayTypeId": grundforloeb.get("pathwayTypeId", None),
+                    "parentPathwayId": grundforloeb.get("parentPathwayId", None),
+                    "patientPathwayId": grundforloeb.get("patientPathwayId", None),
+                    "active": True,
+                    "_links": {}
+                }                
+            else:
+                modificeret_besked["pathwayAssociation"]["placement"] = {
+                    "name": forloeb.get("name", ""),
+                    "programPathwayId": forloeb.get("programPathwayId", ""),
+                    "pathwayTypeId": forloeb.get("pathwayTypeId", None),
+                    "parentPathwayId": forloeb.get("parentPathwayId", None),
+                    "patientPathwayId": forloeb.get("patientPathwayId", None),
+                    "active": True,
+                    "_links": {}
+                }                
             
             # Opdater besked
             response = self.client.put(
@@ -189,7 +205,7 @@ class MedComClient:
         except HTTPStatusError:
             return False
 
-    def tildel_til_forloeb_ved_navn(self, besked: dict, forloeb_navn: str) -> bool:
+    def tildel_til_forloeb_ved_navn(self, besked: dict, forloeb_navn: str = "", grundforloeb_navn: str = "MedCom") -> bool:
         """
         Tildel en MedCom besked til et forløb ved at finde det via navn.
 
@@ -200,22 +216,25 @@ class MedComClient:
         # Hent tilgængelige forløb
         tilgaengelige_forloeb = self.hent_tilgaengelige_forloeb(besked)
         
-        # Find forløb med matchende navn
-        target_forloeb = None
+        # Find forløb med matchende navn        
         for grundforloeb in tilgaengelige_forloeb:
-            for forloeb in grundforloeb.get("children", []):
-                if forloeb.get("name") == forloeb_navn:
-                    target_forloeb = forloeb
-                    break
+            if grundforloeb.get("name") == grundforloeb_navn:
+                fundet_grundforloeb = grundforloeb
+                # Hvis forloeb er udfyldt, find det specifikke forløb inden i grundforløbet
+                if forloeb_navn is not None:
+                    for forloeb in grundforloeb.get("children", []):
+                        if forloeb.get("name") == forloeb_navn:
+                            fundet_forloeb = forloeb
+                            break            
         
-        if not target_forloeb:
+        if not fundet_grundforloeb or (forloeb_navn and not fundet_forloeb):
             return False
         
         # Tildel til fundet forløb
         return self.tildel_til_forloeb(
             besked, 
-            target_forloeb["programPathwayId"], 
-            forloeb_navn
+            grundforloeb=fundet_grundforloeb, 
+            forloeb=fundet_forloeb
         )
 
     def opdater_niveau(self, besked: dict, niveau: str) -> bool:
