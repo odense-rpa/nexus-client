@@ -57,3 +57,8 @@ def test_rediger_tilstand(nexus_manager: NexusClientManager, test_borger: dict):
     # Should not raise an exception and should return valid response
     assert isinstance(redigeret_tilstand, dict)
     assert redigeret_tilstand["expectedLevelDescription"] == "Dette er fritekst"
+
+def test_hent_tilstande_ny(nexus_manager: NexusClientManager, test_borger: dict):
+    tilstande = nexus_manager.tilstande.hent_tilstande_ny(test_borger)
+    assert isinstance(tilstande, list)
+    assert all(isinstance(t, dict) for t in tilstande)
