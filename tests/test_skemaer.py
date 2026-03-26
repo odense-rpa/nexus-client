@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import pytest
 
 # Fixtures are automatically loaded from conftest.py
@@ -73,6 +76,46 @@ def test_opret_skema_på_borger_på_forløb(nexus_manager: NexusClientManager, t
     assert oprettet_skema is not None
     assert "id" in oprettet_skema
     assert oprettet_skema["formDefinition"]["title"] == skema_navn
+
+def test_opret_skema_med_tag(nexus_manager: NexusClientManager, test_borger: dict):
+    """Test at oprette et skema med et specifikt tag."""
+    # Formatter dato
+    dato = datetime.now(ZoneInfo("Europe/Copenhagen")).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    citizen = test_borger
+    skema_data = {
+                "Henvendelse modtaget" : dato,
+                "Ansvarlig myndighedsorganisation" : "Indgangen",
+                "Kilde som henvendelses kommer fra" : "Borger",
+                "Er borgeren indforstået med henvendelsen?" : "Ja",
+                "Henvendelsesårsag" : (
+                    f"Fundne følgende hjælpemidler: 1, 2 og 3\n"
+                    f"Fundet antal filer i mail: 17\n"
+                    f"{datetime.now().date().strftime('%d-%m-%Y')} //Robotten Tyra\n"
+                    f"kæmpe lang block af test"
+                )
+    }
+    skema_navn = "Henvendelse - Hjælpemidler, forbrugsgoder, boligindretning m.v."
+    handling = "Udfyldt"
+    tag_navn = "SEL § 112 - Genbrugshjælpemidler"
+
+    
+    oprettet_skema = nexus_manager.skemaer.opret_komplet_skema(
+        borger=citizen,
+        data=skema_data,
+        skematype_navn=skema_navn,
+        handling_navn=handling,
+        tag_navn=tag_navn,
+        grundforløb="Ældre og sundhedsfagligt grundforløb",
+        forløb="Sag SOFF: Hjælpemidler, forbrugsgoder, boligindretning m.v.",
+    )
+
+    assert oprettet_skema is not None
+    assert "id" in oprettet_skema
+    assert oprettet_skema["formDefinition"]["title"] == skema_navn
+    assert any(tag["name"] == tag_navn for tag in oprettet_skema.get("tags", [])), f"Skema should have tag '{tag_navn}'"
+
 
 def test_hent_skemareferencer(nexus_manager: NexusClientManager, test_borger: dict):
     """Test at hente skemareferencer for en borger."""

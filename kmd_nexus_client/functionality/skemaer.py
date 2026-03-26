@@ -114,6 +114,20 @@ class SkemaerClient:
         response = self.client.get(prototype["_links"]["availableActions"]["href"])
         return response.json()
 
+    def hent_tags(self, prototype: dict) -> List[dict]:
+        """
+        Hent tilgængelige tags for et skema prototype.
+
+        
+        :param prototype: Skema prototype at søge i.
+        :return: Liste af tilgængelige tags.
+        """
+        if "availableTags" not in prototype.get("_links", {}):
+            raise ValueError("Prototype indeholder ikke availableTags link.")
+            
+        response = self.client.get(prototype["_links"]["availableTags"]["href"])
+        return response.json()
+
     def udfyld_skema_felter(self, prototype: dict, data: Dict[str, Any]) -> dict:
         """
         Udfyld et skema prototype med data baseret på felttyper.
@@ -207,6 +221,7 @@ class SkemaerClient:
         skematype_navn: str, 
         handling_navn: str, 
         data: Dict[str, Any],
+        tag_navn: Optional[str] = None,
         grundforløb: Optional[str] = None,
         forløb: Optional[str] = None
     ) -> dict:
@@ -242,11 +257,19 @@ class SkemaerClient:
         handling = self._find_handling_by_name(handlinger, handling_navn)
         if not handling:
             raise ValueError(f"Handling '{handling_navn}' ikke fundet.")
+
+        # Trin 4: Hent tilgængelige tags (valgfrit)
+        if tag_navn:
+            tags = self.hent_tags(prototype)
+            tag = self._find_tag_by_name(tags, tag_navn)
+            if not tag:
+                raise ValueError(f"Tag '{tag_navn}' ikke fundet.")
+            prototype["tags"] = prototype.get("tags", []) + [tag]
         
-        # Trin 4: Udfyld prototype
+        # Trin 5: Udfyld prototype
         udfyldt_prototype = self.udfyld_skema_felter(prototype, data)
         
-        # Trin 5: Opret skema
+        # Trin 6: Opret skema
         return self._opret_skema(udfyldt_prototype, handling)
     
     def rediger_skema(self, skema: dict, handling_navn: str, data: Dict[str, Any]) -> dict:
@@ -481,6 +504,16 @@ class SkemaerClient:
         :return: Handling hvis fundet, None ellers.
         """
         return next((handling for handling in handlinger if handling.get("name") == navn), None)
+    
+    def _find_tag_by_name(self, tags: List[dict], navn: str) -> Optional[dict]:
+        """
+        Find et tag i en liste baseret på navn.
+
+        :param tags: Liste af tags at søge i.
+        :param navn: Navn på tag at finde.
+        :return: Tag hvis fundet, None ellers.
+        """
+        return next((tag for tag in tags if tag.get("name") == navn), None)
 
     def _extract_form_fields(self, skema: dict) -> List[dict]:
         """
