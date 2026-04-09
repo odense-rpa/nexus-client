@@ -126,32 +126,14 @@ class TilstandeClient:
     def hent_tilstande_ny(self,borger: dict) -> list[dict]:
 
         """
+        POST-METODEOPDATERING Marts 2026 - tilstande er blevet lavet gevaldigt om i api'et
         Hent tilstande for en given borger baseret på CPR-nummer.
         :param cpr: CPR-nummer for borgeren.
         :return: Liste af tilstande.
         """
-        præferencer = self.nexus_client.get(borger["_links"]["patientPreferences"]["href"]).json()
-        tværfagligt_overblik = next(
-            (
-                x for x in præferencer["CITIZEN_DASHBOARD"]
-                if x["name"] == "Tværfagligt overblik - Tilstande og daglig dokumentation"
-            ),
-            None    
-        )
-        if not tværfagligt_overblik:
-            raise ValueError("Kunne ikke finde 'Tværfagligt overblik - Tilstande og daglig dokumentation' i borgerens præferencer.")
-        
-        tværfagligt_overblik = self.nexus_client.get(tværfagligt_overblik["_links"]["self"]["href"]).json()
-        citizenConditions = [
-            cC for cC in tværfagligt_overblik.get("view", {}).get("widgets", [])
-            if cC.get("type") == "citizenCondition"
-        ]
-        response = (
-            self.nexus_client.get(citizenConditions[0]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[1]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[2]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[3]["_links"]["conditions"]["href"]).json()
-        )
+
+        start_page = self.nexus_client.get(f"startPage/definition?patientId={borger['id']}").json()
+        response = self.nexus_client.get(start_page["conditionWheelChartWidget"]["_links"]["activeConditions"]["href"]).json()
         return response
     
     
