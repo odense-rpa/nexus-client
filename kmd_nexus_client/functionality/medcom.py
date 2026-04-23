@@ -56,11 +56,14 @@ class MedComClient:
                 # Hent hver besked fra referencerne
                 for besked_ref in besked_referencer:
                     try:
+                        if besked_ref.get("_links)").get("self") is None:
+                            continue  # Skip hvis der ikke er et self link
+
                         besked_response = self.client.get(besked_ref["_links"]["self"]["href"])
                         fuld_besked = besked_response.json()
                         beskeder.append(fuld_besked)
                     except HTTPStatusError:
-                        continue  # Skip denne besked hvis der er fejl
+                        continue  # Skip denne besked hvis der er fejl                    
                         
             except HTTPStatusError:
                 continue  # Skip denne side hvis der er fejl
