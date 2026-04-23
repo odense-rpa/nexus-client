@@ -39,7 +39,7 @@ def base_client(nexus_manager):
 @pytest.fixture
 def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""
-    return nexus_manager.borgere.hent_borger("0108589995")
+    return nexus_manager.borgere.hent_borger("0104909989")
 
 
 @pytest.fixture(scope="function")

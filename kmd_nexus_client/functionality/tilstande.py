@@ -122,3 +122,18 @@ class TilstandeClient:
 
         conditions = response.json()
         return conditions[0]  # Returner den opdaterede tilstand
+
+    def hent_tilstande_ny(self,borger: dict) -> list[dict]:
+
+        """
+        POST-METODEOPDATERING Marts 2026 - tilstande er blevet lavet gevaldigt om i api'et
+        Hent tilstande for en given borger baseret på CPR-nummer.
+        :param cpr: CPR-nummer for borgeren.
+        :return: Liste af tilstande.
+        """
+
+        start_page = self.nexus_client.get(f"startPage/definition?patientId={borger['id']}").json()
+        response = self.nexus_client.get(start_page["conditionWheelChartWidget"]["_links"]["activeConditions"]["href"]).json()
+        return response
+    
+    
