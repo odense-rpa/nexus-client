@@ -56,7 +56,7 @@ class MedComClient:
                 # Hent hver besked fra referencerne
                 for besked_ref in besked_referencer:
                     try:
-                        if besked_ref.get("_links)").get("self") is None:
+                        if besked_ref.get("_links", {}).get("self") is None:
                             continue  # Skip hvis der ikke er et self link
 
                         besked_response = self.client.get(besked_ref["_links"]["self"]["href"])
