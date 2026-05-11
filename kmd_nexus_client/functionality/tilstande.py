@@ -1,8 +1,16 @@
 from datetime import date
+from enum import Enum
 from typing import List
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.utils import sanitize_cpr
+
+
+class Tilstandsgruppe(Enum):
+    PLEJE = "careConditionVisitation"
+    SYGEPLEJE = "nursingConditionVisiation"
+    SUNDHEDSFREMME = "healthPromotionAndPreventionConditionVisitaion"
+    GENOPTRÆNING = "posthospitalizationRehabilitationConditionVisitation"
 
 
 class TilstandeClient:
@@ -73,6 +81,18 @@ class TilstandeClient:
         return response.json()[0]
 
 
+    def hent_tilstandsgrupper(self, borger: dict, gruppe: Tilstandsgruppe) -> dict:
+        # HATEOS link not to be found, reverse engineered and hardcoded.
+        response = self.nexus_client.get(borger["_links"][gruppe.value]["href"] + "/prototype")
+        return response.json()
+    
+    def opdater_tilstangsgrupper(self,tilstandsgruppe: dict):
+        # Client raises for status, so no check needs.
+        self.nexus_client.post(tilstandsgruppe['_links']['visit']['href'],tilstandsgruppe)
+        
+
+
+
     def rediger_tilstand(self, tilstand: dict, status: str = "PCActive", **kwargs) -> dict:
         """
         Rediger en eksisterende tilstand for en given borger.
@@ -123,17 +143,4 @@ class TilstandeClient:
         conditions = response.json()
         return conditions[0]  # Returner den opdaterede tilstand
 
-    def hent_tilstande_ny(self,borger: dict) -> list[dict]:
 
-        """
-        POST-METODEOPDATERING Marts 2026 - tilstande er blevet lavet gevaldigt om i api'et
-        Hent tilstande for en given borger baseret på CPR-nummer.
-        :param cpr: CPR-nummer for borgeren.
-        :return: Liste af tilstande.
-        """
-
-        start_page = self.nexus_client.get(f"startPage/definition?patientId={borger['id']}").json()
-        response = self.nexus_client.get(start_page["conditionWheelChartWidget"]["_links"]["activeConditions"]["href"]).json()
-        return response
-    
-    

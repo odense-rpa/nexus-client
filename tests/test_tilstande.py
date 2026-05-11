@@ -1,3 +1,4 @@
+from kmd_nexus_client.functionality.tilstande import Tilstandsgruppe
 from kmd_nexus_client.manager import NexusClientManager
 
 
@@ -58,7 +59,22 @@ def test_rediger_tilstand(nexus_manager: NexusClientManager, test_borger: dict):
     assert isinstance(redigeret_tilstand, dict)
     assert redigeret_tilstand["expectedLevelDescription"] == "Dette er fritekst"
 
-def test_hent_tilstande_ny(nexus_manager: NexusClientManager, test_borger: dict):
-    tilstande = nexus_manager.tilstande.hent_tilstande_ny(test_borger)
-    assert isinstance(tilstande, list)
-    assert all(isinstance(t, dict) for t in tilstande)
+
+def test_hent_tilstandsgruppe(nexus_manager: NexusClientManager, test_borger: dict):
+    for gruppe in Tilstandsgruppe:
+        if gruppe.value not in test_borger["_links"]:
+            continue
+        result = nexus_manager.tilstande.hent_tilstandsgrupper(test_borger, gruppe)
+        assert isinstance(result, (dict, list))
+        assert 'conditionGroupVisitation' in result
+        assert len(result['conditionGroupVisitation']) > 0
+        # We must have real conditions, with real endpoints - this checks it.
+        assert 'activate' in result['conditionGroupVisitation'][0]['conditions'][0]['_links']
+
+
+def test_opdater_tilstandsgruppe(nexus_manager: NexusClientManager, test_borger: dict):
+
+    grupper = nexus_manager.tilstande.hent_tilstandsgrupper(test_borger,Tilstandsgruppe.GENOPTRÆNING)
+
+    nexus_manager.tilstande.opdater_tilstangsgrupper(grupper)
+    pass
