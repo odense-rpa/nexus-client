@@ -1,3 +1,5 @@
+import pytest
+
 from kmd_nexus_client.functionality.tilstande import Tilstandsgruppe
 from kmd_nexus_client.manager import NexusClientManager
 
@@ -73,8 +75,23 @@ def test_hent_tilstandsgruppe(nexus_manager: NexusClientManager, test_borger: di
 
 
 def test_opdater_tilstandsgruppe(nexus_manager: NexusClientManager, test_borger: dict):
+    grupper = nexus_manager.tilstande.hent_tilstandsgrupper(test_borger, Tilstandsgruppe.GENOPTRÆNING)
 
-    grupper = nexus_manager.tilstande.hent_tilstandsgrupper(test_borger,Tilstandsgruppe.GENOPTRÆNING)
+    if "visit" not in grupper.get("_links", {}):
+        pytest.skip("Tilstandsgruppe understøtter ikke visit-opdatering")
+    
+    for visitation in grupper.get("conditionGroupVisitation", []):
+        for condition in visitation.get("conditions", []):
+            
+            if condition.get("classification", {}).get("name") == "Personlig pleje":
+                condition["state"] = "ACTIVE"
+                break
+            
+            # relaterede_aktiviteter = nexus_manager.nexus_client.get(condition.get("_links", {}).get("relatedActivities", []).get("href", "")).json()
+            #     for kategori in relaterede_aktiviteter:
+            #         if kategori.get("groupName") == "Indsatser":
+            #             for aktivitet in kategori.get("citizenActivitiesGroups", []):
+            #                 for aktivitet_item in aktivitet.get("activities", []):                                
+            #                     nexus_manager.nexus_client.delete(aktivitet_item["_links"]["deleteActivityLink"]["href"])
 
-    nexus_manager.tilstande.opdater_tilstangsgrupper(grupper)
-    pass
+    nexus_manager.tilstande.opdater_tilstandsgrupper(grupper)

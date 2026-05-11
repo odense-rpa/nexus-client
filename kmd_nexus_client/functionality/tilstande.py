@@ -86,9 +86,9 @@ class TilstandeClient:
         response = self.nexus_client.get(borger["_links"][gruppe.value]["href"] + "/prototype")
         return response.json()
     
-    def opdater_tilstangsgrupper(self,tilstandsgruppe: dict):
+    def opdater_tilstandsgrupper(self,tilstandsgruppe: dict):
         # Client raises for status, so no check needs.
-        self.nexus_client.post(tilstandsgruppe['_links']['visit']['href'],tilstandsgruppe)
+        self.nexus_client.post(tilstandsgruppe['_links']['visit']['href'], tilstandsgruppe)
         
 
 
