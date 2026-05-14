@@ -1,8 +1,16 @@
 from datetime import date
+from enum import Enum
 from typing import List
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.utils import sanitize_cpr
+
+
+class Tilstandsgruppe(Enum):
+    PLEJE = "careConditionVisitation"
+    SYGEPLEJE = "nursingConditionVisiation"
+    SUNDHEDSFREMME = "healthPromotionAndPreventionConditionVisitaion"
+    GENOPTRÆNING = "posthospitalizationRehabilitationConditionVisitation"
 
 
 class TilstandeClient:
@@ -73,6 +81,18 @@ class TilstandeClient:
         return response.json()[0]
 
 
+    def hent_tilstandsgrupper(self, borger: dict, gruppe: Tilstandsgruppe) -> dict:
+        # HATEOS link not to be found, reverse engineered and hardcoded.
+        response = self.nexus_client.get(borger["_links"][gruppe.value]["href"] + "/prototype")
+        return response.json()
+    
+    def opdater_tilstandsgrupper(self,tilstandsgruppe: dict):
+        # Client raises for status, so no check needs.
+        self.nexus_client.post(tilstandsgruppe['_links']['visit']['href'], tilstandsgruppe)
+        
+
+
+
     def rediger_tilstand(self, tilstand: dict, status: str = "PCActive", **kwargs) -> dict:
         """
         Rediger en eksisterende tilstand for en given borger.
@@ -123,35 +143,4 @@ class TilstandeClient:
         conditions = response.json()
         return conditions[0]  # Returner den opdaterede tilstand
 
-    def hent_tilstande_ny(self,borger: dict) -> list[dict]:
 
-        """
-        Hent tilstande for en given borger baseret på CPR-nummer.
-        :param cpr: CPR-nummer for borgeren.
-        :return: Liste af tilstande.
-        """
-        præferencer = self.nexus_client.get(borger["_links"]["patientPreferences"]["href"]).json()
-        tværfagligt_overblik = next(
-            (
-                x for x in præferencer["CITIZEN_DASHBOARD"]
-                if x["name"] == "Tværfagligt overblik - Tilstande og daglig dokumentation"
-            ),
-            None    
-        )
-        if not tværfagligt_overblik:
-            raise ValueError("Kunne ikke finde 'Tværfagligt overblik - Tilstande og daglig dokumentation' i borgerens præferencer.")
-        
-        tværfagligt_overblik = self.nexus_client.get(tværfagligt_overblik["_links"]["self"]["href"]).json()
-        citizenConditions = [
-            cC for cC in tværfagligt_overblik.get("view", {}).get("widgets", [])
-            if cC.get("type") == "citizenCondition"
-        ]
-        response = (
-            self.nexus_client.get(citizenConditions[0]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[1]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[2]["_links"]["conditions"]["href"]).json() +
-            self.nexus_client.get(citizenConditions[3]["_links"]["conditions"]["href"]).json()
-        )
-        return response
-    
-    
