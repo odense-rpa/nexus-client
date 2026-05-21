@@ -23,10 +23,9 @@ def test_søg_borgere(nexus_manager: NexusClientManager):
     assert resultater is not None
     assert len(resultater) > 0
 
-    resultater_20 = nexus_manager.borgere.søg_borgere("Nancy",20)
+    resultater_20 = nexus_manager.borgere.søg_borgere("Nancy", 20)
     assert resultater_20 is not None
     assert len(resultater_20) > len(resultater)
-
 
 
 def test_hent_præferencer(nexus_manager: NexusClientManager, test_borger: dict):
@@ -58,14 +57,18 @@ def test_hent_referencer(nexus_manager: NexusClientManager, test_borger: dict):
     assert references is not None
     assert len(references) > 0
 
+
 def test_opret_borger(nexus_manager: NexusClientManager):
     # Test on the fly, ikke commit.
     cpr = ""
     response = nexus_manager.borgere.opret_borger(cpr)
     assert response is not None
 
-def test_opret_netværksperson_på_borger(nexus_manager: NexusClientManager, test_borger: dict):
-    citizen = test_borger    
+
+def test_opret_netværksperson_på_borger(
+    nexus_manager: NexusClientManager, test_borger: dict
+):
+    citizen = test_borger
 
     koordinator_skema_data = {
         "Navn": "Simon Orefici Frederiksen",
@@ -80,7 +83,7 @@ def test_opret_netværksperson_på_borger(nexus_manager: NexusClientManager, tes
             "lastName": " ".join(koordinator_skema_data["Navn"].split(" ")[1:]),
             "relationDescription": f"Koordinator - {koordinator_skema_data['Organisationstilknytning']}",
             "title": koordinator_skema_data["Stillingsbetegnelse"],
-        }
+        },
     )
 
     assert len(response_json) > 0

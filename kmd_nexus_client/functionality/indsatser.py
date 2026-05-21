@@ -361,7 +361,7 @@ class IndsatsClient:
             if "number" in element:
                 if not isinstance(field_value, (int, float)):
                     raise ValueError(f"Field '{field_name}' expects a number value")
-                
+
                 element["number"] = field_value
                 continue
 
@@ -397,39 +397,42 @@ class IndsatsClient:
             if "next" in element:
                 if not isinstance(field_value, dict):
                     raise ValueError(f"Field '{field_name}' expects a dict value")
-                
+
                 element["pattern"] = field_value["pattern"]
                 element["count"] = int(field_value["count"])
-                
+
                 week_obj = element.get("next", {})
-                
+
                 if field_value["pattern"] == "WEEK":
                     week_obj["weekdays"] = int(field_value.get("weekdays", 0))
                     week_obj["weekenddays"] = int(field_value.get("weekenddays", 0))
                 else:
                     week_obj["weekdays"] = 0
                     week_obj["weekenddays"] = 0
-                
+
                 shift_obj = week_obj.get("next", {})
                 shifts_list = field_value.get("shifts", [])
                 shift_obj["visits"] = len(shifts_list)
-                
+
                 # Get available shift templates from the element
                 shift_templates = self.client.get(self.client.api["shifts"]).json()
                 shift_arr = []
-                
+
                 for shift_row in shifts_list:
                     # Find matching template by title
                     matching_template = next(
-                        (template for template in shift_templates 
-                         if template.get("title") == shift_row.get("title")),
-                        None
+                        (
+                            template
+                            for template in shift_templates
+                            if template.get("title") == shift_row.get("title")
+                        ),
+                        None,
                     )
                     if matching_template:
                         shift_arr.append(matching_template)
-                
+
                 shift_obj["shifts"] = shift_arr
-                
+
                 continue
 
             raise ValueError(f"Unsupported field type for '{field_name}' in template")
@@ -477,7 +480,7 @@ class IndsatsClient:
                                 "Frafaldet",
                                 "Afgjort",
                                 "Afslået",
-                                "Ophørt"
+                                "Ophørt",
                             ]
                         )
                     )

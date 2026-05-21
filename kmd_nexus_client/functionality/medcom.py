@@ -8,14 +8,14 @@ from kmd_nexus_client.client import NexusClient
 class MedComClient:
     """
     Klient til MedCom-operationer i KMD Nexus.
-    
-    MedCom beskeder følger danske standarder for elektronisk kommunikation 
+
+    MedCom beskeder følger danske standarder for elektronisk kommunikation
     i sundhedssektoren og har en specifik lifecycle og navigation struktur.
-    
+
     VIGTIGT: Opret ikke denne klasse direkte!
     Brug NexusClientManager: nexus.medcom.hent_indbakke(...)
     """
-    
+
     def __init__(self, nexus_client: NexusClient):
         self.client = nexus_client
 
@@ -40,7 +40,7 @@ class MedComClient:
         :return: Liste af alle beskeder fra indbakken.
         """
         beskeder = []
-        
+
         # Hent indbakke med pagination
         indbakke = self.hent_indbakke(borger)
         if not indbakke:
@@ -52,22 +52,24 @@ class MedComClient:
                 # Hent indhold af siden
                 side_response = self.client.get(side["_links"]["self"]["href"])
                 besked_referencer = side_response.json()
-                
+
                 # Hent hver besked fra referencerne
                 for besked_ref in besked_referencer:
                     try:
                         if besked_ref.get("_links", {}).get("self") is None:
                             continue  # Skip hvis der ikke er et self link
 
-                        besked_response = self.client.get(besked_ref["_links"]["self"]["href"])
+                        besked_response = self.client.get(
+                            besked_ref["_links"]["self"]["href"]
+                        )
                         fuld_besked = besked_response.json()
                         beskeder.append(fuld_besked)
                     except HTTPStatusError:
-                        continue  # Skip denne besked hvis der er fejl                    
-                        
+                        continue  # Skip denne besked hvis der er fejl
+
             except HTTPStatusError:
                 continue  # Skip denne side hvis der er fejl
-                
+
         return beskeder
 
     def hent_besked(self, besked_reference: dict) -> Optional[dict]:
@@ -94,10 +96,10 @@ class MedComClient:
             raw_data = besked.get("raw")
             if not raw_data:
                 return None
-            
+
             # Base64 dekod XML indholdet
             decoded_bytes = base64.b64decode(raw_data)
-            return decoded_bytes.decode('utf-8')
+            return decoded_bytes.decode("utf-8")
         except Exception:
             return None
 
@@ -112,11 +114,8 @@ class MedComClient:
             # Check om accept link findes
             if "accept" not in besked.get("_links", {}):
                 return False
-            
-            response = self.client.put(
-                besked["_links"]["accept"]["href"],
-                json=besked
-            )
+
+            response = self.client.put(besked["_links"]["accept"]["href"], json=besked)
             return response.status_code == 200
         except HTTPStatusError:
             return False
@@ -132,10 +131,9 @@ class MedComClient:
             # Check om archive link findes
             if "archive" not in besked.get("_links", {}):
                 return False
-            
+
             response = self.client.post(
-                besked["_links"]["archive"]["href"],
-                json=besked
+                besked["_links"]["archive"]["href"], json=besked
             )
             return response.status_code == 200
         except HTTPStatusError:
@@ -152,7 +150,7 @@ class MedComClient:
             pathway_links = besked.get("pathwayAssociation", {}).get("_links", {})
             if "availablePathwayAssociation" not in pathway_links:
                 return []
-            
+
             response = self.client.get(
                 pathway_links["availablePathwayAssociation"]["href"]
             )
@@ -160,7 +158,9 @@ class MedComClient:
         except HTTPStatusError:
             return []
 
-    def tildel_til_forloeb(self, besked: dict, grundforloeb: dict, forloeb: dict) -> bool:
+    def tildel_til_forloeb(
+        self, besked: dict, grundforloeb: dict, forloeb: dict
+    ) -> bool:
         """
         Tildel en MedCom besked til et specifikt forløb.
 
@@ -172,11 +172,11 @@ class MedComClient:
         try:
             # Modificer besked for at tildele til forløb
             modificeret_besked = besked.copy()
-            
+
             # Sikr at pathwayAssociation eksisterer
             if "pathwayAssociation" not in modificeret_besked:
                 modificeret_besked["pathwayAssociation"] = {}
-            
+
             if not forloeb:
                 # Sæt grundforløb
                 modificeret_besked["pathwayAssociation"]["placement"] = {
@@ -186,8 +186,8 @@ class MedComClient:
                     "parentPathwayId": grundforloeb.get("parentPathwayId", None),
                     "patientPathwayId": grundforloeb.get("patientPathwayId", None),
                     "active": True,
-                    "_links": {}
-                }                
+                    "_links": {},
+                }
             else:
                 modificeret_besked["pathwayAssociation"]["placement"] = {
                     "name": forloeb.get("name", ""),
@@ -196,19 +196,20 @@ class MedComClient:
                     "parentPathwayId": forloeb.get("parentPathwayId", None),
                     "patientPathwayId": forloeb.get("patientPathwayId", None),
                     "active": True,
-                    "_links": {}
-                }                
-            
+                    "_links": {},
+                }
+
             # Opdater besked
             response = self.client.put(
-                besked["_links"]["self"]["href"],
-                json=modificeret_besked
+                besked["_links"]["self"]["href"], json=modificeret_besked
             )
             return response.status_code == 200
         except HTTPStatusError:
             return False
 
-    def tildel_til_forloeb_ved_navn(self, besked: dict, forloeb_navn: str = "", grundforloeb_navn: str = "MedCom") -> bool:
+    def tildel_til_forloeb_ved_navn(
+        self, besked: dict, forloeb_navn: str = "", grundforloeb_navn: str = "MedCom"
+    ) -> bool:
         """
         Tildel en MedCom besked til et forløb ved at finde det via navn.
 
@@ -218,8 +219,8 @@ class MedComClient:
         """
         # Hent tilgængelige forløb
         tilgaengelige_forloeb = self.hent_tilgaengelige_forloeb(besked)
-        
-        # Find forløb med matchende navn        
+
+        # Find forløb med matchende navn
         for grundforloeb in tilgaengelige_forloeb:
             if grundforloeb.get("name") == grundforloeb_navn:
                 fundet_grundforloeb = grundforloeb
@@ -228,16 +229,14 @@ class MedComClient:
                     for forloeb in grundforloeb.get("children", []):
                         if forloeb.get("name") == forloeb_navn:
                             fundet_forloeb = forloeb
-                            break            
-        
+                            break
+
         if not fundet_grundforloeb or (forloeb_navn and not fundet_forloeb):
             return False
-        
+
         # Tildel til fundet forløb
         return self.tildel_til_forloeb(
-            besked, 
-            grundforloeb=fundet_grundforloeb, 
-            forloeb=fundet_forloeb
+            besked, grundforloeb=fundet_grundforloeb, forloeb=fundet_forloeb
         )
 
     def opdater_niveau(self, besked: dict, niveau: str) -> bool:
@@ -253,20 +252,17 @@ class MedComClient:
                 raise ValueError("Niveau skal være 'BASIC' eller 'ADVANCED'")
 
             modificeret_besked = besked.copy()
-            
+
             # Sæt niveau
             modificeret_besked["level"] = niveau
-            
+
             # Opdater besked
             response = self.client.put(
-                besked["_links"]["self"]["href"],
-                json=modificeret_besked
+                besked["_links"]["self"]["href"], json=modificeret_besked
             )
             return response.status_code == 200
         except HTTPStatusError:
             return False
-
-
 
     def filtrer_beskeder(self, beskeder: List[dict], **kriterier) -> List[dict]:
         """
@@ -277,15 +273,18 @@ class MedComClient:
         :return: Filtrerede beskeder.
         """
         filtrerede = []
-        
+
         for besked in beskeder:
             match = True
-            
+
             # Filtrer på emne
             if "subject" in kriterier:
-                if kriterier["subject"].lower() not in besked.get("subject", "").lower():
+                if (
+                    kriterier["subject"].lower()
+                    not in besked.get("subject", "").lower()
+                ):
                     match = False
-            
+
             # Filtrer på om besked har forløbstilknytning
             if "har_forloeb" in kriterier:
                 har_placement = bool(
@@ -293,16 +292,16 @@ class MedComClient:
                 )
                 if kriterier["har_forloeb"] != har_placement:
                     match = False
-            
+
             # Filtrer på specifikt forløb navn
             if "forloeb_navn" in kriterier:
                 placement = besked.get("pathwayAssociation", {}).get("placement", {})
                 if placement.get("name") != kriterier["forloeb_navn"]:
                     match = False
-            
+
             if match:
                 filtrerede.append(besked)
-        
+
         return filtrerede
 
     def get_besked_statistik(self, borger: dict) -> Dict[str, Any]:
@@ -313,11 +312,13 @@ class MedComClient:
         :return: Dictionary med statistik.
         """
         beskeder = self.hent_alle_beskeder(borger)
-        
+
         total = len(beskeder)
-        med_forloeb = len([b for b in beskeder if b.get("pathwayAssociation", {}).get("placement")])
+        med_forloeb = len(
+            [b for b in beskeder if b.get("pathwayAssociation", {}).get("placement")]
+        )
         uden_forloeb = total - med_forloeb
-        
+
         # Gruppér efter forløb
         forloeb_grupper = {}
         for besked in beskeder:
@@ -325,10 +326,10 @@ class MedComClient:
             if placement:
                 navn = placement.get("name", "Ukendt")
                 forloeb_grupper[navn] = forloeb_grupper.get(navn, 0) + 1
-        
+
         return {
             "total_beskeder": total,
             "med_forloeb": med_forloeb,
             "uden_forloeb": uden_forloeb,
-            "forloeb_fordeling": forloeb_grupper
+            "forloeb_fordeling": forloeb_grupper,
         }

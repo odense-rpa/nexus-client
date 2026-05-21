@@ -29,7 +29,9 @@ def test_nexus_client_builds_urls_from_host(mock_oauth_client):
         client.token_url
         == "https://iam.nexus-test.kmd.dk/authx/realms/unity/protocol/openid-connect/token"
     )
-    assert client.base_url == "https://unity.nexus-test.kmd.dk/api/core/mobile/unity/v2/"
+    assert (
+        client.base_url == "https://unity.nexus-test.kmd.dk/api/core/mobile/unity/v2/"
+    )
     assert (
         client.api["activeAssignments"]
         == "https://unity.nexus-test.kmd.dk/api/core/mobile/unity/v2/activeAssignments"

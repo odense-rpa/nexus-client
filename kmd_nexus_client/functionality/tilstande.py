@@ -1,9 +1,7 @@
-from datetime import date
 from enum import Enum
 from typing import List
 
 from kmd_nexus_client.client import NexusClient
-from kmd_nexus_client.utils import sanitize_cpr
 
 
 class Tilstandsgruppe(Enum):
@@ -75,25 +73,27 @@ class TilstandeClient:
 
         response = self.nexus_client.post(
             prototype["_links"]["create"]["href"], json=prototype
-         )
+        )
 
         # Der returneres en liste fordi man teknisk kan multi-oprette tilstande, det gør vi bare ikke
         return response.json()[0]
 
-
     def hent_tilstandsgrupper(self, borger: dict, gruppe: Tilstandsgruppe) -> dict:
         # HATEOS link not to be found, reverse engineered and hardcoded.
-        response = self.nexus_client.get(borger["_links"][gruppe.value]["href"] + "/prototype")
+        response = self.nexus_client.get(
+            borger["_links"][gruppe.value]["href"] + "/prototype"
+        )
         return response.json()
-    
-    def opdater_tilstandsgrupper(self,tilstandsgruppe: dict):
+
+    def opdater_tilstandsgrupper(self, tilstandsgruppe: dict):
         # Client raises for status, so no check needs.
-        self.nexus_client.post(tilstandsgruppe['_links']['visit']['href'], tilstandsgruppe)
-        
+        self.nexus_client.post(
+            tilstandsgruppe["_links"]["visit"]["href"], tilstandsgruppe
+        )
 
-
-
-    def rediger_tilstand(self, tilstand: dict, status: str = "PCActive", **kwargs) -> dict:
+    def rediger_tilstand(
+        self, tilstand: dict, status: str = "PCActive", **kwargs
+    ) -> dict:
         """
         Rediger en eksisterende tilstand for en given borger.
         :param tilstand: Tilstands data.
@@ -115,21 +115,23 @@ class TilstandeClient:
 
         # Opdater yderligere felter
         for key, value in kwargs.items():
-
             if key not in prototype:
                 raise ValueError(f"Feltet '{key}' findes ikke i tilstanden.")
-            
+
             if prototype[key]["type"] == "singleValue":
                 matched_value = next(
-                         (v for v in prototype[key]["possibleValues"] if (v["code"] == value or v["name"] == value)), None
-                     )
-                
+                    (
+                        v
+                        for v in prototype[key]["possibleValues"]
+                        if (v["code"] == value or v["name"] == value)
+                    ),
+                    None,
+                )
+
                 if matched_value:
                     prototype[key]["value"] = matched_value
                 else:
-                    raise ValueError(
-                        f"Ugyldig værdi '{value}' for feltet '{key}'."
-                    )
+                    raise ValueError(f"Ugyldig værdi '{value}' for feltet '{key}'.")
                 continue
 
             if prototype[key]["type"] == "string":
@@ -138,9 +140,7 @@ class TilstandeClient:
 
         response = self.nexus_client.post(
             prototype["_links"]["create"]["href"], json=prototype
-         )
+        )
 
         conditions = response.json()
         return conditions[0]  # Returner den opdaterede tilstand
-
-

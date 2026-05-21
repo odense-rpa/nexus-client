@@ -6,6 +6,7 @@ from kmd_nexus_client.models import OrganisationRelationEnsureResult
 from kmd_nexus_client.utils import normalize_name
 from kmd_nexus_client.utils import sanitize_cpr
 
+
 class OrganisationerClient:
     """
     Klient til håndtering af organisationer i KMD Nexus.
@@ -158,7 +159,7 @@ class OrganisationerClient:
         response = self.nexus_client.get(organisation["_links"]["patients"]["href"])
         return response.json()
 
-    def hent_medarbejder_ved_initialer(self, initialer: str) -> dict|None:
+    def hent_medarbejder_ved_initialer(self, initialer: str) -> dict | None:
         """
         Hent en medarbejder ved initialer.
 
@@ -197,7 +198,7 @@ class OrganisationerClient:
             organisation["_links"]["professionals"]["href"]
         )
         return response.json()
-    
+
     def fjern_medarbejder_fra_forløb(self, medarbejder_reference: dict) -> bool:
         """
         Fjern en medarbejder fra et forløb.
@@ -206,12 +207,10 @@ class OrganisationerClient:
         :param medarbejder: Medarbejderen der skal fjernes fra forløbet.
         :return: True hvis succesfuldt fjernet, False ellers.
         """
-        
+
         medarbejder = self.nexus_client.hent_fra_reference(medarbejder_reference)
 
-        response = self.nexus_client.delete(
-            medarbejder["_links"]["delete"]["href"]
-        )
+        response = self.nexus_client.delete(medarbejder["_links"]["delete"]["href"])
 
         return response.status_code == 200
 
@@ -295,7 +294,7 @@ class OrganisationerClient:
                 return None
             raise
 
-    def hent_borgere_med_udlåns_bestillinger(self) -> List[str]|None:
+    def hent_borgere_med_udlåns_bestillinger(self) -> List[str] | None:
         """
         Hent alle borgere med udlånsbestillinger.
 
@@ -306,9 +305,9 @@ class OrganisationerClient:
             "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=a1b03fee-6684-4c22-8b82-7912d0d849f7",
             "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=ef415c49-afd8-417a-92b6-fd26ace24859",
             "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7cd9bf46-5bf5-4e41-9239-0ed935e7e8f9",
-            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7ee5774f-d76d-4250-a827-61efd8664be4",        
+            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7ee5774f-d76d-4250-a827-61efd8664be4",
         ]
-        
+
         borgere = []
 
         for link in liste_links:
@@ -321,7 +320,7 @@ class OrganisationerClient:
                         borgere.append(cpr)
                 except ValueError:
                     continue
-        
+
         return borgere if borgere else None
 
 
@@ -334,8 +333,7 @@ def find_organisation_relation(
         (
             relation
             for relation in relations
-            if normalize_name(relation.get("organization", {}).get("name"))
-            == expected
+            if normalize_name(relation.get("organization", {}).get("name")) == expected
         ),
         None,
     )

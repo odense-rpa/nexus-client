@@ -1,17 +1,16 @@
-import json
-
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime
-from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.tree_helpers import filter_by_predicate
+
 if TYPE_CHECKING:
     from kmd_nexus_client.manager import NexusClientManager
+
 
 class SkemaerClient:
     """
     Klient til skema-operationer i KMD Nexus.
-    
+
     Håndterer oprettelse, redigering, hentning og sletning af skemaer
     samt udfyldning og submission af skemaer.
 
@@ -19,7 +18,9 @@ class SkemaerClient:
     Brug NexusClientManager: nexus.skemaer.hent_skema(...)
     """
 
-    def __init__(self, nexus_client: NexusClient, manager: Optional["NexusClientManager"] = None):
+    def __init__(
+        self, nexus_client: NexusClient, manager: Optional["NexusClientManager"] = None
+    ):
         self.client = nexus_client
         self._manager = manager
 
@@ -32,11 +33,13 @@ class SkemaerClient:
         """
         if "availableFormDefinitions" not in borger.get("_links", {}):
             raise ValueError("Objekt indeholder ikke availableFormDefinitions link.")
-        
+
         response = self.client.get(borger["_links"]["availableFormDefinitions"]["href"])
         return response.json()
-    
-    def hent_skemadefinition_på_forløb(self, grundforløb: str, forløb: str, borger: dict) -> List[dict]:
+
+    def hent_skemadefinition_på_forløb(
+        self, grundforløb: str, forløb: str, borger: dict
+    ) -> List[dict]:
         """
         Hent alle tilgængelige skematyper (form definitions) for et objekt inden for et specifikt forløb.
 
@@ -54,25 +57,50 @@ class SkemaerClient:
         else:
             # Fallback: opret BorgerClient direkte (ikke anbefalet men funktionelt)
             from kmd_nexus_client.functionality.borgere import BorgerClient
+
             borgere_client = BorgerClient(self.client)
-            
-        visning = borgere_client.hent_visning(borger=borger, visnings_navn="-Aktive forløb")
+
+        visning = borgere_client.hent_visning(
+            borger=borger, visnings_navn="-Aktive forløb"
+        )
         referencer = borgere_client.hent_referencer(visning=visning)
 
         # Find den specifikke grundforløbsreference (første match)
-        grundforløb_ref = next((ref for ref in referencer if ref.get("name") == grundforløb or ref.get("id") == grundforløb and ref.get("type") == "patientPathwayReference"), None)
+        grundforløb_ref = next(
+            (
+                ref
+                for ref in referencer
+                if ref.get("name") == grundforløb
+                or ref.get("id") == grundforløb
+                and ref.get("type") == "patientPathwayReference"
+            ),
+            None,
+        )
         if not grundforløb_ref:
-            raise ValueError(f"Ingen referencer fundet for det angivne grundforløb: {grundforløb}")
+            raise ValueError(
+                f"Ingen referencer fundet for det angivne grundforløb: {grundforløb}"
+            )
 
         # Nu søg i det specifikke grundforløbs børn efter forløbet
-        forløb_refs = next((child for child in grundforløb_ref.get("children", []) if child.get("name") == forløb or child.get("id") == forløb and child.get("type") == "patientPathwayReference"), None)
+        forløb_refs = next(
+            (
+                child
+                for child in grundforløb_ref.get("children", [])
+                if child.get("name") == forløb
+                or child.get("id") == forløb
+                and child.get("type") == "patientPathwayReference"
+            ),
+            None,
+        )
         if not forløb_refs:
             raise ValueError(f"Ingen forløb fundet for: {forløb}")
 
         referencer = self.client.get(forløb_refs["_links"]["self"]["href"]).json()
 
-        skemadefinitioner = self.client.get(referencer["_links"]["availableFormDefinitions"]["href"]).json()
-        
+        skemadefinitioner = self.client.get(
+            referencer["_links"]["availableFormDefinitions"]["href"]
+        ).json()
+
         return skemadefinitioner
 
     def hent_skema_fra_reference(self, reference: dict) -> dict:
@@ -84,7 +112,7 @@ class SkemaerClient:
         """
         if "referencedObject" not in reference.get("_links", {}):
             raise ValueError("Reference indeholder ikke referencedObject link.")
-            
+
         response = self.client.get(reference["_links"]["referencedObject"]["href"])
         return response.json()
 
@@ -110,7 +138,7 @@ class SkemaerClient:
         """
         if "availableActions" not in prototype.get("_links", {}):
             raise ValueError("Prototype indeholder ikke availableActions link.")
-            
+
         response = self.client.get(prototype["_links"]["availableActions"]["href"])
         return response.json()
 
@@ -118,13 +146,13 @@ class SkemaerClient:
         """
         Hent tilgængelige tags for et skema prototype.
 
-        
+
         :param prototype: Skema prototype at søge i.
         :return: Liste af tilgængelige tags.
         """
         if "availableTags" not in prototype.get("_links", {}):
             raise ValueError("Prototype indeholder ikke availableTags link.")
-            
+
         response = self.client.get(prototype["_links"]["availableTags"]["href"])
         return response.json()
 
@@ -141,7 +169,7 @@ class SkemaerClient:
             if label in data:
                 field_type = item.get("type")
                 value = data[label]
-                
+
                 if field_type in ["radioGroup", "dropDown"]:
                     # Sæt item["value"] hvis en af possibleValues har name == value, ellers fejl
                     possible_values = item.get("possibleValues", [])
@@ -150,10 +178,12 @@ class SkemaerClient:
                             item["value"] = v
                             break
                     else:
-                        raise ValueError(f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}")
+                        raise ValueError(
+                            f"Værdi '{value}' er ikke gyldig for felt '{label}'. Gyldige navne: {[v.get('name') for v in possible_values]}"
+                        )
                 elif field_type in ["checkGroup"]:
                     possible_values = item.get("possibleValues", [])
-                    values = []                    
+                    values = []
                     for v in possible_values:
                         if v.get("name") == value:
                             values.append(v)
@@ -163,29 +193,37 @@ class SkemaerClient:
                 elif field_type == "date":
                     # Accept datetime and format as UTC ISO string
                     from datetime import datetime, timezone
+
                     if isinstance(value, datetime):
                         item["value"] = value.astimezone(timezone.utc).isoformat()
                     else:
-                        raise ValueError(f"Ugyldig datoformat for felt '{label}': {value}")
+                        raise ValueError(
+                            f"Ugyldig datoformat for felt '{label}': {value}"
+                        )
                 elif field_type == "radioTree":
-                        
-                        values = self.client.get(item["_links"]["search"]["href"],params={ "query": value }).json()
+                    values = self.client.get(
+                        item["_links"]["search"]["href"], params={"query": value}
+                    ).json()
 
-                        diagnoses = filter_by_predicate(values, lambda v: v.get("code","") == value)
+                    diagnoses = filter_by_predicate(
+                        values, lambda v: v.get("code", "") == value
+                    )
 
-                        if(len(diagnoses) != 1):
-                            raise ValueError(f"Der skal være præcis én match for diagnose '{value}', fundet: {len(diagnoses)}")
-                            
-                        item["value"] = diagnoses[0]
+                    if len(diagnoses) != 1:
+                        raise ValueError(
+                            f"Der skal være præcis én match for diagnose '{value}', fundet: {len(diagnoses)}"
+                        )
+
+                    item["value"] = diagnoses[0]
                 else:
                     # Standard tekstfelter og andre simple typer
                     item["value"] = value
-                    
+
         return prototype
 
     def _opret_skema(self, prototype: dict, handling: dict) -> dict:
         """
-        PRIVAT METODE - brug opret_komplet_skema() i stedet. 
+        PRIVAT METODE - brug opret_komplet_skema() i stedet.
 
         Opret et nyt skema baseret på udfyldt prototype og valgt handling.
 
@@ -195,10 +233,9 @@ class SkemaerClient:
         """
         if "createFormData" not in handling.get("_links", {}):
             raise ValueError("Handling indeholder ikke createFormData link.")
-            
+
         response = self.client.post(
-            handling["_links"]["createFormData"]["href"], 
-            json=prototype
+            handling["_links"]["createFormData"]["href"], json=prototype
         )
         return response.json()
 
@@ -211,19 +248,19 @@ class SkemaerClient:
         """
         if "audit" not in skema.get("_links", {}):
             raise ValueError("Skema indeholder ikke audit link.")
-            
+
         response = self.client.get(skema["_links"]["audit"]["href"])
         return response.json().get("auditEntries", [])
 
     def opret_komplet_skema(
-        self, 
-        borger: dict, 
-        skematype_navn: str, 
-        handling_navn: str, 
+        self,
+        borger: dict,
+        skematype_navn: str,
+        handling_navn: str,
         data: Dict[str, Any],
         tag_navn: Optional[str] = None,
         grundforløb: Optional[str] = None,
-        forløb: Optional[str] = None
+        forløb: Optional[str] = None,
     ) -> dict:
         """
         Komplet skema oprettelsesprocess i ét kald - implementerer den 5-trins process.
@@ -248,10 +285,10 @@ class SkemaerClient:
         skematype = self._find_skematype_by_name(skematyper, skematype_navn)
         if not skematype:
             raise ValueError(f"Skematype '{skematype_navn}' ikke fundet.")
-        
+
         # Trin 2: Hent prototype
         prototype = self.hent_skema_prototype(skematype)
-        
+
         # Trin 3: Hent tilgængelige handlinger
         handlinger = self.hent_tilgængelige_handlinger(prototype)
         handling = self._find_handling_by_name(handlinger, handling_navn)
@@ -265,14 +302,16 @@ class SkemaerClient:
             if not tag:
                 raise ValueError(f"Tag '{tag_navn}' ikke fundet.")
             prototype["tags"] = prototype.get("tags", []) + [tag]
-        
+
         # Trin 5: Udfyld prototype
         udfyldt_prototype = self.udfyld_skema_felter(prototype, data)
-        
+
         # Trin 6: Opret skema
         return self._opret_skema(udfyldt_prototype, handling)
-    
-    def rediger_skema(self, skema: dict, handling_navn: str, data: Dict[str, Any]) -> dict:
+
+    def rediger_skema(
+        self, skema: dict, handling_navn: str, data: Dict[str, Any]
+    ) -> dict:
         """
         Rediger et eksisterende skema med nye data.
 
@@ -282,22 +321,23 @@ class SkemaerClient:
         :return: Opdateret skema instans.
         """
 
-        skema = self.client.hent_fra_reference(skema)        
+        skema = self.client.hent_fra_reference(skema)
         handlinger = self.hent_tilgængelige_handlinger(skema)
 
         handling = self._find_handling_by_name(handlinger, handling_navn)
         if not handling:
             raise ValueError(f"Handling '{handling_navn}' ikke fundet.")
-        
+
         udfyldt_skema = self.udfyld_skema_felter(skema, data)
-        
+
         response = self.client.put(
-            handling["_links"]["updateFormData"]["href"],
-            json=udfyldt_skema
+            handling["_links"]["updateFormData"]["href"], json=udfyldt_skema
         )
         return response.json()
 
-    def valider_skema_data(self, skema: dict, data: Dict[str, Any]) -> Dict[str, List[str]]:
+    def valider_skema_data(
+        self, skema: dict, data: Dict[str, Any]
+    ) -> Dict[str, List[str]]:
         """
         Valider data mod skema struktur og returner eventuelle fejl.
 
@@ -306,38 +346,42 @@ class SkemaerClient:
         :return: Dictionary med feltnavne og tilhørende fejlmeddelelser.
         """
         errors = {}
-        
+
         for item in skema.get("items", []):
             label = item.get("label")
             field_type = item.get("type")
             required = item.get("required", False)
-            
+
             if required and label not in data:
                 errors[label] = [f"Feltet '{label}' er påkrævet"]
                 continue
-                
+
             if label in data:
                 value = data[label]
                 field_errors = []
-                
+
                 if field_type in ["radioGroup", "dropDown"]:
                     possible_values = item.get("possibleValues", [])
                     if value not in possible_values:
-                        field_errors.append(f"Værdi '{value}' er ikke gyldig. Gyldige værdier: {possible_values}")
-                        
+                        field_errors.append(
+                            f"Værdi '{value}' er ikke gyldig. Gyldige værdier: {possible_values}"
+                        )
+
                 elif field_type == "date":
                     if not isinstance(value, str) or len(value) != 10:
-                        field_errors.append(f"Ugyldig datoformat. Forventet format: YYYY-MM-DD")
-                
+                        field_errors.append(
+                            "Ugyldig datoformat. Forventet format: YYYY-MM-DD"
+                        )
+
                 if field_errors:
                     errors[label] = field_errors
-                    
+
         return errors
 
     def hent_skemareferencer(self, borger: dict) -> List[Dict[str, Any]]:
         """
         Hent og parse alle skema referencer for en borger til en liste af dictionaries.
-        
+
         :param borger: Borger objekt at hente skema referencer for.
         :return: Liste af dictionaries med skema information
         """
@@ -347,61 +391,65 @@ class SkemaerClient:
         else:
             # Fallback: opret BorgerClient direkte (ikke anbefalet men funktionelt)
             from kmd_nexus_client.functionality.borgere import BorgerClient
+
             borgere_client = BorgerClient(self.client)
 
         visning = borgere_client.hent_visning(borger=borger, visnings_navn="-Alt")
         referencer = borgere_client.hent_referencer(visning=visning)
-        
+
         skemaer = []
-        
+
         # Find alle tokens hvor type er "formDataV2Reference"
-        tokens = self._find_all_tokens(referencer, lambda token: 
-            isinstance(token, dict) and 
-            token.get("type") == "formDataV2Reference"
+        tokens = self._find_all_tokens(
+            referencer,
+            lambda token: (
+                isinstance(token, dict) and token.get("type") == "formDataV2Reference"
+            ),
         )
-       
+
         for token in tokens:
             row = {}
-            
+
             # Grundlæggende felter
-            row['Skemaid'] = int(token.get('formDataId', 0))
-            row['Navn'] = token.get('name', '')
-            
+            row["Skemaid"] = int(token.get("formDataId", 0))
+            row["Navn"] = token.get("name", "")
+
             # Parse dato
-            if token.get('date'):
+            if token.get("date"):
                 try:
-                    row['Dato'] = datetime.fromisoformat(token['date'].replace('Z', '+00:00'))
-                except:
-                    row['Dato'] = None
+                    row["Dato"] = datetime.fromisoformat(
+                        token["date"].replace("Z", "+00:00")
+                    )
+                except ValueError:
+                    row["Dato"] = None
             else:
-                row['Dato'] = None
-            
+                row["Dato"] = None
+
             # Status fra workflow state
-            if token.get('workflowState') and token['workflowState'].get('name'):
-                row['Status'] = token['workflowState']['name']
+            if token.get("workflowState") and token["workflowState"].get("name"):
+                row["Status"] = token["workflowState"]["name"]
             else:
-                row['Status'] = ''
-            
+                row["Status"] = ""
+
             # Find parent pathway references
             path = self._get_parent_pathway_names(token)
-            
-            if len(path) >= 2:
-                row['Grundforløb'] = path[1]
-                row['Forløb'] = path[0]
-            else:
-                row['Grundforløb'] = ''
-                row['Forløb'] = ''
-            
-            # Håndter _links - bevar den fulde link struktur
-            if token.get('_links'):
-                row['_links'] = token['_links']
-            else:
-                row['_links'] = {}
-            
-            skemaer.append(row)
-        
-        return skemaer
 
+            if len(path) >= 2:
+                row["Grundforløb"] = path[1]
+                row["Forløb"] = path[0]
+            else:
+                row["Grundforløb"] = ""
+                row["Forløb"] = ""
+
+            # Håndter _links - bevar den fulde link struktur
+            if token.get("_links"):
+                row["_links"] = token["_links"]
+            else:
+                row["_links"] = {}
+
+            skemaer.append(row)
+
+        return skemaer
 
     def flyt_skema(self, skema: dict, ny_placering: str) -> dict:
         """
@@ -413,23 +461,33 @@ class SkemaerClient:
         """
         # Hent nuværende skema data for at få adgang til _links
         skema = self.client.hent_fra_reference(skema)
-        
+
         # Hent availablePathwayAssociations for skema
         if "availablePathwayAssociations" not in skema.get("_links", {}):
             raise ValueError("Skema indeholder ikke availablePathwayAssociations link.")
-        
-        tilgænglige = self.client.get(skema["_links"]["availablePathwayAssociations"]["href"]).json()
 
-        valgt = filter_by_predicate(tilgænglige, lambda ref: (ref.get("patientPathwayPlacement",{})).get("name","") == ny_placering or ref.get("patientPathwayPlacement",{}).get("programPathwayId","") == ny_placering)
+        tilgænglige = self.client.get(
+            skema["_links"]["availablePathwayAssociations"]["href"]
+        ).json()
+
+        valgt = filter_by_predicate(
+            tilgænglige,
+            lambda ref: (
+                (ref.get("patientPathwayPlacement", {})).get("name", "") == ny_placering
+                or ref.get("patientPathwayPlacement", {}).get("programPathwayId", "")
+                == ny_placering
+            ),
+        )
 
         if len(valgt) != 1:
-            raise ValueError(f"Der skal være præcis én match for ny placering '{ny_placering}', fundet: {len(valgt)}")
-        
+            raise ValueError(
+                f"Der skal være præcis én match for ny placering '{ny_placering}', fundet: {len(valgt)}"
+            )
+
         skema["pathwayAssociation"]["placement"] = valgt[0]["patientPathwayPlacement"]
 
         svar = self.client.put(
-            skema["_links"]["updatePlacement"]["href"],
-            json=skema
+            skema["_links"]["updatePlacement"]["href"], json=skema
         ).json()
 
         return svar
@@ -439,53 +497,57 @@ class SkemaerClient:
     def _find_all_tokens(self, data: Any, condition_func) -> List[Dict]:
         """
         Find alle tokens i nested JSON struktur der opfylder en betingelse.
-        
+
         :param data: JSON data at søge i
         :param condition_func: Function der returnerer True for matchende tokens
         :return: Liste af matchende tokens
         """
         results = []
-        
+
         def search_recursive(obj, parent=None):
             if isinstance(obj, dict):
                 # Tilføj parent reference for at kunne navigere op
-                obj['_parent'] = parent
-                
+                obj["_parent"] = parent
+
                 if condition_func(obj):
                     results.append(obj)
-                
+
                 for key, value in obj.items():
-                    if key != '_parent':  # Undgå cirkular reference
+                    if key != "_parent":  # Undgå cirkular reference
                         search_recursive(value, obj)
-                        
+
             elif isinstance(obj, list):
                 for item in obj:
                     search_recursive(item, parent)
-        
+
         search_recursive(data)
         return results
 
     def _get_parent_pathway_names(self, token: Dict) -> List[str]:
         """
         Få parent pathway navne ved at navigere op gennem parent struktur.
-        
+
         :param token: Token at finde parents for
         :return: Liste af pathway navne (nærmeste først)
         """
         path = []
-        parent = token.get('_parent')
-        
+        parent = token.get("_parent")
+
         while parent is not None:
-            if (isinstance(parent, dict) and 
-                parent.get('type') == 'patientPathwayReference' and 
-                parent.get('name')):
-                path.append(parent['name'])
-            
-            parent = parent.get('_parent')
-        
+            if (
+                isinstance(parent, dict)
+                and parent.get("type") == "patientPathwayReference"
+                and parent.get("name")
+            ):
+                path.append(parent["name"])
+
+            parent = parent.get("_parent")
+
         return path
-    
-    def _find_skematype_by_name(self, skematyper: List[dict], navn: str) -> Optional[dict]:
+
+    def _find_skematype_by_name(
+        self, skematyper: List[dict], navn: str
+    ) -> Optional[dict]:
         """
         Find et skematype i en liste baseret på navn.
 
@@ -493,9 +555,14 @@ class SkemaerClient:
         :param navn: Navn på skematype at finde.
         :return: Skematype hvis fundet, None ellers.
         """
-        return next((skematype for skematype in skematyper if skematype.get("title") == navn), None)
+        return next(
+            (skematype for skematype in skematyper if skematype.get("title") == navn),
+            None,
+        )
 
-    def _find_handling_by_name(self, handlinger: List[dict], navn: str) -> Optional[dict]:
+    def _find_handling_by_name(
+        self, handlinger: List[dict], navn: str
+    ) -> Optional[dict]:
         """
         Find en handling i en liste baseret på navn.
 
@@ -503,8 +570,10 @@ class SkemaerClient:
         :param navn: Navn på handling at finde.
         :return: Handling hvis fundet, None ellers.
         """
-        return next((handling for handling in handlinger if handling.get("name") == navn), None)
-    
+        return next(
+            (handling for handling in handlinger if handling.get("name") == navn), None
+        )
+
     def _find_tag_by_name(self, tags: List[dict], navn: str) -> Optional[dict]:
         """
         Find et tag i en liste baseret på navn.
@@ -528,14 +597,14 @@ class SkemaerClient:
                 "label": item.get("label"),
                 "type": item.get("type"),
                 "value": item.get("value"),
-                "required": item.get("required", False)
+                "required": item.get("required", False),
             }
-            
+
             if item.get("type") in ["radioGroup", "dropDown"]:
                 field_info["possibleValues"] = item.get("possibleValues", [])
-                
+
             fields.append(field_info)
-            
+
         return fields
 
     def get_field_value(self, skema: dict, field_label: str) -> Any:

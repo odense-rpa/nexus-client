@@ -281,7 +281,9 @@ class HclDepotClient:
             "hclDeliveryTypes", order.delivery_type_name
         )
         if delivery_type is None:
-            raise ValueError(f"Kørselstype blev ikke fundet: {order.delivery_type_name}")
+            raise ValueError(
+                f"Kørselstype blev ikke fundet: {order.delivery_type_name}"
+            )
 
         driving_zone = self._find_named_api_resource(
             "hclDrivingZones", order.driving_zone_name

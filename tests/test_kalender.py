@@ -20,8 +20,11 @@ def test_hent_begivenheder(nexus_manager: NexusClientManager, test_borger: dict)
     )
     assert begivenheder is not None
 
+
 def test_hent_planlægningskalendere(nexus_manager: NexusClientManager):
-    test_organisation = nexus_manager.organisationer.hent_organisation_ved_navn("Lavsengruppen Team 2 SOSU")
+    test_organisation = nexus_manager.organisationer.hent_organisation_ved_navn(
+        "Lavsengruppen Team 2 SOSU"
+    )
 
     if test_organisation is None:
         return

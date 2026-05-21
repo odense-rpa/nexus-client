@@ -85,7 +85,9 @@ def test_hent_opgavetyper(
             assert "_links" in opgavetype
 
 
-def test_hent_opgavehistorik(nexus_manager: NexusClientManager, test_borger: dict, test_indsats: dict):
+def test_hent_opgavehistorik(
+    nexus_manager: NexusClientManager, test_borger: dict, test_indsats: dict
+):
     """Test hent_opgavehistorik Danish function."""
     if "assignments" not in test_indsats.get("_links", {}):
         pytest.skip("Det opløste objekt understøtter ikke opgaver")

@@ -81,7 +81,7 @@ class BorgerClient:
                 return result
         return None
 
-    def søg_borgere(self, søgning: str, antal: int = 10 ) -> List[dict]:
+    def søg_borgere(self, søgning: str, antal: int = 10) -> List[dict]:
         """
         Søg efter borgere baseret på en søgestreng.
 
@@ -89,7 +89,6 @@ class BorgerClient:
         :param antal: Antal resultater der skal returneres (standard: 10).
         :return: En liste af borgere der matcher søgningen.
         """
-
 
         response = self.client.get(
             self.client.api["searchPatients"],
@@ -146,7 +145,7 @@ class BorgerClient:
         """
         return self.client.get(visning["_links"]["patientActivities"]["href"]).json()
 
-    def hent_udlån(self, borger: dict) -> List[dict]|None:
+    def hent_udlån(self, borger: dict) -> List[dict] | None:
         """
         Hent borgerens udlån.
 
@@ -171,7 +170,7 @@ class BorgerClient:
         """
         return self.client.get(borger["_links"]["activePrograms"]["href"]).json()
 
-    def opret_borger(self, borger_cpr: str) -> dict|None:
+    def opret_borger(self, borger_cpr: str) -> dict | None:
         """
         Opret en ny borger i KMD Nexus.
 
@@ -179,12 +178,12 @@ class BorgerClient:
         :param cpr: CPR nummeret på borgeren der skal oprettes.
         :return: Det oprettede borgerobjekt.
         """
-        
+
         cpr = sanitize_cpr(borger_cpr)
 
         try:
             prototype_response = self.client.get(
-                f"{self.client.api["patients"]}/prototypeBasedOnCprSystem?cpr={cpr}"                
+                f"{self.client.api['patients']}/prototypeBasedOnCprSystem?cpr={cpr}"
             )
 
             if prototype_response.status_code != 200:
@@ -202,18 +201,18 @@ class BorgerClient:
         except HTTPStatusError as e:
             if e.response.status_code == 404:
                 return None
-            raise        
-       
+            raise
+
     def aktiver_borger_fra_kladde(self, borger: dict) -> dict:
         """
         Gemmer en borger fra status kladde uden ændringer, hvilket "aktiverer" borgeren i Nexus.
 
-        :param borger: Borgeren der skal opdateres.        
+        :param borger: Borgeren der skal opdateres.
         :return: Det opdaterede borgerobjekt.
         """
 
         prototype = self.client.get(borger["_links"]["self"]["href"]).json()
-        
+
         if not prototype:
             raise ValueError("Kan ikke hente borgerens nuværende data.")
 
@@ -223,7 +222,7 @@ class BorgerClient:
         )
 
         return response.json()
-    
+
     def opret_netværksperson(self, borger, netværksperson_data: dict) -> dict:
         """
         Opret en netværksperson for en borger.
@@ -233,7 +232,9 @@ class BorgerClient:
         :return: Det oprettede netværksperson objekt.
         """
 
-        netværksperson_prototype = self.client.get(borger["_links"]["patientNetworkContactPrototype"]["href"]).json()
+        netværksperson_prototype = self.client.get(
+            borger["_links"]["patientNetworkContactPrototype"]["href"]
+        ).json()
 
         for key, value in netværksperson_data.items():
             netværksperson_prototype[key] = value

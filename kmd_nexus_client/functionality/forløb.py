@@ -286,7 +286,17 @@ class ForløbClient:
         except HTTPStatusError:
             return False
 
-    def opret_dokument(self, borger: dict, forløb: dict, fil: bytes, filnavn: str, titel: str, noter: Optional[str], modtaget: datetime, indholdstype: str = "application/pdf") -> dict|None:
+    def opret_dokument(
+        self,
+        borger: dict,
+        forløb: dict,
+        fil: bytes,
+        filnavn: str,
+        titel: str,
+        noter: Optional[str],
+        modtaget: datetime,
+        indholdstype: str = "application/pdf",
+    ) -> dict | None:
         """
         Opret et dokument for en borger i et forløb.
 
@@ -301,9 +311,7 @@ class ForløbClient:
         :return: True hvis dokumentet blev oprettet, False ellers.
         """
         try:
-            prototype = self.client.get(
-                forløb["_links"]["documentPrototype"]["href"]
-            )
+            prototype = self.client.get(forløb["_links"]["documentPrototype"]["href"])
 
             if prototype.status_code != 200:
                 return None
@@ -311,7 +319,7 @@ class ForløbClient:
             dokument = prototype.json()
             dokument["name"] = titel
             dokument["notes"] = noter
-            dokument["relevanceDate"] = modtaget.isoformat() # to UTC string
+            dokument["relevanceDate"] = modtaget.isoformat()  # to UTC string
             dokument["originalFileName"] = filnavn
 
             oprettet_dokument = self.client.post(
@@ -320,16 +328,16 @@ class ForløbClient:
 
             if oprettet_dokument.status_code != 200:
                 return None
-            
+
             # Upload the file using self.client, which handles authentication
-            upload_url = oprettet_dokument.json().get("_links", {}).get("upload", {}).get("href")
+            upload_url = (
+                oprettet_dokument.json().get("_links", {}).get("upload", {}).get("href")
+            )
 
             if not upload_url:
                 return None
-            
-            files = {
-                "file": (filnavn, fil, indholdstype)
-            }
+
+            files = {"file": (filnavn, fil, indholdstype)}
             resp = self.client.post(upload_url, files=files, json={})
 
             if resp.status_code != 200:

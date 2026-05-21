@@ -12,42 +12,54 @@ def test_hent_organisationer(nexus_manager: NexusClientManager):
     assert organisationer is not None
     assert len(organisationer) > 0
 
+
 def test_hent_organisationer_med_træhierarki(nexus_manager: NexusClientManager):
     """Test hent_organisationer_med_træhierarki Danish function."""
-    organisationer_tree = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+    organisationer_tree = (
+        nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+    )
 
     assert organisationer_tree is not None
     assert isinstance(organisationer_tree, dict), "Tree should be a dictionary"
     assert "name" in organisationer_tree, "Root organization should have a name"
     assert "children" in organisationer_tree, "Root organization should have children"
-    assert len(organisationer_tree.get("children", [])) > 0, "Root should have child organizations"
+    assert len(organisationer_tree.get("children", [])) > 0, (
+        "Root should have child organizations"
+    )
 
-def test_hent_organisationer_med_træhierarki_med_godkendt_liste(nexus_manager: NexusClientManager):
+
+def test_hent_organisationer_med_træhierarki_med_godkendt_liste(
+    nexus_manager: NexusClientManager,
+):
     """Test hent_organisationer_med_træhierarki Danish function with approved list."""
     from kmd_nexus_client.tree_helpers import find_nodes
-    
-    godkendt_liste = ["Lysningen",
-                    "Erhvervet hjerneskade",
-                    "Fysisk Funktionsnedsættelse",
-                    "E-Team",
-                    "Vedvarende sygdomsudvikling 1",
-                    "Vedvarende sygdomsudvikling 2",
-                    "Kære Pleje Odense ApS",
-                    "Svane Pleje, Syd ApS"
+
+    godkendt_liste = [
+        "Lysningen",
+        "Erhvervet hjerneskade",
+        "Fysisk Funktionsnedsættelse",
+        "E-Team",
+        "Vedvarende sygdomsudvikling 1",
+        "Vedvarende sygdomsudvikling 2",
+        "Kære Pleje Odense ApS",
+        "Svane Pleje, Syd ApS",
     ]
-    organisationer_tree = nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+    organisationer_tree = (
+        nexus_manager.organisationer.hent_organisationer_med_træhierarki()
+    )
 
     # Find all organizations in the tree that match the approved list
     filtrerede_organisationer = find_nodes(
-        organisationer_tree, 
-        lambda org: org.get("name", "") in godkendt_liste
+        organisationer_tree, lambda org: org.get("name", "") in godkendt_liste
     )
 
     assert organisationer_tree is not None
-    assert len(filtrerede_organisationer) == len(godkendt_liste), f"Expected {len(godkendt_liste)} organizations, but found {len(filtrerede_organisationer)}"
-    assert all(
-        org["name"] in godkendt_liste for org in filtrerede_organisationer
-    ), "Alle organisationer i den filtrerede liste skal være i den godkendte liste"
+    assert len(filtrerede_organisationer) == len(godkendt_liste), (
+        f"Expected {len(godkendt_liste)} organizations, but found {len(filtrerede_organisationer)}"
+    )
+    assert all(org["name"] in godkendt_liste for org in filtrerede_organisationer), (
+        "Alle organisationer i den filtrerede liste skal være i den godkendte liste"
+    )
 
 
 def test_hent_leverandører(nexus_manager: NexusClientManager):
@@ -397,13 +409,16 @@ def test_integration_all_danish_methods(
 
     print("✅ Alle danske organisationer metoder fungerer korrekt")
 
+
 def test_hent_depotlister(nexus_manager: NexusClientManager):
     borgere = nexus_manager.organisationer.hent_borgere_med_udlåns_bestillinger()
     assert borgere is not None
     assert len(borgere) > 0
-            
 
-def test_fjern_medarbejder_fra_forløb(nexus_manager: NexusClientManager, test_borger: dict):
+
+def test_fjern_medarbejder_fra_forløb(
+    nexus_manager: NexusClientManager, test_borger: dict
+):
     visning = nexus_manager.borgere.hent_visning(test_borger)
     assert visning is not None
 
@@ -411,13 +426,15 @@ def test_fjern_medarbejder_fra_forløb(nexus_manager: NexusClientManager, test_b
     assert referencer is not None
 
     medarbejdere = filter_by_path(
-           referencer,
-           "/Børn og Unge Grundforløb/Sag: Anbringelse/professionalReference",
-           active_pathways_only=True,
-       )
-    
+        referencer,
+        "/Børn og Unge Grundforløb/Sag: Anbringelse/professionalReference",
+        active_pathways_only=True,
+    )
+
     if len(medarbejdere) == 0:
-        pytest.skip("Ingen medarbejdere fundet i forløb til test af fjern_medarbejder_fra_forløb")
+        pytest.skip(
+            "Ingen medarbejdere fundet i forløb til test af fjern_medarbejder_fra_forløb"
+        )
 
     succes = nexus_manager.organisationer.fjern_medarbejder_fra_forløb(medarbejdere[0])
     assert succes

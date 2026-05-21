@@ -69,18 +69,19 @@ class KalenderClient:
 
         # Get events
         return self.nexus_client.get(url).json()["eventResources"]
-    
-    def hent_planlægningskalendere(self, organisation: dict) -> list[dict]|None:
+
+    def hent_planlægningskalendere(self, organisation: dict) -> list[dict] | None:
         præferencer = self.nexus_client.get(self.nexus_client.api["preferences"]).json()
 
         calendars = [
-            calendar for calendar in præferencer["CROSS_CITIZEN_CALENDAR"]
+            calendar
+            for calendar in præferencer["CROSS_CITIZEN_CALENDAR"]
             if isinstance(calendar, dict)
             and calendar.get("organizations") is not None
             and any(
-                isinstance(org, dict) and org.get("name") == organisation.get("name") 
+                isinstance(org, dict) and org.get("name") == organisation.get("name")
                 for org in calendar["organizations"]
-            )            
+            )
         ]
 
         return calendars if calendars else None
@@ -94,4 +95,3 @@ class KalenderClient:
         """
         response = self.nexus_client.get(borger["_links"]["patientPreferences"]["href"])
         return response.json()
-    
