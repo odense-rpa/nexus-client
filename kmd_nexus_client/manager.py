@@ -14,6 +14,7 @@ from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
 from kmd_nexus_client.functionality.forløb import ForløbClient
+from kmd_nexus_client.functionality.hcl_depot import HclDepotClient
 from kmd_nexus_client.functionality.medcom import MedComClient
 from kmd_nexus_client.functionality.medicin import MedicinClient
 from kmd_nexus_client.functionality.skemaer import SkemaerClient
@@ -68,6 +69,7 @@ class NexusClientManager:
         self._indsats_client: Optional[IndsatsClient] = None
         self._kalender_client: Optional[KalenderClient] = None
         self._forløb_client: Optional[ForløbClient] = None
+        self._hcl_depot_client: Optional[HclDepotClient] = None
         self._medcom_client: Optional[MedComClient] = None
         self._medicin_client: Optional[MedicinClient] = None
         self._skemaer_client: Optional[SkemaerClient] = None
@@ -134,6 +136,13 @@ class NexusClientManager:
         if self._forløb_client is None:
             self._forløb_client = ForløbClient(self.nexus_client)
         return self._forløb_client
+
+    @property
+    def hcl_depot(self) -> HclDepotClient:
+        """Get the HclDepotClient (lazy-loaded)."""
+        if self._hcl_depot_client is None:
+            self._hcl_depot_client = HclDepotClient(self.nexus_client)
+        return self._hcl_depot_client
 
     @property
     def medcom(self) -> MedComClient:

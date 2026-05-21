@@ -3,6 +3,8 @@ from httpx import HTTPStatusError
 from datetime import datetime
 
 from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.models import PathwayEnsureResult
+from kmd_nexus_client.utils import normalize_name
 
 
 class ForløbClient:
@@ -55,7 +57,7 @@ class ForløbClient:
             # Find the matching base case
             matching_base_case = None
             for base_case in base_cases:
-                if base_case.get("name") == grundforløb_navn:
+                if names_match(base_case.get("name"), grundforløb_navn):
                     matching_base_case = base_case
                     break
 
@@ -69,7 +71,7 @@ class ForløbClient:
                         [
                             x
                             for x in list(available_cases.json())
-                            if x["name"] == grundforløb_navn
+                            if names_match(x.get("name"), grundforløb_navn)
                         ]
                     ),
                     None,
@@ -98,7 +100,7 @@ class ForløbClient:
                 # Find the matching base case
                 matching_base_case = None
                 for base_case in base_cases:
-                    if base_case.get("name") == grundforløb_navn:
+                    if names_match(base_case.get("name"), grundforløb_navn):
                         matching_base_case = base_case
                         break
 
@@ -133,7 +135,7 @@ class ForløbClient:
 
             existing_case = None
             for program in active_programs:
-                if program.get("name") == forløb_navn:
+                if names_match(program.get("name"), forløb_navn):
                     existing_case = program
                     break
 
@@ -153,7 +155,7 @@ class ForløbClient:
             # Find the matching pathway
             matching_pathway = None
             for pathway in available_pathways:
-                if pathway.get("name") == forløb_navn:
+                if names_match(pathway.get("name"), forløb_navn):
                     matching_pathway = pathway
                     break
 
@@ -173,6 +175,74 @@ class ForløbClient:
 
         except HTTPStatusError:
             return None
+
+    def sikr_forløb(
+        self, borger: dict, grundforløb_navn: str, forløb_navn: str | None = None
+    ) -> PathwayEnsureResult:
+        """
+        Ensure a citizen has the requested pathway/case.
+
+        This treats existing active pathway associations as already satisfied,
+        even when Nexus exposes the user-facing child name such as "Udlån" rather
+        than the robot's conceptual parent label.
+
+        :param borger: Borgeren der skal have forløbet.
+        :param grundforløb_navn: Grundforløbets navn.
+        :param forløb_navn: Valgfrit underforløb/sag.
+        :return: Resultat med om noget blev oprettet.
+        :raises RuntimeError: Hvis forløbet ikke kan sikres.
+        """
+        existing = self._find_existing_pathway_association(
+            borger, grundforløb_navn, forløb_navn
+        )
+        if existing is not None:
+            return PathwayEnsureResult(
+                created=False,
+                base_case=existing if forløb_navn is None else None,
+                case=existing if forløb_navn is not None else None,
+            )
+
+        result = self.opret_forløb(borger, grundforløb_navn, forløb_navn)
+        if result is None:
+            raise RuntimeError(
+                f"Could not ensure Nexus forløb: {grundforløb_navn}"
+                + (f" > {forløb_navn}" if forløb_navn else "")
+            )
+
+        return PathwayEnsureResult(
+            created=True,
+            base_case=result.get("base_case"),
+            case=result.get("case"),
+        )
+
+    def _find_existing_pathway_association(
+        self, borger: dict, grundforløb_navn: str, forløb_navn: str | None
+    ) -> dict | None:
+        """Find an existing pathway association matching root or child label."""
+        try:
+            response = self.client.get(
+                borger["_links"]["availablePathwayAssociation"]["href"]
+            )
+        except HTTPStatusError:
+            return None
+
+        if response.status_code != 200:
+            return None
+
+        associations = response.json()
+        if not isinstance(associations, list):
+            return None
+
+        names = [forløb_navn, grundforløb_navn] if forløb_navn else [grundforløb_navn]
+        return next(
+            (
+                association
+                for association in associations
+                if association.get("pathwayStatus") in (None, "ACTIVE")
+                and any(names_match(association.get("name"), name) for name in names)
+            ),
+            None,
+        )
 
     def luk_forløb(self, forløb_reference: dict) -> bool:
         """
@@ -268,3 +338,8 @@ class ForløbClient:
 
         except HTTPStatusError:
             return None
+
+
+def names_match(actual: str | None, expected: str | None) -> bool:
+    """Return whether two Nexus pathway labels match after normalization."""
+    return normalize_name(actual) == normalize_name(expected)

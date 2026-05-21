@@ -1,7 +1,9 @@
-from typing import Optional, List
+from collections.abc import Mapping
+from typing import Any, Optional, List
 from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.models import NexusBorger
 from kmd_nexus_client.utils import sanitize_cpr
 
 
@@ -24,6 +26,30 @@ class BorgerClient:
         :return: Borgerens detaljer, eller None hvis borgeren ikke blev fundet.
         """
         cpr = sanitize_cpr(borger_cpr)
+        return self._hent_borger_payload(cpr)
+
+    def find_borger_by_cpr(self, borger_cpr: str) -> NexusBorger | None:
+        """
+        Find a citizen by CPR and return the stable fields robot workflows need.
+
+        The primary Nexus details lookup sometimes responds with 404 even when
+        the citizen can be found through the broader search endpoint. This method
+        keeps that API-specific fallback and response-shape handling inside the
+        client instead of every robot workflow.
+        """
+        cpr = sanitize_cpr(borger_cpr)
+        payload: Mapping[str, Any] | None = self._hent_borger_payload(cpr)
+
+        if payload is None:
+            payload = self._find_borger_payload_by_search(cpr)
+
+        if payload is None:
+            return None
+
+        return parse_nexus_borger(payload, fallback_cpr=cpr)
+
+    def _hent_borger_payload(self, cpr: str) -> Optional[dict]:
+        """Return the raw Nexus patient payload from the details endpoint."""
 
         try:
             response = self.client.post(
@@ -33,15 +59,27 @@ class BorgerClient:
 
             data = response.json()
 
-            if data["isPatientAccessible"] is False:
+            if data.get("isPatientAccessible") is False:
                 return None
 
-            return data["patient"]
+            patient = data.get("patient")
+            if not isinstance(patient, dict):
+                return None
+            return patient
 
         except HTTPStatusError as e:
             if e.response.status_code == 404:
                 return None
             raise
+
+    def _find_borger_payload_by_search(self, cpr: str) -> Mapping[str, Any] | None:
+        """Return an exact CPR match from Nexus' broader patient search."""
+        for result in self.søg_borgere(cpr, antal=10):
+            if not isinstance(result, Mapping):
+                continue
+            if parse_nexus_patient_identifier(result) == cpr:
+                return result
+        return None
 
     def søg_borgere(self, søgning: str, antal: int = 10 ) -> List[dict]:
         """
@@ -206,3 +244,57 @@ class BorgerClient:
         )
 
         return response.json()
+
+
+def parse_nexus_borger(
+    payload: Mapping[str, Any], fallback_cpr: str | None = None
+) -> NexusBorger | None:
+    """Parse the stable citizen fields from known Nexus patient payload shapes."""
+    cpr = parse_nexus_patient_identifier(payload)
+    if cpr is None and fallback_cpr is not None:
+        cpr = normalize_cpr_digits(fallback_cpr)
+    if cpr is None:
+        return None
+
+    raw_id = payload.get("id")
+    return NexusBorger(
+        citizen_id=str(raw_id) if raw_id is not None else None,
+        display_name=parse_nexus_citizen_name(payload),
+        cpr=cpr,
+    )
+
+
+def parse_nexus_citizen_name(payload: Mapping[str, Any]) -> str | None:
+    """Extract a readable citizen name from Nexus payload data."""
+    for field in ("fullName", "displayName", "name"):
+        value = payload.get(field)
+        if isinstance(value, str) and value.strip():
+            return value
+
+    first_name = payload.get("firstName")
+    last_name = payload.get("lastName")
+    name_parts = [
+        value.strip()
+        for value in (first_name, last_name)
+        if isinstance(value, str) and value.strip()
+    ]
+    return " ".join(name_parts) if name_parts else None
+
+
+def parse_nexus_patient_identifier(payload: Mapping[str, Any]) -> str | None:
+    """Extract normalized CPR digits from known Nexus patient identifier shapes."""
+    match payload:
+        case {"patientIdentifier": str(identifier)}:
+            return normalize_cpr_digits(identifier)
+        case {"patientIdentifier": {"identifier": str(identifier)}}:
+            return normalize_cpr_digits(identifier)
+        case _:
+            return None
+
+
+def normalize_cpr_digits(value: str) -> str | None:
+    """Return CPR digits from a Nexus identifier when it has the expected shape."""
+    digits = "".join(char for char in value if char.isdigit())
+    if len(digits) != 10:
+        return None
+    return digits

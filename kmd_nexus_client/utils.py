@@ -49,3 +49,15 @@ def sanitize_cpr(cpr: str) -> str:
         raise ValueError("Invalid CPR number.")
 
     return cpr
+
+
+def normalize_name(value: str | None) -> str:
+    """
+    Normalize human-facing Nexus names for stable comparisons.
+
+    :param value: Name to normalize.
+    :return: Case-folded name with repeated whitespace collapsed.
+    """
+    if value is None:
+        return ""
+    return " ".join(value.casefold().split())

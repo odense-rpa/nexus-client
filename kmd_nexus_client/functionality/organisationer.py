@@ -2,6 +2,8 @@ from typing import List
 from datetime import date
 from httpx import HTTPStatusError
 from kmd_nexus_client.client import NexusClient
+from kmd_nexus_client.models import OrganisationRelationEnsureResult
+from kmd_nexus_client.utils import normalize_name
 from kmd_nexus_client.utils import sanitize_cpr
 
 class OrganisationerClient:
@@ -64,7 +66,63 @@ class OrganisationerClient:
         :return: Organisationen.
         """
         organisationer = self.hent_organisationer()
-        return next((org for org in organisationer if org["name"] == navn), None)
+        expected = normalize_name(navn)
+        return next(
+            (
+                org
+                for org in organisationer
+                if normalize_name(org.get("name")) == expected
+            ),
+            None,
+        )
+
+    def sikr_borger_i_organisation(
+        self, borger: dict, organisation_navn: str
+    ) -> OrganisationRelationEnsureResult:
+        """
+        Ensure a citizen has an active relation to an organisation.
+
+        :param borger: Borgeren der skal have organisationsrelationen.
+        :param organisation_navn: Organisationens navn. Sammenlignes normaliseret.
+        :return: Resultat med relationen og om den blev oprettet.
+        :raises ValueError: Hvis organisationen ikke findes i Nexus.
+        :raises RuntimeError: Hvis relationen ikke kan oprettes eller genfindes.
+        """
+        existing_relations = self.hent_organisationer_for_borger(borger)
+        existing_relation = find_organisation_relation(
+            existing_relations, organisation_navn
+        )
+        organisation = self.hent_organisation_ved_navn(organisation_navn)
+
+        if existing_relation is not None:
+            if organisation is None:
+                organisation = existing_relation.get("organization", {})
+            return OrganisationRelationEnsureResult(
+                created=False,
+                relation=existing_relation,
+                organisation=organisation,
+            )
+
+        if organisation is None:
+            raise ValueError(f"Nexus organisation not found: {organisation_navn}")
+
+        if not self.tilføj_borger_til_organisation(borger, organisation):
+            raise RuntimeError(
+                f"Could not attach borger to Nexus organisation: {organisation_navn}"
+            )
+
+        updated_relations = self.hent_organisationer_for_borger(borger)
+        relation = find_organisation_relation(updated_relations, organisation_navn)
+        if relation is None:
+            raise RuntimeError(
+                f"Could not find created Nexus organisation relation: {organisation_navn}"
+            )
+
+        return OrganisationRelationEnsureResult(
+            created=True,
+            relation=relation,
+            organisation=organisation,
+        )
 
     def hent_organisationer_for_borger(
         self, borger: dict, kun_aktive: bool = True
@@ -265,3 +323,19 @@ class OrganisationerClient:
                     continue
         
         return borgere if borgere else None
+
+
+def find_organisation_relation(
+    relations: List[dict], organisation_navn: str
+) -> dict | None:
+    """Find a citizen organisation relation by normalized organisation name."""
+    expected = normalize_name(organisation_navn)
+    return next(
+        (
+            relation
+            for relation in relations
+            if normalize_name(relation.get("organization", {}).get("name"))
+            == expected
+        ),
+        None,
+    )

@@ -17,6 +17,12 @@ Anbefalet brug:
 
 from .client import NexusClient
 from .manager import NexusClientManager
+from .models import (
+    HclDeliveryAddress,
+    HclProductOrder,
+    HclProductOrderResult,
+    NexusBorger,
+)
 from . import tree_helpers
 from . import hooks
 
@@ -26,11 +32,17 @@ from .functionality.indsatser import IndsatsClient
 from .functionality.opgaver import OpgaverClient
 from .functionality.kalender import KalenderClient
 from .functionality.forløb import ForløbClient
+from .functionality.hcl_depot import HclDepotClient
 
 __all__ = [
     "NexusClientManager",
     "NexusClient",
+    "HclDeliveryAddress",
+    "HclProductOrder",
+    "HclProductOrderResult",
+    "NexusBorger",
     "BorgerClient",
+    "HclDepotClient",
     "OrganisationerClient",
     "IndsatsClient",
     "OpgaverClient",
