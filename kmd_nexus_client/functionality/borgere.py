@@ -41,9 +41,6 @@ class BorgerClient:
         payload: Mapping[str, Any] | None = self._hent_borger_payload(cpr)
 
         if payload is None:
-            payload = self._find_borger_payload_by_search(cpr)
-
-        if payload is None:
             return None
 
         return parse_nexus_borger(payload, fallback_cpr=cpr)
@@ -59,27 +56,33 @@ class BorgerClient:
 
             data = response.json()
 
-            if data.get("isPatientAccessible") is False:
-                return None
-
             patient = data.get("patient")
             if not isinstance(patient, dict):
-                return None
+                return self._find_borger_payload_by_search(cpr)
             return patient
 
         except HTTPStatusError as e:
             if e.response.status_code == 404:
-                return None
+                return self._find_borger_payload_by_search(cpr)
             raise
 
-    def _find_borger_payload_by_search(self, cpr: str) -> Mapping[str, Any] | None:
-        """Return an exact CPR match from Nexus' broader patient search."""
+    def _find_borger_payload_by_search(self, cpr: str) -> dict[str, Any] | None:
+        """Return an exact identifier match from Nexus' broader patient search."""
         for result in self.søg_borgere(cpr, antal=10):
             if not isinstance(result, Mapping):
                 continue
             if parse_nexus_patient_identifier(result) == cpr:
-                return result
+                return self._resolve_search_result(result)
         return None
+
+    def _resolve_search_result(self, result: Mapping[str, Any]) -> dict[str, Any]:
+        """Resolve a patient search summary to full details when Nexus exposes a link."""
+        self_link = result.get("_links", {}).get("self", {})
+        if isinstance(self_link, Mapping) and isinstance(self_link.get("href"), str):
+            resolved = self.client.get(self_link["href"]).json()
+            if isinstance(resolved, dict):
+                return resolved
+        return dict(result)
 
     def søg_borgere(self, søgning: str, antal: int = 10) -> List[dict]:
         """

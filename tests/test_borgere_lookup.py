@@ -28,10 +28,12 @@ class FakeNexusClient:
         *,
         details_payload: Any | None = None,
         search_payload: Any | None = None,
+        resolved_payloads: dict[str, Any] | None = None,
         details_status_code: int | None = None,
     ) -> None:
         self.details_payload = details_payload
         self.search_payload = search_payload or []
+        self.resolved_payloads = resolved_payloads or {}
         self.details_status_code = details_status_code
 
     def post(self, endpoint: str, json: dict[str, Any]) -> FakeResponse:
@@ -46,6 +48,8 @@ class FakeNexusClient:
         return FakeResponse(self.details_payload)
 
     def get(self, endpoint: str, **kwargs: Any) -> FakeResponse:
+        if endpoint in self.resolved_payloads:
+            return FakeResponse(self.resolved_payloads[endpoint])
         assert endpoint == "search-patients"
         assert kwargs["params"]["maxResults"] == 10
         return FakeResponse(self.search_payload)
@@ -96,6 +100,45 @@ def test_find_borger_by_cpr_uses_search_fallback_after_404() -> None:
         display_name="Stig Moller",
         cpr="1311521105",
     )
+
+
+def test_hent_borger_uses_exact_anonymous_identifier_search_fallback() -> None:
+    client = BorgerClient(
+        FakeNexusClient(
+            details_payload={"isPatientAccessible": False},
+            search_payload=[
+                {
+                    "id": 12384,
+                    "displayName": "Stig Moller",
+                    "patientIdentifier": {
+                        "type": "anonymous",
+                        "identifier": "1311521105",
+                    },
+                    "_links": {"self": {"href": "patients/12384"}},
+                }
+            ],
+            resolved_payloads={
+                "patients/12384": {
+                    "id": 12384,
+                    "fullName": "Stig Moller",
+                    "patientIdentifier": {
+                        "type": "anonymous",
+                        "identifier": "1311521105",
+                    },
+                    "_links": {
+                        "patientOrganizations": {"href": "patient-organizations"}
+                    },
+                }
+            },
+        )
+    )
+
+    citizen = client.hent_borger("131152-1105")
+
+    assert citizen is not None
+    assert citizen["id"] == 12384
+    assert citizen["fullName"] == "Stig Moller"
+    assert "patientOrganizations" in citizen["_links"]
 
 
 def test_find_borger_by_cpr_returns_none_when_citizen_is_inaccessible() -> None:
