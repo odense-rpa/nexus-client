@@ -233,7 +233,7 @@ class ForløbClient:
         if not isinstance(associations, list):
             return None
 
-        names = [forløb_navn, grundforløb_navn] if forløb_navn else [grundforløb_navn]
+        names = [forløb_navn] if forløb_navn else [grundforløb_navn]
         return next(
             (
                 association

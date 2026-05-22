@@ -26,6 +26,7 @@ class FakeNexusClient:
         ]
         self.relations: list[dict[str, Any]] = []
         self.available_associations: list[dict[str, Any]] = []
+        self.pathway_details: dict[str, dict[str, Any]] = {}
 
     def get(self, endpoint: str, **kwargs: Any) -> FakeResponse:
         self.gets.append(endpoint)
@@ -35,6 +36,8 @@ class FakeNexusClient:
             return FakeResponse(self.relations)
         if endpoint == "available-associations":
             return FakeResponse(self.available_associations)
+        if endpoint in self.pathway_details:
+            return FakeResponse(self.pathway_details[endpoint])
         return FakeResponse([])
 
     def put(self, endpoint: str, json: Any, **kwargs: Any) -> FakeResponse:
@@ -46,6 +49,14 @@ class FakeNexusClient:
                 "effectiveAtPresent": True,
             }
             self.relations.append(relation)
+        if endpoint == "enroll-sag":
+            return FakeResponse(
+                {
+                    "name": "Sag: Hjælpemidler anden myndighed",
+                    "_links": {"selfReference": {"href": "sag-reference"}},
+                },
+                status_code=200,
+            )
         return FakeResponse({}, status_code=200)
 
 
@@ -127,3 +138,42 @@ def test_ensure_pathway_accepts_existing_udlaan_association() -> None:
     assert result.case is not None
     assert result.case["name"] == "Udlån"
     assert client.puts == []
+
+
+def test_ensure_pathway_creates_missing_child_when_parent_exists() -> None:
+    client = FakeNexusClient()
+    client.available_associations = [
+        {
+            "name": "Sundhedsfagligt Grundforløb",
+            "pathwayStatus": "ACTIVE",
+            "_links": {"self": {"href": "base-reference"}},
+        }
+    ]
+    client.pathway_details = {
+        "base-reference": {
+            "name": "Sundhedsfagligt Grundforløb",
+            "_links": {
+                "activePrograms": {"href": "base-active-programs"},
+                "availableNestedProgramPathways": {"href": "base-nested-pathways"},
+            },
+        },
+        "base-active-programs": [],
+        "base-nested-pathways": [
+            {
+                "name": "Sag: Hjælpemidler anden myndighed",
+                "_links": {"enroll": {"href": "enroll-sag"}},
+            }
+        ],
+    }
+    pathways = ForløbClient(client)  # type: ignore[arg-type]
+
+    result = pathways.sikr_forløb(
+        make_borger(),
+        "Sundhedsfagligt Grundforløb",
+        "Sag: Hjælpemidler anden myndighed",
+    )
+
+    assert result.created
+    assert result.case is not None
+    assert result.case["name"] == "Sag: Hjælpemidler anden myndighed"
+    assert client.puts == [("enroll-sag", {})]
