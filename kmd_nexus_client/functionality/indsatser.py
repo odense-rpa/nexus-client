@@ -535,3 +535,27 @@ class IndsatsClient:
         grant_response = self.client.get(grant_url)
 
         return grant_response.json()
+
+    def hent_indsats_ved_id(self, patient_grant_id: int | str) -> dict:
+        """
+        Hent en indsats/patientbevilling ved Nexus patientGrant id.
+
+        :param patient_grant_id: Nexus patientGrant/basketGrant id.
+        :return: Fuldt patientGrant objekt.
+        """
+        return self.client.get(
+            f"{self.client.api['patientGrantById']}/{patient_grant_id}"
+        ).json()
+
+    def annuller_indsats(self, indsats: dict) -> dict:
+        """
+        Annuller en indsats via den understøttede Nexus workflow-overgang.
+
+        :param indsats: Fuldt patientGrant objekt.
+        :return: Nexus save-resultat.
+        :raises ValueError: Hvis indsatsen ikke kan annulleres fra nuværende status.
+        """
+        state = indsats.get("workflowState")
+        if isinstance(state, dict) and state.get("name") == "Annulleret":
+            return {"savedGrant": indsats}
+        return self.rediger_indsats(indsats, {}, "Annullér")
