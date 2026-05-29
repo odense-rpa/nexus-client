@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import Mock
 from httpx import HTTPStatusError
 
@@ -25,9 +24,7 @@ def test_get_citizen_cases_missing_link(nexus_manager: NexusClientManager):
     # Create a mock citizen without the required link
     mock_citizen = {"id": "test-id", "_links": {}}
 
-    # This should raise a KeyError due to missing link
-    with pytest.raises(KeyError):
-        nexus_manager.forløb.hent_forløb(mock_citizen)
+    assert nexus_manager.forløb.hent_forløb(mock_citizen) is None
 
 
 def test_get_citizen_cases_http_error(
@@ -68,9 +65,7 @@ def test_hent_forløb_missing_link(nexus_manager: NexusClientManager):
     # Create a mock citizen without the required link
     mock_borger = {"id": "test-id", "_links": {}}
 
-    # This should raise a KeyError due to missing link
-    with pytest.raises(KeyError):
-        nexus_manager.forløb.hent_forløb(mock_borger)
+    assert nexus_manager.forløb.hent_forløb(mock_borger) is None
 
 
 def test_hent_forløb_http_error(nexus_manager: NexusClientManager, test_borger: dict):
@@ -145,6 +140,33 @@ def test_luk_forløb_parameters(nexus_manager: NexusClientManager):
         assert result is False  # Expected due to mocked 404
     finally:
         nexus_manager.forløb.client.get = original_get
+
+
+def test_luk_forløb_closes_when_unclosable_link_is_absent(
+    nexus_manager: NexusClientManager,
+):
+    """Test luk_forløb can close payloads without an unclosableReferences link."""
+    mock_forløb_ref = {"_links": {"self": {"href": "case-url"}}}
+
+    case_response = Mock()
+    case_response.status_code = 200
+    case_response.json.return_value = {"_links": {"close": {"href": "close-url"}}}
+
+    close_response = Mock()
+    close_response.status_code = 200
+
+    original_get = nexus_manager.forløb.client.get
+    original_put = nexus_manager.forløb.client.put
+    nexus_manager.forløb.client.get = Mock(return_value=case_response)
+    nexus_manager.forløb.client.put = Mock(return_value=close_response)
+
+    try:
+        result = nexus_manager.forløb.luk_forløb(mock_forløb_ref)
+    finally:
+        nexus_manager.forløb.client.get = original_get
+        nexus_manager.forløb.client.put = original_put
+
+    assert result is True
 
 
 def test_opret_dokument(nexus_manager: NexusClientManager, test_borger: dict):

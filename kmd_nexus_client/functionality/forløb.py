@@ -29,7 +29,7 @@ class ForløbClient:
         try:
             response = self.client.get(borger["_links"]["activePrograms"]["href"])
             return response.json()
-        except HTTPStatusError:
+        except (HTTPStatusError, KeyError, TypeError):
             return None
 
     def opret_forløb(
@@ -263,23 +263,27 @@ class ForløbClient:
             case_details = case_details_response.json()
 
             # Check for unclosable references
-            unclosable_response = self.client.get(
-                case_details["_links"]["unclosableReferences"]["href"]
+            unclosable_link = case_details.get("_links", {}).get(
+                "unclosableReferences", {}
             )
+            if unclosable_link.get("href"):
+                unclosable_response = self.client.get(unclosable_link["href"])
 
-            if unclosable_response.status_code != 200:
-                return False
+                if unclosable_response.status_code != 200:
+                    return False
 
-            unclosable_data = unclosable_response.json()
+                unclosable_data = unclosable_response.json()
 
-            # If there are unclosable references, cannot close
-            if len(unclosable_data) > 0:
+                # If there are unclosable references, cannot close
+                if len(unclosable_data) > 0:
+                    return False
+
+            close_link = case_details.get("_links", {}).get("close", {}).get("href")
+            if not close_link:
                 return False
 
             # Close the case
-            close_response = self.client.put(
-                case_details["_links"]["close"]["href"], json={}
-            )
+            close_response = self.client.put(close_link, json={})
 
             return close_response.status_code == 200
 

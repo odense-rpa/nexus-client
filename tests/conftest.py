@@ -19,6 +19,13 @@ def nexus_manager():
     client_secret = os.getenv("CLIENT_SECRET")
     instance = os.getenv("INSTANCE")
     host = os.getenv("HOST") or ""
+    hcl_depot_order_filter_configuration_ids = [
+        value.strip()
+        for value in os.getenv(
+            "NEXUS_HCL_DEPOT_ORDER_FILTER_CONFIGURATION_IDS", ""
+        ).split(",")
+        if value.strip()
+    ]
 
     if not all([client_id, client_secret, instance]):
         raise ValueError(
@@ -30,6 +37,9 @@ def nexus_manager():
         client_id=client_id,
         client_secret=client_secret,
         host=host,
+        hcl_depot_order_filter_configuration_ids=(
+            hcl_depot_order_filter_configuration_ids
+        ),
     )
 
 
@@ -42,7 +52,10 @@ def base_client(nexus_manager):
 @pytest.fixture
 def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""
-    return nexus_manager.borgere.hent_borger("0104909989")
+    borger = nexus_manager.borgere.hent_borger("0104909989")
+    if borger is None:
+        pytest.skip("Nexus test citizen 0104909989 is not available")
+    return borger
 
 
 @pytest.fixture(scope="function")

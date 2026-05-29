@@ -5,7 +5,7 @@ This manager simplifies the instantiation of multiple clients by providing
 a single entry point with lazy-loaded properties for each functionality.
 """
 
-from typing import Optional
+from typing import Iterable, Optional
 from kmd_nexus_client.client import DEFAULT_HOST, NexusClient
 from kmd_nexus_client.functionality.aktivitetslister import AktivitetslisteClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
@@ -41,6 +41,7 @@ class NexusClientManager:
         client_secret: str,
         host: str = DEFAULT_HOST,
         timeout: float = 30.0,
+        hcl_depot_order_filter_configuration_ids: Iterable[str] | None = None,
     ):
         """
         Initialize the NexusClientManager.
@@ -51,6 +52,8 @@ class NexusClientManager:
             client_secret: The OAuth2 client secret
             host: Nexus host segment, e.g. ``nexus`` or ``nexus-test``
             timeout: Request timeout in seconds (default: 30.0)
+            hcl_depot_order_filter_configuration_ids: Optional Nexus HCL depot
+                order filter ids used by organisation order-list helpers.
         """
         self._instance = instance
         self._client_id = client_id
@@ -59,6 +62,9 @@ class NexusClientManager:
 
         # Store configuration for lazy loading
         self._config = {"timeout": timeout}
+        self._hcl_depot_order_filter_configuration_ids = tuple(
+            hcl_depot_order_filter_configuration_ids or ()
+        )
 
         # Lazy-loaded clients
         self._nexus_client: Optional[NexusClient] = None
@@ -106,7 +112,12 @@ class NexusClientManager:
     def organisationer(self) -> OrganisationerClient:
         """Get the OrganisationerClient (lazy-loaded)."""
         if self._organisationer_client is None:
-            self._organisationer_client = OrganisationerClient(self.nexus_client)
+            self._organisationer_client = OrganisationerClient(
+                self.nexus_client,
+                hcl_depot_order_filter_configuration_ids=(
+                    self._hcl_depot_order_filter_configuration_ids
+                ),
+            )
         return self._organisationer_client
 
     @property

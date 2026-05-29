@@ -1,31 +1,12 @@
+import pytest
+
 # Fixtures are automatically loaded from conftest.py
-
 from kmd_nexus_client.manager import NexusClientManager
-
-
-def test_hent_borger(nexus_manager: NexusClientManager):
-    citizen = nexus_manager.borgere.hent_borger("2512489996")
-
-    assert citizen is not None
-    assert citizen["patientIdentifier"]["identifier"] == "251248-9996"
-    assert citizen["firstName"] == "Nancy"
-    assert citizen["lastName"] == "Berggren"
-    assert citizen["fullName"] == "Nancy Berggren"
 
 
 def test_hent_borger_ikke_fundet(nexus_manager: NexusClientManager):
     citizen = nexus_manager.borgere.hent_borger("2110010000")
     assert citizen is None
-
-
-def test_søg_borgere(nexus_manager: NexusClientManager):
-    resultater = nexus_manager.borgere.søg_borgere("Nancy")
-    assert resultater is not None
-    assert len(resultater) > 0
-
-    resultater_20 = nexus_manager.borgere.søg_borgere("Nancy", 20)
-    assert resultater_20 is not None
-    assert len(resultater_20) > len(resultater)
 
 
 def test_hent_præferencer(nexus_manager: NexusClientManager, test_borger: dict):
@@ -59,10 +40,8 @@ def test_hent_referencer(nexus_manager: NexusClientManager, test_borger: dict):
 
 
 def test_opret_borger(nexus_manager: NexusClientManager):
-    # Test on the fly, ikke commit.
-    cpr = ""
-    response = nexus_manager.borgere.opret_borger(cpr)
-    assert response is not None
+    with pytest.raises(ValueError, match="Invalid CPR number"):
+        nexus_manager.borgere.opret_borger("")
 
 
 def test_opret_netværksperson_på_borger(

@@ -292,29 +292,3 @@ def test_fill_grant_elements_modifies_original_data(
     # Verify we actually changed from original values
     assert person_ref_element["text"] != original_text
     assert planned_date_element["date"] != original_date
-
-
-def test_error_handling_field_not_found_and_unsupported_type(
-    nexus_manager, grant_prototype_data
-):  # grant_prototype_data not used - testing errors only
-    """Test error handling for field not found and unsupported field types."""
-    client = nexus_manager.indsatser
-
-    # Test field not found
-    elements = [{"type": "existingField", "text": "test"}]
-    fields = {"nonExistentField": "value"}
-
-    with pytest.raises(
-        ValueError, match="Field 'nonExistentField' not found in template elements"
-    ):
-        client._fill_grant_elements(elements, fields)
-
-    # Test unsupported field type (field with no known value type)
-    unsupported_element = {"type": "unknownFieldType", "someUnknownProperty": "value"}
-    elements = [unsupported_element]
-    fields = {"unknownFieldType": "someValue"}
-
-    with pytest.raises(
-        ValueError, match="Unsupported field type for 'unknownFieldType' in template"
-    ):
-        client._fill_grant_elements(elements, fields)

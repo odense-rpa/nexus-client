@@ -1,10 +1,13 @@
-from typing import List
 from datetime import date
+from typing import Iterable, List
+from urllib.parse import urlencode
+
 from httpx import HTTPStatusError
+
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.models import OrganisationRelationEnsureResult
 from kmd_nexus_client.utils import normalize_name
-from kmd_nexus_client.utils import sanitize_cpr
+from kmd_nexus_client.utils import sanitize_citizen_identifier
 
 
 class OrganisationerClient:
@@ -28,8 +31,17 @@ class OrganisationerClient:
     - opdater_leverandør(opdateret_leverandør) -> dict
     """
 
-    def __init__(self, nexus_client: NexusClient):
+    def __init__(
+        self,
+        nexus_client: NexusClient,
+        hcl_depot_order_filter_configuration_ids: Iterable[str] | None = None,
+    ):
         self.nexus_client = nexus_client
+        self.hcl_depot_order_filter_configuration_ids = tuple(
+            filter_id.strip()
+            for filter_id in (hcl_depot_order_filter_configuration_ids or ())
+            if filter_id.strip()
+        )
 
     def hent_organisationer(self) -> List[dict]:
         """
@@ -300,21 +312,15 @@ class OrganisationerClient:
 
         :return: Liste over borgere med udlånsbestillinger, eller None hvis ingen findes.
         """
-        # Hacky, men kan ikke se en umiddelbar kobling i Network monitor
-        liste_links = [
-            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=a1b03fee-6684-4c22-8b82-7912d0d849f7",
-            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=ef415c49-afd8-417a-92b6-fd26ace24859",
-            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7cd9bf46-5bf5-4e41-9239-0ed935e7e8f9",
-            "https://odensekommune.nexus.kmd.dk/api/hcl-depot/orders?orderFilterConfigurationId=7ee5774f-d76d-4250-a827-61efd8664be4",
-        ]
-
         borgere = []
 
-        for link in liste_links:
-            ordrer = self.nexus_client.get(link).json()
+        for filter_id in self.hcl_depot_order_filter_configuration_ids:
+            ordrer = self.nexus_client.get(hcl_depot_orders_endpoint(filter_id)).json()
             for ordre in ordrer:
                 try:
-                    cpr = sanitize_cpr(ordre["receiver"]["patientIdentifier"])
+                    cpr = sanitize_citizen_identifier(
+                        ordre["receiver"]["patientIdentifier"]
+                    )
 
                     if cpr not in borgere:
                         borgere.append(cpr)
@@ -322,6 +328,12 @@ class OrganisationerClient:
                     continue
 
         return borgere if borgere else None
+
+
+def hcl_depot_orders_endpoint(order_filter_configuration_id: str) -> str:
+    """Build an instance-relative HCL depot orders endpoint."""
+    query = urlencode({"orderFilterConfigurationId": order_filter_configuration_id})
+    return f"/api/hcl-depot/orders?{query}"
 
 
 def find_organisation_relation(

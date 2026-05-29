@@ -141,6 +141,29 @@ def test_hent_borger_uses_exact_anonymous_identifier_search_fallback() -> None:
     assert "patientOrganizations" in citizen["_links"]
 
 
+def test_hent_borger_accepts_anonymous_identifier_with_invalid_cpr_date() -> None:
+    client = BorgerClient(
+        FakeNexusClient(
+            details_payload={
+                "isPatientAccessible": True,
+                "patient": {
+                    "id": 42,
+                    "fullName": "Test Citizen",
+                    "patientIdentifier": {
+                        "type": "anonymous",
+                        "identifier": "3102990018",
+                    },
+                },
+            }
+        )
+    )
+
+    citizen = client.hent_borger("310299-0018")
+
+    assert citizen is not None
+    assert citizen["id"] == 42
+
+
 def test_find_borger_by_cpr_returns_none_when_citizen_is_inaccessible() -> None:
     client = BorgerClient(
         FakeNexusClient(details_payload={"isPatientAccessible": False})

@@ -4,7 +4,7 @@ from httpx import HTTPStatusError
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.models import NexusBorger
-from kmd_nexus_client.utils import sanitize_cpr
+from kmd_nexus_client.utils import sanitize_citizen_identifier, sanitize_cpr
 
 
 class BorgerClient:
@@ -25,7 +25,7 @@ class BorgerClient:
         :param borger_cpr: CPR nummeret på borgeren der skal hentes.
         :return: Borgerens detaljer, eller None hvis borgeren ikke blev fundet.
         """
-        cpr = sanitize_cpr(borger_cpr)
+        cpr = sanitize_citizen_identifier(borger_cpr)
         return self._hent_borger_payload(cpr)
 
     def find_borger_by_cpr(self, borger_cpr: str) -> NexusBorger | None:
@@ -37,7 +37,7 @@ class BorgerClient:
         keeps that API-specific fallback and response-shape handling inside the
         client instead of every robot workflow.
         """
-        cpr = sanitize_cpr(borger_cpr)
+        cpr = sanitize_citizen_identifier(borger_cpr)
         payload: Mapping[str, Any] | None = self._hent_borger_payload(cpr)
 
         if payload is None:
