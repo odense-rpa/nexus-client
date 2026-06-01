@@ -147,6 +147,17 @@ def test_hent_medarbejder_ved_initialer(nexus_manager: NexusClientManager):
 
     assert medarbejder is not None
 
+def test_organisationer_for_medarbejder(nexus_manager: NexusClientManager):
+    medarbejder = nexus_manager.organisationer.hent_medarbejder_ved_initialer("roboa")
+    
+    assert medarbejder is not None
+    
+    organisationer = nexus_manager.organisationer.hent_organisationer_for_medarbejder(medarbejder)
+    
+    assert organisationer is not None
+    assert isinstance(organisationer, list)
+    assert len(organisationer) > 20
+
 
 def test_hent_medarbejdere_for_organisation(nexus_manager: NexusClientManager):
     """Test hent_medarbejdere_for_organisation Danish function."""

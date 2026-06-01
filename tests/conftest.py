@@ -36,6 +36,14 @@ def base_client(nexus_manager):
     return nexus_manager.nexus_client
 
 
+@pytest.fixture(scope="session")
+def test_initialer():
+    initialer = os.getenv("TEST_INITIALER")
+    if not initialer:
+        raise ValueError("TEST_INITIALER must be set in .env file")
+    return initialer
+
+
 @pytest.fixture
 def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""

@@ -140,6 +140,46 @@ class OrganisationerClient:
         )
         return response.json()
     
+    def hent_organisationer_for_medarbejder(self, medarbejder: dict) -> List[dict]:
+        """
+        Hent alle organisationer en medarbejder er tilknyttet.
+
+        :param medarbejder: Medarbejderen der skal hentes organisationer for.
+        :return: Alle organisationer medarbejderen er tilknyttet.
+        """
+        if "organizations" not in medarbejder["_links"]:
+            repsone = self.nexus_client.get(medarbejder["_links"]["self"]["href"])    
+            medarbejder = repsone.json()
+        
+        link = medarbejder["_links"]["organizations"]["href"]
+        
+        organisationer = self.nexus_client.get(link)
+        
+        return organisationer.json()
+    
+    def fjern_organisation_fra_medarbejder(self, medarbejder: dict, organisation: dict) -> bool:
+        """
+        Fjern en organisation fra en medarbejders tilknytninger.
+
+        :param medarbejder: Medarbejderen der skal fjernes fra organisationen.
+        :param organisation: Organisationen der skal fjernes fra medarbejderen.
+        :return: True hvis succesfuldt fjernet, False ellers.
+        """
+        if "organizations" not in medarbejder["_links"]:
+            repsone = self.nexus_client.get(medarbejder["_links"]["self"]["href"])    
+            medarbejder = repsone.json()
+        
+        body = {
+            "added": [],
+            "removed": [
+                organisation["id"]
+            ]
+        }
+        
+        repsone = self.nexus_client.post(medarbejder["_links"]["updateOrganizations"]["href"], body)
+        
+        return repsone.status_code == 200
+    
     def fjern_medarbejder_fra_forløb(self, medarbejder_reference: dict) -> bool:
         """
         Fjern en medarbejder fra et forløb.

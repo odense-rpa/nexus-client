@@ -9,6 +9,7 @@ from typing import Optional
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.functionality.aktivitetslister import AktivitetslisteClient
 from kmd_nexus_client.functionality.borgere import BorgerClient
+from kmd_nexus_client.functionality.brugere import BrugereClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.indsatser import IndsatsClient
@@ -56,6 +57,7 @@ class NexusClientManager:
         self._nexus_client: Optional[NexusClient] = None
         self._aktivitetsliste_client: Optional[AktivitetslisteClient] = None
         self._borgere_client: Optional["BorgerClient"] = None
+        self._brugere_client: Optional[BrugereClient] = None
         self._organisationer_client: Optional[OrganisationerClient] = None
         self._opgaver_client: Optional[OpgaverClient] = None
         self._indsats_client: Optional[IndsatsClient] = None
@@ -91,6 +93,13 @@ class NexusClientManager:
         if self._borgere_client is None:
             self._borgere_client = BorgerClient(self.nexus_client)
         return self._borgere_client
+
+    @property
+    def brugere(self) -> BrugereClient:
+        """Get the BrugereClient (lazy-loaded)."""
+        if self._brugere_client is None:
+            self._brugere_client = BrugereClient(self.nexus_client)
+        return self._brugere_client
 
     @property
     def organisationer(self) -> OrganisationerClient:
