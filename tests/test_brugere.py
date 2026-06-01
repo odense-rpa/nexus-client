@@ -27,9 +27,10 @@ def test_fjern_rolle_fra_bruger(nexus_manager: NexusClientManager, test_initiale
     nexus_manager.brugere.fjern_rolle_fra_bruger(bruger, "test")
 
 def test_fjern_nationale_rolle(nexus_manager: NexusClientManager, test_initialer: str):
-    bruger = nexus_manager.brugere.hent_bruger("mekso")
+    bruger = nexus_manager.brugere.hent_bruger("")
     assert bruger is not None
     
+    # Test Kun på bruger du ved skal have fjernet 
     fjernet = nexus_manager.brugere.fjern_national_rolle_fra_bruger(bruger)
     
     assert fjernet is True
