@@ -34,3 +34,12 @@ def test_fjern_nationale_rolle(nexus_manager: NexusClientManager, test_initialer
     fjernet = nexus_manager.brugere.fjern_national_rolle_fra_bruger(bruger)
     
     assert fjernet is True
+
+def test_hent_konfiguration(nexus_manager: NexusClientManager, test_initialer: str):
+    bruger = nexus_manager.brugere.hent_bruger(test_initialer)
+    assert bruger is not None
+    
+    konfiguration = nexus_manager.brugere.hent_bruger_konfiguration(bruger)
+    
+    assert konfiguration is not None
+    assert konfiguration["primaryIdentifier"] == bruger["primaryIdentifier"]
