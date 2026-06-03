@@ -73,7 +73,7 @@ class BrugereClient:
                 return None
             raise
     
-    def tilføje_rolle_til_bruger(self, bruger: dict, rollenavn: str) -> bool:
+    def tilføj_rolle_til_bruger(self, bruger: dict, rollenavn: str) -> bool:
         
         nuværende_roller = self.hent_bruger_roller(bruger)
         
