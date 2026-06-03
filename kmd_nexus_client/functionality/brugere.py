@@ -72,6 +72,42 @@ class BrugereClient:
             if e.response.status_code == 404:
                 return None
             raise
+    
+    def tilføje_rolle_til_bruger(self, bruger: dict, rollenavn: str) -> bool:
+        
+        nuværende_roller = self.hent_bruger_roller(bruger)
+        
+        
+        # Kontrollere om bruger allerede har rolle
+        if nuværende_roller is not None:
+            rolle = next(
+                (a for a in nuværende_roller if a["name"].lower() == rollenavn.lower()),
+                None,
+            )
+                    
+            if rolle is not None:
+                return True
+        
+        mulige_roller = self.client.get(bruger["_links"]["availableRoles"]["href"])
+        
+        mulige_roller = self.client.get(bruger["_links"]["availableRoles"]["href"]).json()
+        
+        mulig_rolle = next(
+            (a for a in mulige_roller if a["name"].lower() == rollenavn.lower()),
+            None,
+        )
+        
+        if mulig_rolle is None:
+            return False
+        
+        body = {
+            "added": [mulig_rolle["id"]],
+            "removed": []
+        }
+        
+        response = self.client.post(bruger["_links"]["updateRoles"]["href"], body)
+        
+        return response.status_code == 200       
         
     def fjern_rolle_fra_bruger(self, bruger: dict, rollenavn: str) -> bool:
         """Fjerner en navngivet rolle fra en bruger.
