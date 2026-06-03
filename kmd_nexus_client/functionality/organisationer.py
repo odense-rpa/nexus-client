@@ -180,6 +180,28 @@ class OrganisationerClient:
         
         return repsone.status_code == 200
     
+    def tilføj_organisation_til_medarbejder(self, medarbejder: dict, organisation: dict) -> bool:
+        """
+        Tilføj en organisation til en medarbejder.
+
+        :param medarbejder: Medarbejderen der skal tilføjes til organisationen.
+        :param organisation: Organisationen medarbejderen skal tilføjes til.
+        :return: True hvis succesfuldt tilføjet, False ellers.
+        """
+
+        if "organizations" not in medarbejder["_links"]:
+            repsone = self.nexus_client.get(medarbejder["_links"]["self"]["href"])    
+            medarbejder = repsone.json()
+        
+        body = {
+            "added": [organisation["id"]],
+            "removed": []
+        }
+        
+        repsone = self.nexus_client.post(medarbejder["_links"]["updateOrganizations"]["href"], body)
+        
+        return repsone.status_code == 200
+    
     def fjern_medarbejder_fra_forløb(self, medarbejder_reference: dict) -> bool:
         """
         Fjern en medarbejder fra et forløb.
