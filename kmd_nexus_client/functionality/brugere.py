@@ -75,8 +75,7 @@ class BrugereClient:
     
     def tilføj_rolle_til_bruger(self, bruger: dict, rollenavn: str) -> bool:
         
-        nuværende_roller = self.hent_bruger_roller(bruger)
-        
+        nuværende_roller = self.hent_bruger_roller(bruger)    
         
         # Kontrollere om bruger allerede har rolle
         if nuværende_roller is not None:
@@ -87,8 +86,6 @@ class BrugereClient:
                     
             if rolle is not None:
                 return True
-        
-        mulige_roller = self.client.get(bruger["_links"]["availableRoles"]["href"])
         
         mulige_roller = self.client.get(bruger["_links"]["availableRoles"]["href"]).json()
         
@@ -171,7 +168,7 @@ class BrugereClient:
             "_links": {}
         }
         
-        response = self.client.put(konfiguration["_links"]["update"], konfiguration)
+        response = self.client.put(konfiguration["_links"]["update"]["href"], konfiguration)
         
         return response.status_code == 200
     
