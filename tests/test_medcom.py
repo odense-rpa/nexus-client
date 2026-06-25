@@ -121,3 +121,17 @@ def test_get_besked_statistik(nexus_manager: NexusClientManager, test_borger: di
     finally:
         # Restore original method
         nexus_manager.medcom.hent_alle_beskeder = original_method
+
+def test_send_besked(nexus_manager: NexusClientManager, test_borger: dict):
+    """Test at sende en MedCom besked."""
+    
+    response = nexus_manager.medcom.send_besked(
+            borger=test_borger,
+            emne="Test besked",
+            tekst="Dette er en testbesked.",
+            placering="MedCom",
+            til="5790000121441",
+            fra="5790000121441"
+        )
+    assert response.status_code == 200
+        

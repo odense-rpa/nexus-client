@@ -1,7 +1,7 @@
-from typing import Optional, List, Dict, Any
-from httpx import HTTPStatusError
 import base64
 
+from typing import Optional, List, Dict, Any
+from httpx import HTTPStatusError, Response
 from kmd_nexus_client.client import NexusClient
 
 
@@ -332,3 +332,55 @@ class MedComClient:
             "uden_forloeb": uden_forloeb,
             "forloeb_fordeling": forloeb_grupper
         }
+    
+    
+    def send_besked(self,
+            borger: dict,             
+            fra: str,
+            til: str,
+            emne: str,
+            tekst: str,
+            placering: str = "MedCom",
+    ) -> Response:        
+        try:
+            prototype = self.client.get(borger["_links"]["medcomClinicalEmailCorrespondencePrototype"]["href"]).json()
+            pathways = self.client.get(borger["_links"]["availablePathwayAssociation"]["href"]).json()
+            afsendere = self.client.get(prototype["_links"]["availableSenders"]["href"]).json()
+            modtagere = self.client.get(prototype["_links"]["searchRecipient"]["href"], params={"query": til}).json()
+            if not modtagere:
+                raise ValueError("Ukendt modtager")
+
+            besked_data = prototype.copy()
+            besked_data["recipient"] = modtagere[0]
+
+            if placering:
+                valgt_placering = next(
+                    (pathway for pathway in pathways if pathway.get("name") == placering),
+                    None,
+                )
+                if valgt_placering is not None:
+                    besked_data["pathwayAssociation"] = valgt_placering
+
+            valgt_afsender = next(
+                (
+                    afsender
+                    for afsender in afsendere
+                    if fra.lower() in afsender.get("name", "").lower()
+                ),
+                None,
+            )
+
+            if valgt_afsender is None:
+                raise ValueError("Ukendt afsender")
+
+            besked_data["sender"] = valgt_afsender
+            besked_data["subject"] = emne
+            besked_data["body"] = tekst
+
+            response = self.client.post(
+                prototype["_links"]["send"]["href"],
+                json=besked_data
+            )
+            return response
+        except (HTTPStatusError, ValueError):
+            return None
