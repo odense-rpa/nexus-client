@@ -13,7 +13,7 @@ from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 from kmd_nexus_client.functionality.opgaver import OpgaverClient
 from kmd_nexus_client.functionality.indsatser import IndsatsClient
 from kmd_nexus_client.functionality.kalender import KalenderClient
-from kmd_nexus_client.functionality.forløb import ForløbClient
+from kmd_nexus_client.functionality.forloeb import ForløbClient
 from kmd_nexus_client.functionality.hcl_depot import HclDepotClient
 from kmd_nexus_client.functionality.medcom import MedComClient
 from kmd_nexus_client.functionality.medicin import MedicinClient

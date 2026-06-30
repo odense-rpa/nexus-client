@@ -185,11 +185,19 @@ class FakeIndsatsHttpClient:
                     "_links": {"save": {"href": "save-annuller"}},
                 }
             )
+        if endpoint == "prepare-afslut":
+            return FakeResponse(
+                {
+                    "elements": [],
+                    "_links": {"save": {"href": "save-afslut"}},
+                }
+            )
         return FakeResponse(self.indstats[endpoint.rsplit("/", 1)[-1]])
 
     def post(self, endpoint, json):
         self.posts.append((endpoint, json))
-        return FakeResponse({"savedGrant": {"workflowState": {"name": "Annulleret"}}})
+        workflow_state = "Afsluttet" if endpoint == "save-afslut" else "Annulleret"
+        return FakeResponse({"savedGrant": {"workflowState": {"name": workflow_state}}})
 
 
 def test_hent_indsats_ved_id_reads_patient_grant():
@@ -215,6 +223,31 @@ def test_annuller_indsats_uses_supported_transition():
         (
             "save-annuller",
             {"elements": [], "_links": {"save": {"href": "save-annuller"}}},
+        )
+    ]
+
+
+def test_annuller_indsats_uses_afslut_when_annuller_is_unavailable():
+    client = FakeIndsatsHttpClient()
+    indsatser = IndsatsClient(client)  # type: ignore[arg-type]
+    indsats = {
+        "workflowState": {"name": "Bestilt"},
+        "currentWorkflowTransitions": [
+            {
+                "name": "Afslut",
+                "_links": {"prepareEdit": {"href": "prepare-afslut"}},
+            }
+        ],
+    }
+
+    result = indsatser.annuller_indsats(indsats)
+
+    assert result["savedGrant"]["workflowState"]["name"] == "Afsluttet"
+    assert client.gets == ["prepare-afslut"]
+    assert client.posts == [
+        (
+            "save-afslut",
+            {"elements": [], "_links": {"save": {"href": "save-afslut"}}},
         )
     ]
 

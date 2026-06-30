@@ -31,7 +31,7 @@ from .functionality.organisationer import OrganisationerClient
 from .functionality.indsatser import IndsatsClient
 from .functionality.opgaver import OpgaverClient
 from .functionality.kalender import KalenderClient
-from .functionality.forløb import ForløbClient
+from .functionality.forloeb import ForløbClient
 from .functionality.hcl_depot import HclDepotClient
 
 __all__ = [

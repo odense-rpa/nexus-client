@@ -39,7 +39,7 @@ class HclDeliveryAddress:
     delivery_address: str
     zip_code: str
     city: str
-    address_type: str = "TEMPORARY"
+    address_type: str = "OTHER"
 
 
 @dataclass(frozen=True)
@@ -68,6 +68,8 @@ class HclProductOrderResult:
     message: str
     basket_id: str | None = None
     request_id: str | None = None
+    order_id: str | None = None
+    lending_id: str | None = None
 
     @classmethod
     def success(
@@ -76,6 +78,8 @@ class HclProductOrderResult:
         *,
         basket_id: str | None = None,
         request_id: str | None = None,
+        order_id: str | None = None,
+        lending_id: str | None = None,
     ) -> "HclProductOrderResult":
         """Return a successful depot product order result."""
         return cls(
@@ -83,6 +87,8 @@ class HclProductOrderResult:
             message=message,
             basket_id=basket_id,
             request_id=request_id,
+            order_id=order_id,
+            lending_id=lending_id,
         )
 
     @classmethod

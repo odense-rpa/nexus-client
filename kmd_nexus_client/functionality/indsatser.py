@@ -549,13 +549,23 @@ class IndsatsClient:
 
     def annuller_indsats(self, indsats: dict) -> dict:
         """
-        Annuller en indsats via den understøttede Nexus workflow-overgang.
+        Annuller eller afslut en indsats via en understøttet Nexus workflow-overgang.
 
         :param indsats: Fuldt patientGrant objekt.
         :return: Nexus save-resultat.
-        :raises ValueError: Hvis indsatsen ikke kan annulleres fra nuværende status.
+        :raises ValueError: Hvis indsatsen ikke kan reverseres fra nuværende status.
         """
         state = indsats.get("workflowState")
-        if isinstance(state, dict) and state.get("name") == "Annulleret":
+        if isinstance(state, dict) and state.get("name") in {"Annulleret", "Afsluttet"}:
             return {"savedGrant": indsats}
-        return self.rediger_indsats(indsats, {}, "Annullér")
+        transition_names = {
+            transition.get("name")
+            for transition in indsats.get("currentWorkflowTransitions", [])
+            if isinstance(transition, dict)
+        }
+        for transition_name in ("Annullér", "Afslut"):
+            if transition_name in transition_names:
+                return self.rediger_indsats(indsats, {}, transition_name)
+        raise ValueError(
+            "Ingen understøttet overgang til annullering/afslutning af indsats"
+        )

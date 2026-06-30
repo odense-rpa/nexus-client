@@ -197,6 +197,35 @@ def test_fjern_borger_fra_organisation_unit_test(nexus_manager: NexusClientManag
         nexus_manager.organisationer.nexus_client.delete = original_delete
 
 
+def test_fjern_borger_fra_organisation_returns_false_when_remove_link_is_missing(
+    nexus_manager: NexusClientManager,
+):
+    """Unit test for relation removal when Nexus exposes no remove action."""
+    from unittest.mock import Mock
+
+    mock_relation = {
+        "_links": {"self": {"href": "test-update-url"}},
+        "primaryOrganization": False,
+    }
+
+    original_get = nexus_manager.organisationer.nexus_client.get
+    get_response = Mock()
+    get_response.json.return_value = dict(mock_relation)
+    nexus_manager.organisationer.nexus_client.get = Mock(return_value=get_response)
+
+    try:
+        result = nexus_manager.organisationer.fjern_borger_fra_organisation(
+            mock_relation
+        )
+
+        assert result is False
+        nexus_manager.organisationer.nexus_client.get.assert_called_once_with(
+            "test-update-url"
+        )
+    finally:
+        nexus_manager.organisationer.nexus_client.get = original_get
+
+
 def test_opdater_borger_organisations_relation_unit_test(
     nexus_manager: NexusClientManager,
 ):

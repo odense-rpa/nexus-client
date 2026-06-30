@@ -1,6 +1,6 @@
 from typing import Optional
 from httpx import HTTPStatusError
-from datetime import datetime
+from datetime import date, datetime
 
 from kmd_nexus_client.client import NexusClient
 from kmd_nexus_client.models import PathwayEnsureResult
@@ -215,6 +215,14 @@ class ForløbClient:
             case=result.get("case"),
         )
 
+    def find_forløb_association(
+        self, borger: dict, grundforløb_navn: str, forløb_navn: str | None = None
+    ) -> dict | None:
+        """Find an active pathway association by normalized root or child label."""
+        return self._find_existing_pathway_association(
+            borger, grundforløb_navn, forløb_navn
+        )
+
     def _find_existing_pathway_association(
         self, borger: dict, grundforløb_navn: str, forløb_navn: str | None
     ) -> dict | None:
@@ -280,7 +288,15 @@ class ForløbClient:
 
             close_link = case_details.get("_links", {}).get("close", {}).get("href")
             if not close_link:
-                return False
+                patient_pathway_link = (
+                    case_details.get("_links", {}).get("patientPathway", {}).get("href")
+                )
+                if patient_pathway_link:
+                    patient_pathway_response = self.client.get(patient_pathway_link)
+                    if patient_pathway_response.status_code != 200:
+                        return False
+                    return self._inactivate_forløb(patient_pathway_response.json())
+                return self._inactivate_forløb(case_details)
 
             # Close the case
             close_response = self.client.put(close_link, json={})
@@ -289,6 +305,17 @@ class ForløbClient:
 
         except HTTPStatusError:
             return False
+
+    def _inactivate_forløb(self, forløb: dict) -> bool:
+        """Fallback close for Nexus patient pathways that expose update only."""
+        update_link = forløb.get("_links", {}).get("update", {}).get("href")
+        if not update_link:
+            return False
+        payload = dict(forløb)
+        payload["active"] = False
+        payload["inactivatedDate"] = date.today().isoformat()
+        response = self.client.put(update_link, json=payload)
+        return response.status_code == 200
 
     def opret_dokument(
         self,

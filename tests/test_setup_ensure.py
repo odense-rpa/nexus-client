@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from kmd_nexus_client.functionality.forløb import ForløbClient
+from kmd_nexus_client.functionality.forloeb import ForløbClient
 from kmd_nexus_client.functionality.organisationer import OrganisationerClient
 
 

@@ -169,6 +169,88 @@ def test_luk_forløb_closes_when_unclosable_link_is_absent(
     assert result is True
 
 
+def test_luk_forløb_inactivates_when_only_update_link_exists(
+    nexus_manager: NexusClientManager,
+):
+    """Test luk_forløb can inactivate patient pathways with update-only links."""
+    from datetime import date
+
+    mock_forløb_ref = {"_links": {"self": {"href": "case-url"}}}
+    case_payload = {
+        "name": "Udlån",
+        "active": True,
+        "_links": {"update": {"href": "update-url"}},
+    }
+    case_response = Mock()
+    case_response.status_code = 200
+    case_response.json.return_value = case_payload
+
+    update_response = Mock()
+    update_response.status_code = 200
+
+    original_get = nexus_manager.forløb.client.get
+    original_put = nexus_manager.forløb.client.put
+    nexus_manager.forløb.client.get = Mock(return_value=case_response)
+    put_mock = Mock(return_value=update_response)
+    nexus_manager.forløb.client.put = put_mock
+
+    try:
+        result = nexus_manager.forløb.luk_forløb(mock_forløb_ref)
+    finally:
+        nexus_manager.forløb.client.get = original_get
+        nexus_manager.forløb.client.put = original_put
+
+    expected_payload = dict(case_payload)
+    expected_payload["active"] = False
+    expected_payload["inactivatedDate"] = date.today().isoformat()
+    assert result is True
+    put_mock.assert_called_once_with("update-url", json=expected_payload)
+
+
+def test_luk_forløb_inactivates_nested_patient_pathway(
+    nexus_manager: NexusClientManager,
+):
+    """Test luk_forløb follows patientPathway when association has no close link."""
+    from datetime import date
+
+    mock_forløb_ref = {"_links": {"self": {"href": "association-url"}}}
+    association_response = Mock()
+    association_response.status_code = 200
+    association_response.json.return_value = {
+        "_links": {"patientPathway": {"href": "patient-pathway-url"}}
+    }
+    patient_pathway_payload = {
+        "name": "Udlån",
+        "active": True,
+        "_links": {"update": {"href": "update-url"}},
+    }
+    patient_pathway_response = Mock()
+    patient_pathway_response.status_code = 200
+    patient_pathway_response.json.return_value = patient_pathway_payload
+    update_response = Mock()
+    update_response.status_code = 200
+
+    original_get = nexus_manager.forløb.client.get
+    original_put = nexus_manager.forløb.client.put
+    nexus_manager.forløb.client.get = Mock(
+        side_effect=[association_response, patient_pathway_response]
+    )
+    put_mock = Mock(return_value=update_response)
+    nexus_manager.forløb.client.put = put_mock
+
+    try:
+        result = nexus_manager.forløb.luk_forløb(mock_forløb_ref)
+    finally:
+        nexus_manager.forløb.client.get = original_get
+        nexus_manager.forløb.client.put = original_put
+
+    expected_payload = dict(patient_pathway_payload)
+    expected_payload["active"] = False
+    expected_payload["inactivatedDate"] = date.today().isoformat()
+    assert result is True
+    put_mock.assert_called_once_with("update-url", json=expected_payload)
+
+
 def test_opret_dokument(nexus_manager: NexusClientManager, test_borger: dict):
     pass
     # visning = nexus_manager.borgere.hent_visning(test_borger)

@@ -251,15 +251,19 @@ class OrganisationerClient:
         :param organisations_relation: Organisations-relationen der skal fjernes. Den kan hentes ved at kalde hent_organisationer_for_borger.
         :return: True hvis succesfuldt fjernet, False ellers.
         """
-        if "removeFromPatient" not in organisations_relation["_links"]:
+        links = organisations_relation.get("_links") or {}
+        if "removeFromPatient" not in links and "self" in links:
             organisations_relation = self.nexus_client.get(
-                organisations_relation["_links"]["self"]["href"]
+                links["self"]["href"]
             ).json()
+            links = organisations_relation.get("_links") or {}
 
-        response = self.nexus_client.delete(
-            organisations_relation["_links"]["removeFromPatient"]["href"]
-        )
-        return response.status_code == 200
+        remove_link = links.get("removeFromPatient")
+        if isinstance(remove_link, dict) and remove_link.get("href"):
+            response = self.nexus_client.delete(remove_link["href"])
+            return response.status_code == 200
+
+        return False
 
     def opdater_borger_organisations_relation(
         self,

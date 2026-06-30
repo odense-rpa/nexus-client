@@ -67,6 +67,10 @@ class HclDepotClient:
             return HclProductOrderResult.failed(
                 f"Nexus bevilling blev ikke fundet: {order.grant_name}"
             )
+        if not has_delivery_phone(borger, order):
+            return HclProductOrderResult.failed(
+                "Nexus depotbestilling mangler telefonnummer"
+            )
 
         request_id: str | None = None
         try:
@@ -92,9 +96,19 @@ class HclDepotClient:
             return HclProductOrderResult.failed(str(exc))
 
         refreshed_basket = self._get_current_basket(borger) or {}
+        finalized_order = self.find_order_for_patient_request(
+            borger,
+            request_id=request_id,
+            hmi_number=order.hmi_number,
+        )
+        finalized_request = find_order_request(finalized_order, request_id)
         return HclProductOrderResult.success(
             basket_id=string_value(refreshed_basket.get("uid")),
             request_id=request_id,
+            order_id=resource_id(finalized_order),
+            lending_id=string_value(
+                finalized_request.get("lendingId") if finalized_request else None
+            ),
         )
 
     def find_product_by_hmi(
@@ -177,6 +191,118 @@ class HclDepotClient:
             return grant
         return None
 
+    def get_order_by_id(self, order_id: str) -> Mapping[str, Any] | None:
+        """Return a detailed HCL order by Nexus order uid."""
+        endpoint = self.client.api.get("hclOrders")
+        if endpoint is None:
+            return None
+
+        try:
+            response = self.client.get(
+                endpoint,
+                params={"uid": order_id, "projection": "details"},
+            )
+        except HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return None
+            raise
+
+        orders = response.json()
+        if not isinstance(orders, Sequence):
+            return None
+        for order in orders:
+            if not isinstance(order, Mapping):
+                continue
+            if resource_id(order) == order_id:
+                return order
+        return orders[0] if orders and isinstance(orders[0], Mapping) else None
+
+    def find_order_for_patient_request(
+        self,
+        borger: Mapping[str, Any],
+        *,
+        request_id: str,
+        hmi_number: str | None = None,
+    ) -> Mapping[str, Any] | None:
+        """Find the finalized HCL order containing a patient request."""
+        for order in self._iter_patient_hcl_orders(borger, hmi_number=hmi_number):
+            order_id = resource_id(order)
+            detailed_order = self.get_order_by_id(order_id) if order_id else None
+            candidate = detailed_order or order
+            if find_order_request(candidate, request_id) is not None:
+                return candidate
+        return None
+
+    def delete_order_request(
+        self,
+        *,
+        order_id: str,
+        request_id: str,
+    ) -> bool:
+        """Delete a request/lending line from a finalized HCL order."""
+        order = self.get_order_by_id(order_id)
+        if order is None:
+            return True
+
+        request = find_order_request(order, request_id)
+        if request is None:
+            return True
+
+        delete_link = link_href(request, "delete")
+        if delete_link is None:
+            raise ValueError("Nexus HCL ordrelinje mangler delete-link")
+
+        self.client.delete(delete_link)
+        refreshed_order = self.get_order_by_id(order_id)
+        return find_order_request(refreshed_order, request_id) is None
+
+    def delete_patient_order_requests_by_hmi(
+        self,
+        borger: Mapping[str, Any],
+        *,
+        hmi_number: str,
+    ) -> int:
+        """Delete finalized HCL order request lines matching a patient's HMI number."""
+        deleted = 0
+        for order in self._iter_patient_hcl_orders(borger, hmi_number=hmi_number):
+            order_id = resource_id(order)
+            detailed_order = self.get_order_by_id(order_id) if order_id else None
+            candidate = detailed_order or order
+            candidate_order_id = resource_id(candidate) or order_id
+            if candidate_order_id is None:
+                continue
+
+            for request in iter_order_requests(candidate):
+                request_id = resource_id(request)
+                if request_id is None or not contains_text(request, hmi_number):
+                    continue
+                if self.delete_order_request(
+                    order_id=candidate_order_id,
+                    request_id=request_id,
+                ):
+                    deleted += 1
+        return deleted
+
+    def delete_current_basket_requests_by_hmi(
+        self,
+        borger: Mapping[str, Any],
+        *,
+        hmi_number: str,
+    ) -> int:
+        """Delete current basket request lines matching a patient's HMI number."""
+        basket = self._get_current_basket(borger)
+        if basket is None:
+            return 0
+
+        deleted = 0
+        for request in iter_basket_requests(basket):
+            request_id = resource_id(request)
+            if request_id is None or not contains_text(request, hmi_number):
+                continue
+            self._delete_request_if_present(borger, request_id)
+            deleted += 1
+        return deleted
+
     def _get_current_basket(
         self, borger: Mapping[str, Any]
     ) -> Mapping[str, Any] | None:
@@ -215,6 +341,56 @@ class HclDepotClient:
             if normalize_name(string_value(resource.get("name"))) == wanted:
                 return resource
         return None
+
+    def _iter_patient_hcl_orders(
+        self,
+        borger: Mapping[str, Any],
+        *,
+        hmi_number: str | None = None,
+    ) -> list[Mapping[str, Any]]:
+        """Return HCL orders reachable from a patient's active lendings."""
+        lending_link = link_href(borger, "lendings")
+        if lending_link is None:
+            return []
+
+        response = self.client.get(lending_link, params={"active": "true"})
+        lendings = response.json()
+        if not isinstance(lendings, Sequence):
+            return []
+
+        orders: list[Mapping[str, Any]] = []
+        for lending in lendings:
+            if not isinstance(lending, Mapping):
+                continue
+            detailed_lending = self._get_lending_details(lending) or lending
+            if hmi_number is not None and not contains_text(
+                detailed_lending, hmi_number
+            ):
+                continue
+            orders_link = link_href(detailed_lending, "orders")
+            lending_id = resource_id(detailed_lending)
+            if orders_link is None or lending_id is None:
+                continue
+            lending_orders = self.client.get(orders_link).json()
+            if not isinstance(lending_orders, Sequence):
+                continue
+            for order in lending_orders:
+                if isinstance(order, Mapping):
+                    orders.append(order)
+        return orders
+
+    def _get_lending_details(
+        self, lending: Mapping[str, Any]
+    ) -> Mapping[str, Any] | None:
+        """Return a detailed lending resource when the summary exposes a self link."""
+        self_link = link_href(lending, "self")
+        if self_link is None:
+            return None
+        try:
+            detailed = self.client.get(self_link).json()
+        except HTTPStatusError:
+            return None
+        return detailed if isinstance(detailed, Mapping) else None
 
     def _add_product_to_current_basket(
         self,
@@ -291,11 +467,9 @@ class HclDepotClient:
         if driving_zone is None:
             raise ValueError(f"Kørselszone blev ikke fundet: {order.driving_zone_name}")
 
-        basket = self._get_current_basket(borger)
-        if basket is None:
-            raise ValueError("Borger har ingen depotkurv i Nexus")
-        update_payload = self._build_basket_action_payload(
-            basket=basket,
+        self._wait_until_request_is_ready(borger, request_id)
+        self._post_current_basket_action(
+            borger=borger,
             action_name="update",
             request_id=request_id,
             grant_id=grant_id,
@@ -303,17 +477,9 @@ class HclDepotClient:
             delivery_type_id=require_string(delivery_type, "uid"),
             driving_zone_id=require_string(driving_zone, "uid"),
         )
-        actions_link = link_href(basket, "actions")
-        if actions_link is None:
-            raise ValueError("Nexus depotkurv mangler actions-link")
-        self.client.post(actions_link, json=update_payload)
         self._wait_until_request_is_ready(borger, request_id)
-
-        basket = self._get_current_basket(borger)
-        if basket is None:
-            raise ValueError("Borger har ingen depotkurv i Nexus efter update")
-        finalize_payload = self._build_basket_action_payload(
-            basket=basket,
+        self._post_current_basket_action(
+            borger=borger,
             action_name="finalize",
             request_id=request_id,
             grant_id=grant_id,
@@ -321,11 +487,6 @@ class HclDepotClient:
             delivery_type_id=require_string(delivery_type, "uid"),
             driving_zone_id=require_string(driving_zone, "uid"),
         )
-
-        actions_link = link_href(basket, "actions")
-        if actions_link is None:
-            raise ValueError("Nexus depotkurv mangler actions-link")
-        self.client.post(actions_link, json=finalize_payload)
 
     def _wait_until_request_is_ready(
         self,
@@ -344,6 +505,47 @@ class HclDepotClient:
                 return
             sleep(interval_seconds)
         raise ValueError("Nexus depotkurv-linje blev ikke klar til bestilling")
+
+    def _post_current_basket_action(
+        self,
+        *,
+        borger: Mapping[str, Any],
+        action_name: str,
+        request_id: str,
+        grant_id: str,
+        order: HclProductOrder,
+        delivery_type_id: str,
+        driving_zone_id: str,
+    ) -> None:
+        """Post an HCL basket action, retrying once on Nexus optimistic lock."""
+        last_error: HTTPStatusError | None = None
+        for attempt in range(2):
+            basket = self._get_current_basket(borger)
+            if basket is None:
+                raise ValueError("Borger har ingen depotkurv i Nexus")
+            payload = self._build_basket_action_payload(
+                basket=basket,
+                action_name=action_name,
+                request_id=request_id,
+                grant_id=grant_id,
+                order=order,
+                borger=borger,
+                delivery_type_id=delivery_type_id,
+                driving_zone_id=driving_zone_id,
+            )
+            actions_link = link_href(basket, "actions")
+            if actions_link is None:
+                raise ValueError("Nexus depotkurv mangler actions-link")
+            try:
+                self.client.post(actions_link, json=payload)
+                return
+            except HTTPStatusError as exc:
+                last_error = exc
+                if attempt == 1 or not is_optimistic_lock_error(exc):
+                    raise
+                sleep(0.5)
+        if last_error is not None:
+            raise last_error
 
     def _delete_request_if_present(
         self,
@@ -378,6 +580,7 @@ class HclDepotClient:
         request_id: str,
         grant_id: str,
         order: HclProductOrder,
+        borger: Mapping[str, Any],
         delivery_type_id: str,
         driving_zone_id: str,
     ) -> dict[str, Any]:
@@ -389,6 +592,7 @@ class HclDepotClient:
         payload = dict(action)
         payload["deliveryInformation"] = build_delivery_information(
             order=order,
+            borger=borger,
             delivery_type_id=delivery_type_id,
             driving_zone_id=driving_zone_id,
         )
@@ -407,6 +611,7 @@ class HclDepotClient:
 def build_delivery_information(
     *,
     order: HclProductOrder,
+    borger: Mapping[str, Any] | None = None,
     delivery_type_id: str,
     driving_zone_id: str,
 ) -> dict[str, Any]:
@@ -422,16 +627,30 @@ def build_delivery_information(
             "zipCode": address.zip_code,
             "city": address.city,
         },
-        "phones": {
-            "home": None,
-            "work": None,
-            "mobile": None,
-            "other": order.phone_number,
-        },
+        "phones": build_delivery_phones(order, borger),
         "noteToDepot": order.note_to_depot,
         "deliveryTypeId": delivery_type_id,
         "deliveryZoneId": driving_zone_id,
     }
+
+
+def build_delivery_phones(
+    order: HclProductOrder, borger: Mapping[str, Any] | None = None
+) -> dict[str, str | None]:
+    """Build HCL phone slots from Nexus stamdata plus any explicit order phone."""
+    return {
+        "home": string_value(borger.get("homeTelephone")) if borger else None,
+        "work": string_value(borger.get("workTelephone")) if borger else None,
+        "mobile": string_value(borger.get("mobileTelephone")) if borger else None,
+        "other": string_value(order.phone_number),
+    }
+
+
+def has_delivery_phone(
+    borger: Mapping[str, Any], order: HclProductOrder
+) -> bool:
+    """Return whether delivery information has any phone number for Nexus."""
+    return any(build_delivery_phones(order, borger).values())
 
 
 def product_has_depot_stock(product: Mapping[str, Any], depot_id: str) -> bool:
@@ -516,6 +735,45 @@ def find_request(
     return None
 
 
+def find_order_request(
+    order: Mapping[str, Any] | None,
+    request_id: str,
+) -> Mapping[str, Any] | None:
+    """Return a request from HCL order details by id."""
+    if order is None:
+        return None
+    requests = order.get("requests")
+    if not isinstance(requests, Sequence):
+        return None
+
+    for request in requests:
+        if not isinstance(request, Mapping):
+            continue
+        if resource_id(request) == request_id:
+            return request
+    return None
+
+
+def iter_order_requests(order: Mapping[str, Any] | None) -> list[Mapping[str, Any]]:
+    """Return request mappings from HCL order details."""
+    if order is None:
+        return []
+    requests = order.get("requests")
+    if not isinstance(requests, Sequence):
+        return []
+    return [request for request in requests if isinstance(request, Mapping)]
+
+
+def iter_basket_requests(basket: Mapping[str, Any] | None) -> list[Mapping[str, Any]]:
+    """Return request mappings from HCL basket details."""
+    if basket is None:
+        return []
+    requests = basket.get("requests")
+    if not isinstance(requests, Sequence):
+        return []
+    return [request for request in requests if isinstance(request, Mapping)]
+
+
 def request_is_ready(request: Mapping[str, Any]) -> bool:
     """Return whether a basket request is ready for finalize."""
     reservation = request.get("reservation")
@@ -548,6 +806,13 @@ def http_error_message(exc: HTTPStatusError) -> str:
     return f"Nexus depotbestilling fejlede med HTTP {response.status_code}"
 
 
+def is_optimistic_lock_error(exc: HTTPStatusError) -> bool:
+    """Return whether Nexus rejected a stale basket action version."""
+    if exc.response.status_code != 409:
+        return False
+    return "optimisticlock" in normalize_name(exc.response.text)
+
+
 def require_patient_id(borger: Mapping[str, Any]) -> int:
     """Return the numeric Nexus patient id required by HCL basket actions."""
     patient_id = borger.get("id")
@@ -575,6 +840,13 @@ def link_href(payload: Mapping[str, Any], rel: str) -> str | None:
     return string_value(link.get("href"))
 
 
+def resource_id(payload: Mapping[str, Any] | None) -> str | None:
+    """Return a Nexus resource id from common id fields."""
+    if payload is None:
+        return None
+    return string_value(payload.get("uid") or payload.get("id"))
+
+
 def nested_mapping(payload: Mapping[str, Any], *keys: str) -> Mapping[str, Any] | None:
     """Return a nested mapping when every key exists with mapping values."""
     current: Any = payload
@@ -590,6 +862,15 @@ def string_value(value: Any) -> str | None:
     if isinstance(value, str) and value.strip():
         return value.strip()
     return None
+
+
+def contains_text(payload: Any, needle: str) -> bool:
+    """Return whether a nested payload contains a text value."""
+    if isinstance(payload, Mapping):
+        return any(contains_text(value, needle) for value in payload.values())
+    if isinstance(payload, Sequence) and not isinstance(payload, str):
+        return any(contains_text(value, needle) for value in payload)
+    return needle in string_value(payload) if string_value(payload) is not None else False
 
 
 def normalize_name(value: str | None) -> str:
