@@ -350,6 +350,9 @@ class MedComClient:
             if not modtagere:
                 raise ValueError("Ukendt modtager")
 
+            if len(modtagere) > 1:
+                raise ValueError("Flere modtagere fundet, præciser modtager")
+
             besked_data = prototype.copy()
             besked_data["recipient"] = modtagere[0]
 
