@@ -349,7 +349,7 @@ class SkemaerClient:
             from kmd_nexus_client.functionality.borgere import BorgerClient
             borgere_client = BorgerClient(self.client)
 
-        visning = borgere_client.hent_visning(borger=borger, visnings_navn="-Alt")
+        visning = borgere_client.hent_visning(borger=borger, visnings_navn="- Alt")
         referencer = borgere_client.hent_referencer(visning=visning)
         
         skemaer = []
