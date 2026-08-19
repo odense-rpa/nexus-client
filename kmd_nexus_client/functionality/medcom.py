@@ -1,4 +1,5 @@
 import base64
+import re
 
 from typing import Optional, List, Dict, Any
 from httpx import HTTPStatusError, Response
@@ -97,8 +98,22 @@ class MedComClient:
             
             # Base64 dekod XML indholdet
             decoded_bytes = base64.b64decode(raw_data)
-            return decoded_bytes.decode('utf-8')
-        except Exception:
+
+            # Find den encoding XML-deklarationen selv oplyser
+            # (fx <?xml version="1.0" encoding="ISO-8859-1"?>),
+            # og brug den i stedet for at antage UTF-8.
+            encoding = "utf-8"
+            match = re.search(rb'encoding=["\']([\w-]+)["\']', decoded_bytes[:200])
+            if match:
+                encoding = match.group(1).decode("ascii")
+
+            try:
+                return decoded_bytes.decode(encoding)
+            except (LookupError, UnicodeDecodeError):
+                # Ukendt/forkert encoding-navn eller stadig ugyldige bytes -
+                # falder tilbage til en tolerant dekodning frem for at fejle.
+                return decoded_bytes.decode(encoding, errors="replace")
+        except Exception as e:
             return None
 
     def accepter_besked(self, besked: dict) -> bool:
