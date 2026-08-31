@@ -60,12 +60,12 @@ class SkemaerClient:
         referencer = borgere_client.hent_referencer(visning=visning)
 
         # Find den specifikke grundforløbsreference (første match)
-        grundforløb_ref = next((ref for ref in referencer if ref.get("name") == grundforløb or ref.get("id") == grundforløb and ref.get("type") == "patientPathwayReference"), None)
+        grundforløb_ref = next((ref for ref in referencer if (ref.get("name") == grundforløb or ref.get("id") == grundforløb) and ref.get("type") == "patientPathwayReference" and ref.get("pathwayStatus") == "ACTIVE"), None)
         if not grundforløb_ref:
             raise ValueError(f"Ingen referencer fundet for det angivne grundforløb: {grundforløb}")
 
         # Nu søg i det specifikke grundforløbs børn efter forløbet
-        forløb_refs = next((child for child in grundforløb_ref.get("children", []) if child.get("name") == forløb or child.get("id") == forløb and child.get("type") == "patientPathwayReference"), None)
+        forløb_refs = next((child for child in grundforløb_ref.get("children", []) if (child.get("name") == forløb or child.get("id") == forløb) and child.get("type") == "patientPathwayReference" and child.get("pathwayStatus") == "ACTIVE"), None)
         if not forløb_refs:
             raise ValueError(f"Ingen forløb fundet for: {forløb}")
 
