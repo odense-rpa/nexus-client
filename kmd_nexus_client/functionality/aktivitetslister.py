@@ -1,4 +1,5 @@
-from typing import Optional 
+from typing import Optional
+from urllib.parse import urlencode 
 from kmd_nexus_client.client import NexusClient
 
 
@@ -46,10 +47,24 @@ class AktivitetslisteClient:
                         f"&assignmentOrganizationAssignee=ALL_ORGANIZATIONS"
                         f"&assignmentProfessionalAssignee={medarbejder['id']}")
         else:
-            content_url = (base_content_url +
-                        f"&pageSize={antal_sider}"
-                        f"&assignmentOrganizationAssignee=ALL_ORGANIZATIONS"
-                        f"&assignmentProfessionalAssignee=NO_PROFESSIONAL_CRITERIA")
+            view = aktivitetsliste.get("view", {})
+            view_parameters = {
+                key: value
+                for key in (
+                    "selectedOrganizationsType",
+                    "selectedOrganizationAssignee",
+                    "selectedProfessionalAssignee",
+                    "sortingColumn",
+                    "sortingDirection",
+                    "from",
+                    "to",
+                )
+                if (value := view.get(key)) is not None
+            }
+            content_url = (
+                f"{base_content_url}&"
+                f"{urlencode({'pageSize': antal_sider, **view_parameters})}"
+            )
 
         activities_list = []
 
