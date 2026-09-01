@@ -44,6 +44,15 @@ def test_initialer():
     return initialer
 
 
+@pytest.fixture(scope="session")
+def test_navn():
+    navn = os.getenv("TEST_NAVN")
+    if not navn:
+        raise ValueError("TEST_NAVN must be set in .env file")
+    return navn
+
+
+
 @pytest.fixture
 def test_borger(nexus_manager: NexusClientManager):
     """Primary test citizen fixture using NexusClientManager."""

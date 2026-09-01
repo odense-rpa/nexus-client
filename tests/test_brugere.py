@@ -43,3 +43,9 @@ def test_hent_konfiguration(nexus_manager: NexusClientManager, test_initialer: s
     
     assert konfiguration is not None
     assert konfiguration["primaryIdentifier"] == bruger["primaryIdentifier"]
+
+def test_hent_bruger_ved_navn(nexus_manager: NexusClientManager, test_navn: str):
+    bruger = nexus_manager.brugere.hent_bruger_ved_navn(test_navn)
+
+    assert bruger is not None
+    assert bruger["fullName"] == test_navn

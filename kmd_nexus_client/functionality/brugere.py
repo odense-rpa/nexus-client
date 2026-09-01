@@ -48,6 +48,28 @@ class BrugereClient:
             if e.response.status_code == 404:
                 return None
             raise
+
+    def hent_bruger_ved_navn(self, fuldenavn: str) -> Optional[dict]:
+        try:
+            encoded_navn = quote(fuldenavn)
+            respone = self.client.get(f"{self.client.api["professionals"]}?query={encoded_navn}")
+            
+            bruger = next(
+                (a for a in respone.json() if a.get("fullName", "").lower() == fuldenavn.lower()),
+                None,
+            )
+            
+            if bruger is None:
+                return None
+            
+            bruger = self.client.get(bruger["_links"]["self"]["href"])
+            
+            return bruger.json()
+            
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None
+            raise
     
     def hent_bruger_roller(self, bruger: dict) -> Optional[list[dict]]:
         """Henter roller tilknyttet en bruger.
