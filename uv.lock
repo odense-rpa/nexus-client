@@ -216,7 +216,7 @@ wheels = [
 
 [[package]]
 name = "kmd-nexus-client"
-version = "0.3.1"
+version = "0.3.2"
 source = { editable = "." }
 dependencies = [
     { name = "authlib" },

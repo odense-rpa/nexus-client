@@ -54,10 +54,20 @@ class BrugereClient:
             encoded_navn = quote(fuldenavn)
             respone = self.client.get(f"{self.client.api["professionals"]}?query={encoded_navn}")
             
+            resultater = respone.json()
+            
             bruger = next(
-                (a for a in respone.json() if a.get("fullName", "").lower() == fuldenavn.lower()),
+                (a for a in resultater if a.get("fullName", "").lower() == fuldenavn.lower()),
                 None,
             )
+            
+            # Faldback: hvis der kun er ét resultat, og alle ord i søgenavnet indgår i fullName
+            if bruger is None and len(resultater) == 1:
+                ord = fuldenavn.lower().split()
+                kandidat_navn = resultater[0].get("fullName", "").lower()
+                
+                if all(o in kandidat_navn for o in ord):
+                    bruger = resultater[0]
             
             if bruger is None:
                 return None
