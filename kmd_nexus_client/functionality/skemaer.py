@@ -155,7 +155,7 @@ class SkemaerClient:
                     possible_values = item.get("possibleValues", [])
                     values = []                    
                     for v in possible_values:
-                        if v.get("name") == value:
+                        if any(v.get("name") == val.get("name") for val in value):
                             values.append(v)
 
                     item["value"] = values
