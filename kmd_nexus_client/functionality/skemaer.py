@@ -408,7 +408,7 @@ class SkemaerClient:
         Skift placering af et skema ved at opdatere dets parent pathway reference.
 
         :param skema: Skema instans der skal flyttes.
-        :param ny_placering: ID eller navn på den nye pathway reference.
+        :param ny_placering: ID eller navn på den nye pathway reference. "Ikke tilknyttet forløb" eller "" fjerner tilknytningen (placement = None).
         :return: Opdateret skema instans efter flytning.
         """
         # Hent nuværende skema data for at få adgang til _links
@@ -420,12 +420,16 @@ class SkemaerClient:
         
         tilgænglige = self.client.get(skema["_links"]["availablePathwayAssociations"]["href"]).json()
 
-        valgt = filter_by_predicate(tilgænglige, lambda ref: (ref.get("patientPathwayPlacement",{})).get("name","") == ny_placering or ref.get("patientPathwayPlacement",{}).get("programPathwayId","") == ny_placering)
+        if ny_placering in ("Ikke tilknyttet forløb", ""):
+            # Nexus udbyder ikke længere "Ikke tilknyttet forløb" som placement; fjern tilknytningen
+            skema["pathwayAssociation"]["placement"] = None
+        else:
+            valgt = filter_by_predicate(tilgænglige, lambda ref: (ref.get("patientPathwayPlacement",{})).get("name","") == ny_placering or ref.get("patientPathwayPlacement",{}).get("programPathwayId","") == ny_placering)
 
-        if len(valgt) != 1:
-            raise ValueError(f"Der skal være præcis én match for ny placering '{ny_placering}', fundet: {len(valgt)}")
-        
-        skema["pathwayAssociation"]["placement"] = valgt[0]["patientPathwayPlacement"]
+            if len(valgt) != 1:
+                raise ValueError(f"Der skal være præcis én match for ny placering '{ny_placering}', fundet: {len(valgt)}")
+
+            skema["pathwayAssociation"]["placement"] = valgt[0]["patientPathwayPlacement"]
 
         svar = self.client.put(
             skema["_links"]["updatePlacement"]["href"],
