@@ -234,3 +234,221 @@ class BrugereClient:
         response = self.client.put(opdateret_konfiguration["_links"]["update"]["href"], opdateret_konfiguration)
         
         return response.json()
+
+    def opret_bruger_fra_sts(
+        self,
+        initialer: str,
+        organisation: str,
+        signatur: str = "Standard",
+        upn_domæne: str = "odense.dk",
+    ) -> dict:
+        """Opretter en bruger i Nexus ud fra en medarbejder i STS.
+
+        Args:
+            initialer: Initialer på medarbejderen der skal oprettes.
+            organisation: Tekstbeskrivelse af organisation (medarbejderen tilknyttes ikke en organisation).
+            signatur: Navnet på den autosignatur brugeren skal have.
+            upn_domæne: Domæne til brugerens UPN og identityId.
+
+        Returns:
+            Den oprettede bruger som dict.
+
+        Raises:
+            ValueError: Hvis medarbejderen ikke findes i STS, eller signaturen ikke findes.
+            HTTPStatusError: Ved øvrige HTTP-fejl.
+        """
+        try:
+            respons = self.client.get(
+                f"{self.client.api['importProfessionalFromSts']}?query={quote(initialer)}"
+            )
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                raise ValueError(f"{initialer} kunne ikke findes") from e
+            raise
+
+        prototype = respons.json()
+
+        signaturer = self.client.get(
+            prototype["_links"]["availableProfessionalAutosignatures"]["href"]
+        ).json()
+        autosignatur = next((s for s in signaturer if s["name"] == signatur), None)
+
+        if autosignatur is None:
+            raise ValueError(f"{signatur} kunne ikke findes")
+
+        prototype["initials"] = initialer
+        prototype["primaryIdentifier"] = initialer
+        prototype["activeDirectoryConfiguration"]["upn"] = f"{initialer}@{upn_domæne}"
+        prototype["identityId"] = f"{initialer}@{upn_domæne}"
+        # NB: "organizaionName" er bevidst stavet sådan - det er Nexus' eget feltnavn
+        prototype["organizaionName"] = organisation
+        prototype["departmentName"] = organisation
+        prototype["autoSignature"] = autosignatur["id"]
+
+        respons = self.client.post(prototype["_links"]["create"]["href"], prototype)
+
+        return respons.json()
+
+    def opdater_bruger_fra_sts(self, bruger: dict) -> bool:
+        """Beder Nexus opdatere en brugers oplysninger fra STS, baseret på brugerens CPR-nummer.
+
+        Args:
+            bruger: Bruger-dict eller medarbejder som returneret af `hent_bruger` eller 'hent_medarbejder'.
+
+        Returns:
+            True hvis opdateringen lykkedes, False hvis brugeren ikke har et gyldigt CPR-nummer.
+        """
+        konfiguration = self.hent_bruger_konfiguration(bruger)
+
+        try:
+            cpr = sanitize_cpr(konfiguration.get("cpr") or "")
+        except ValueError:
+            return False
+
+        response = self.client.put(
+            self.client.api["stsLinkUpdates"], {"type": "cpr", "identifier": cpr}
+        )
+
+        return response.status_code == 200
+
+    def opdater_profil(
+        self,
+        bruger: dict,
+        stilling: Optional[str] = None,
+        primær_organisation: Optional[str] = None,
+        standard_leverandør: Optional[str] = None,
+        medcom_lokationsnummer: Optional[int] = None,
+        aktiv: Optional[bool] = None,
+        autorisationskode: Optional[str] = None,
+    ) -> bool:
+        """Opdaterer en brugers konfiguration. Kun parametre der er angivet (ikke None) ændres.
+
+        Args:
+            bruger: Bruger-dict eller medarbejder som returneret af `hent_bruger` eller 'hent_medarbejder'.
+            stilling: Navn på stilling.
+            primær_organisation: Navn på brugerens primære organisation.
+            standard_leverandør: Navn på standardleverandør på arbejdstider.
+            medcom_lokationsnummer: Id på standard MedCom-afsender. 0 fjerner afsenderen.
+            aktiv: Om brugeren er aktiv.
+            autorisationskode: Brugerens autorisationskode.
+
+        Returns:
+            True hvis konfigurationen blev opdateret.
+
+        Raises:
+            ValueError: Hvis en angiven stilling, organisation eller leverandør ikke findes.
+        """
+        konfiguration = self.hent_bruger_konfiguration(bruger)
+        links = konfiguration["_links"]
+
+        def find(link: str, navn: str) -> dict:
+            muligheder = self.client.get(links[link]["href"]).json()
+            fundet = next((m for m in muligheder if m["name"] == navn), None)
+            if fundet is None:
+                raise ValueError(f"'{navn}' kunne ikke findes")
+            return fundet
+
+        if stilling is not None:
+            konfiguration["professionalJob"] = find("availableProfessionalJobs", stilling)
+
+        if primær_organisation is not None:
+            konfiguration["primaryOrganization"] = find("organizations", primær_organisation)
+
+        if standard_leverandør is not None:
+            konfiguration["defaultOrganizationSupplier"] = find(
+                "availableOrganizationSuppliers", standard_leverandør
+            )
+
+        if medcom_lokationsnummer is not None:
+            if medcom_lokationsnummer != 0:
+                konfiguration["defaultMedcomSenderOrganizationId"] = medcom_lokationsnummer
+                konfiguration["replyToDefaultMedcomSenderOrganization"] = True
+            else:
+                konfiguration["defaultMedcomSenderOrganizationId"] = None
+                konfiguration["replyToDefaultMedcomSenderOrganization"] = False
+
+        if autorisationskode is not None:
+            if konfiguration.get("authorizationCodeConfiguration") is None:
+                konfiguration["authorizationCodeConfiguration"] = {}
+            konfiguration["authorizationCodeConfiguration"]["authorizationCode"] = autorisationskode
+
+        if aktiv is not None:
+            konfiguration["active"] = aktiv
+
+        response = self.client.put(links["update"]["href"], konfiguration)
+
+        return response.status_code == 200
+
+    def opdater_national_rolle(self, bruger: dict, national_rolle: str) -> bool:
+        """Sætter en brugers nationale rolle.
+
+        Args:
+            bruger: Bruger-dict eller medarbejder som returneret af `hent_bruger` eller 'hent_medarbejder'.
+            national_rolle: "SUND_ASSIST_R1" eller "SUND_ASSIST_R2".
+
+        Returns:
+            True hvis rollen blev sat.
+
+        Raises:
+            ValueError: Hvis rollen er ugyldig.
+        """
+        if national_rolle not in ("SUND_ASSIST_R1", "SUND_ASSIST_R2"):
+            raise ValueError("Ugyldig rolle")
+
+        konfiguration = self.hent_bruger_konfiguration(bruger)
+        konfiguration["nationalRoleConfiguration"] = {
+            "nationalRole": national_rolle,
+            "_links": {},
+        }
+
+        response = self.client.put(konfiguration["_links"]["update"]["href"], konfiguration)
+
+        return response.status_code == 200
+
+    def opdater_outlook_synkronisering(self, bruger: dict, send_til_exchange: bool) -> bool:
+        """Slår overførsel af kalenderbegivenheder til Exchange/Outlook til eller fra.
+
+        Args:
+            bruger: Bruger-dict eller medarbejder som returneret af `hent_bruger` eller 'hent_medarbejder'.
+            send_til_exchange: Om kalenderbegivenheder skal overføres til Exchange/Outlook.
+
+        Returns:
+            True hvis konfigurationen blev opdateret.
+        """
+        konfiguration = self.hent_bruger_konfiguration(bruger)
+        konfiguration["exchangeConfiguration"]["sendToExchange"] = send_til_exchange
+
+        response = self.client.put(konfiguration["_links"]["update"]["href"], konfiguration)
+
+        return response.status_code == 200
+
+    def opdater_brugerprofil(
+        self,
+        bruger: dict,
+        organisation: Optional[str] = None,
+        autosignatur_id: Optional[int] = None,
+    ) -> bool:
+        """Opdaterer en brugers organisationstekst og/eller autosignatur.
+
+        Args:
+            bruger: Bruger-dict som returneret af `hent_bruger`.
+            organisation: Ny tekstbeskrivelse af organisation. Tom/None lader den være uændret.
+            autosignatur_id: Id på ny autosignatur. None eller 0 lader den være uændret.
+
+        Returns:
+            True hvis brugeren blev opdateret.
+        """
+        if "update" not in bruger["_links"]:
+            bruger = self.client.get(bruger["_links"]["self"]["href"]).json()
+        else:
+            bruger = dict(bruger)
+
+        if autosignatur_id:
+            bruger["autosignatureId"] = autosignatur_id
+
+        if organisation:
+            bruger["organizationName"] = organisation
+
+        response = self.client.put(bruger["_links"]["update"]["href"], bruger)
+
+        return response.status_code == 200
